@@ -38,6 +38,7 @@
 {*                       ber„knar splitstorlek ”ver hela texten, /S,    *}
 {*                       PlaceHolder                                    *}
 {*  v1.2  - 1997-11-22 - (se changelog)                                 *}
+{*  v1.21 - 1999-  -   - (se changelog)                                 *}
 {************************************************************************}
 Program Announcer;
 
@@ -384,7 +385,7 @@ begin
         TmpStr := FormattedDate(Global.Idag, 'DD NNN YY HH:II:SS');
         {$ENDIF}
         Move(TmpStr[1], SplitKludge[9], 18);
-        TmpStr := Long2Str(This.Orig.Net) + '/' + Long2Str(This.Orig.Net);
+        TmpStr := Long2Str(This.Orig.Net) + '/' + Long2Str(This.Orig.Node);
         Move(TmpStr[1], SplitKludge[29], Length(TmpStr));
         Str(Global.MsgWritten, TmpStr);
         Move(TmpStr[1], SplitKludge[41], Length(TmpStr));

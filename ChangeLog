@@ -162,3 +162,6 @@ v1.2.a15 -> v1.2.a16
 -----971122
 +++ dokumenterat +++
 sl„ppt som v1.2
+-----990411
+v1.2 -> v1.21.a1
+* announce.pas buggfix SPLIT-kludge (visade fel adress)

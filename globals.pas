@@ -23,9 +23,9 @@ Uses Os2Dt;
 
 Const
 {$IFDEF MSDOS}
-  Version  = 'v1.2';
+  Version  = 'v1.21.a1';
   VerMaj   = 1;
-  VerMin   = 20;
+  VerMin   = 21;
 {$ELSE}{$IFDEF OS2}
   Version  = 'OS/2 Beta';
   VerMaj   = 1;
