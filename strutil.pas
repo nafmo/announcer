@@ -5,10 +5,24 @@
 {************************************************************************}
 {* Funktion:    Inneh†ller str„nghanteringsrutiner f”r Announcer        *}
 {************************************************************************}
-{* Rutiner:                                                             *}
+{* Rutiner:     Convert                                                 *}
+{*              LogTime                                                 *}
+{*              LongWord                                                *}
+{*              ParseINI                                                *}
+{*              ReadRandomLine                                          *}
+{*              RemoveJunk                                              *}
+{*              RmUnderline                                             *}
+{*              StdoutOn                                                *}
+{*              ASCIZ                                                   *}
+{*              InSameDir                                               *}
 {************************************************************************}
 {* Revision:                                                            *}
 {*  v1.10 - 1996-07-20 - F”rsta versionen                               *}
+{*  v1.2  - 1997-04-05 - StdoutOn, ParseINI, YesNo tillagda             *}
+{*        - 1997-07-18 - Buggfix i ParseINI                             *}
+{*        - 1997-07-21 - ASCIZ                                          *}
+{*        - 1997-08-09 - Buggfix i ParseINI (enteckensdata)             *}
+{*        - 1997-08-10 - InSameDir                                      *}
 {************************************************************************}
 
 Unit StrUtil;
@@ -16,14 +30,21 @@ Unit StrUtil;
 Interface
 
 Type
-  CharsetType = (Pc8, Sv7, Iso, Ascii, FromIso, FromSjuBit);
+  CharsetType = (Pc8, Sv7, Iso, Ascii, FromIso, FromSjuBit, FromASCII,
+                 IsSjuBit, IsIso);
+  CharPointer = ^Char;
 
-Function LogTime: String;
-Function LongWord(dwrd: LongInt): String;
-Function ReadRandomLine(filename: String): String;
-Procedure RemoveJunk(Var s: String);
-Function RmUnderline(instring: String): String;
-Function Convert(str: String; charset: CharsetType): String;
+Function   ASCIZ          (ch_p: CharPointer): String;
+Function   Convert        (str: String; charset: CharsetType): String;
+Function   InSameDir      (FullPath, FileName: String): String;
+Function   LogTime        : String;
+Function   LongWord       (dwrd: LongInt): String;
+Function   ParseINI       (Indata: String; Var Keyword: String; Var Data: String): Boolean;
+Function   ReadRandomLine (filename: String): String;
+Procedure  RemoveJunk     (Var s: String);
+Function   RmUnderline    (instring: String): String;
+Procedure  StdoutOn       (TurnOn: Boolean);
+Function   YesNo          (s: String): Boolean;
 
 Implementation
 
@@ -119,7 +140,9 @@ End;
 {* Definition:  Function LongWord(dwrd: LongInt): String; Assembler;    *}
 {************************************************************************}
 
-Function LongWord(dwrd: LongInt): String; Assembler;
+Function LongWord(dwrd: LongInt): String;
+{$IFDEF MSDOS}
+Assembler;
 asm
  push ds
  push cs
@@ -177,6 +200,20 @@ asm
  db '0123456789abcdef'
 @yt:
 end;
+{$ELSE}
+Const
+  HexChars: Array[0..15] of char = '0123456789abcdef';
+Var
+  S: String[8];
+  i: Byte;
+Begin
+  S[0] := #8;
+  For i := 8 downto 1 do begin
+    S[i] := HexChars[dwrd mod 16];
+    dwrd := dwrd div 16;
+  end;
+End;
+{$ENDIF}
 
 {************************************************************************}
 {* Rutin:       ReadRandomLine                                          *}
@@ -291,10 +328,10 @@ Function Convert(str: String; charset: CharsetType): String;
 Var
   i: Byte;
 Begin
-  If charset = Sv7 then begin
+  If charset in [Sv7, IsSjuBit] then begin
     For i := 1 to Length(str) do
       str[i] := Sjubit[str[i]];
-  end else if charset = Iso then begin
+  end else if charset in [Iso, IsIso] then begin
     For i := 1 to Length(str) do
       If str[i] >= #128 then str[i] := IsoTab[str[i]];
   end else if charset = Ascii then begin
@@ -305,10 +342,113 @@ Begin
       If str[i] >= #128 then str[i] := FromIsoTab[str[i]];
   end else if charset = FromSjuBit then begin
     For i := 1 to Length(str) do
-      If str[i] <= #127 then str[i] := FromSjuBitTab[str[i]]
-                        else str[i] := ' ';
+      If (str[i] < #128) or (str[i] > #160) then
+        str[i] := FromSjuBitTab[char(byte(str[i]) and 127)] { ASCII med paritet }
+      else
+        str[i] := ' ';
+  end else if charset = FromASCII then begin
+    For i := 1 to Length(str) do
+      if (str[i] >= #128) and (str[i] < #160) then
+        str[i] := ' '
+      else
+        str[i] := char(byte(str[i]) and 127); { ASCII med paritet }
   end;
   Convert := str;
 End;
+
+{************************************************************************}
+{* Rutin:       StdoutOn                                                *}
+{************************************************************************}
+{* Inneh†ll:    Sl†r p† eller av utdata till sk„rmen/stdout             *}
+{* Definition:  Procedure StdoutOn(TurnOn: Boolean);                    *}
+{************************************************************************}
+
+Procedure StdoutOn(TurnOn: Boolean);
+Begin
+  If TurnOn then
+    Assign(Output, '')
+  else
+    Assign(Output, 'NUL');
+  Rewrite(Output);
+End;
+
+{************************************************************************}
+{* Rutin:       ParseINI                                                *}
+{************************************************************************}
+{* Inneh†ll:    Delar upp en rad i INI-filen                            *}
+{* Definition:  Function ParseINI(Indata: String; Var Keyword: String;  *}
+{*              Var Data: String): Boolean;                             *}
+{************************************************************************}
+
+Function ParseINI(Indata: String; Var Keyword: String; Var Data: String):
+         Boolean;
+Var
+  Position:     Byte;
+Begin
+  Position := Pos(' ', Indata);
+  If Position <> 0 then begin
+    Keyword := UpStr(Copy(Indata, 1, Position - 1));
+    While (Position <= Length(Indata)) and (Indata[Position] = ' ') do
+      Inc(Position);
+    If Position <= Length(Indata) then begin
+      Data := Copy(Indata, Position, Length(Indata) - Position + 1);
+      If (Data[1] = '"') and (Data[Byte(Data[0])] = '"') then
+        Data := Copy(Data, 2, Length(Data) - 2);
+      {$IFDEF MY} Writeln(Keyword, ':', Data); {$ENDIF}
+      ParseINI := True;
+    end else
+      ParseINI := False;
+  end else
+    ParseINI := False;
+End;
+
+{************************************************************************}
+{* Rutin:       YesNo                                                   *}
+{************************************************************************}
+{* Inneh†ll:    Avg”r om en str„ng „r yes eller no                      *}
+{* Definition:  Function YesNo(s: String): Boolean;                     *}
+{************************************************************************}
+
+Function YesNo(s: String): Boolean;
+Begin
+  If Length(s) > 0 then
+    YesNo := UpCase(s[1]) = 'Y'
+  else
+    YesNo := False;
+End;
+
+{************************************************************************}
+{* Rutin:       ASCIZ                                                   *}
+{************************************************************************}
+{* Inneh†ll:    Konverterar en nullterminerad str„ng till Pascalstr„ng  *}
+{* Definition:  Function ASCIZ(ch_p: CharPointer): String;              *}
+{************************************************************************}
+Function ASCIZ(ch_p: CharPointer): String;
+Var
+  s: String;
+Begin
+  s := '';
+  While ch_p^ <> #0 do begin
+    s := s + ch_p^;
+    Inc(ch_p);
+  end;
+  ASCIZ := s;
+End;
+
+{************************************************************************}
+{* Rutin:       InSameDir                                               *}
+{************************************************************************}
+{* Inneh†ll:    Ger ett filnamn i samma katalog som det f”rsta namnet   *}
+{* Definition:  Function InSameDir(FullPath, FileName: String): String; *}
+{************************************************************************}
+Function InSameDir(FullPath, FileName: String): String;
+Var
+  i: Byte;
+Begin
+  i := Length(FullPath);
+  While (i > 0) and (FullPath[i] <> '\') do
+    Dec(i);
+ InSameDir := Copy(FullPath, 1, i) + FileName;
+end;
 
 End.

@@ -2,10 +2,10 @@
 {* Program:     Announcer Generate                                      *}
 {************************************************************************}
 {* F”rfattare:  Peter Karlsson                                          *}
-{* Datum:       94-07-03                                                *}
-{* Version:     1.0p                                                    *}
+{* Datum:       97-08-08                                                *}
+{* Version:     2.0                                                     *}
 {************************************************************************}
-{* Moduler:     crypt.pas       1p                                      *}
+{* Moduler:     crypt.pas                                               *}
 {************************************************************************}
 {************************************************************************}
 {* Modul:       generate.pas                                            *}
@@ -15,6 +15,11 @@
 {* Funktion:    Visar registeringskod f”r Announcer                     *}
 {************************************************************************}
 {* Rutiner:     -                                                       *}
+{************************************************************************}
+{* Revision:                                                            *}
+{*  v1.0p - 1994-07-03 -                                                *}
+{*  v1.01 - 1997-07-24 - Visar SET-kommandot med nollor...              *}
+{*  v2.0  - 1997-08-08 - Nytt registeringsformat                        *}
 {************************************************************************}
 
 Program Generate;
@@ -29,13 +34,24 @@ Uses Crypt;
 {************************************************************************}
 
 var
-  namn: string;
+  namn, code: string;
+  serial: longint;
+  T: Text;
 begin
-  Write  ('Ange registreringsnamn:   ');
+  Write  ('Ange registreringsnamn:');
   Readln(namn);
+  Write  ('Ange serienummer:      ');
+  Readln(serial);
   Writeln;
-  Writeln('Registreringskod:         ',RegiCode(namn));
-  Writeln;
-  Writeln('Anv„nd:     SET ANNOUNCER=',RegiCode(namn):5,namn);
-  Writeln('                          ^^^^^-- fyll med inledande nollor');
+  Code := '';
+  RegiCode(namn, serial, code);
+  Writeln('Registreringskod:');
+  Writeln(code);
+  Assign(T, 'G:\ANNOUNCE.KEY');
+  Rewrite(T);
+  Writeln(T, namn);
+  Writeln(T, serial);
+  Writeln(T, code);
+  Close(T);
+  Writeln(CheckRegistration('G:\ANNOUNCE.KEY'));
 end.

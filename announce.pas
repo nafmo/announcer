@@ -3,7 +3,7 @@
 {************************************************************************}
 {* F”rfattare:  Peter Karlsson                                          *}
 {* Datum:       (se nedan)                                              *}
-{* Version:     1.11                                                    *}
+{* Version:     1.2                                                     *}
 {************************************************************************}
 {* Moduler:                                                             *}
 {************************************************************************}
@@ -14,7 +14,11 @@
 {************************************************************************}
 {* Funktion:    Postar filer i lokala brevareor                         *}
 {************************************************************************}
-{* Rutiner:                                                             *}
+{* Rutiner:     Leave                                                   *}
+{*              DoMessage                                               *}
+{*                DoHeader                                              *}
+{*                DoFooter                                              *}
+{*              Initialize                                              *}
 {************************************************************************}
 {* Revision:                                                            *}
 {*  v0.10 - 1995-03-08 - F”rsta versionen                               *}
@@ -33,6 +37,7 @@
 {*  v1.11 - 1997-03-05 - St”d f”r paket enligt FSC-0048, fast breddsteg,*}
 {*                       ber„knar splitstorlek ”ver hela texten, /S,    *}
 {*                       PlaceHolder                                    *}
+{*  v1.2  - 1997-11-22 - (se changelog)                                 *}
 {************************************************************************}
 Program Announcer;
 
@@ -40,67 +45,29 @@ Program Announcer;
 {$D-,G+,X+}
 
 Uses Dos, MKFile, MKString, MKMsgAbs, MKOpen, MKGlobT, MKDos, MKMisc, NLS,
-     Crypt, AnHelp, AnStr, ChekDate, PktHead, StrUtil, CmdLine;
+     Crypt, AnHelp, AnStr, ChekDate, PktHead, StrUtil, CmdLine, Info,
+     StdErrU, LogFileU, Globals, Pkt, MsgIdU, Title, Config
+     {$IFDEF MSDOS}, Zerberus{$ENDIF}
+     {$IFDEF OS2}, OS2DT{$ENDIF}
+     ;
 
 Const
-  Version  = 'v1.11';
-  VerMaj   = 1;
-  VerMin   = 11;
   {*$*DEFINE BETA}
   {*$*DEFINE GAMMA}
-  LogName  = ' ANNO ';
+  LogName  = 'ANNO';
   BragLine: string = 'Announcer ' + Version;
 
-  fmReadOnly  = $00;
-  fmWriteOnly = $01;
-  fmReadWrite = $02;
-
-  fmDenyAll   = $10;
-  fmDenyWrite = $20;
-  fmDenyRead  = $30;
-  fmDenyNone  = $40;
-
-Var
-  Registration, EchoTossLogFile:                                String;
-  BragLineIntro, TagLineIntro:                                  String[3];
-  LogFile, StdErr:                                              Text;
-  LogToFile, ReplyKludge, PktMode, ForcePID, Fsc0048:           Boolean;
-  MsgIdString:                                                  String[32];
-  MsgIdNum:                                                     LongInt;
-  MsgWritten, Ctr:                                              Word;
-  Idag:                                                         DateTime;
-  ExitSave:                                                     Pointer;
+  {$IFDEF MSDOS}
+  Virustest: ChkTwoLong = (0,0);
+  {$ENDIF}
 
 Type
-  MsgType = (Local, NetMail, EchoMail);
-  CurrPartType = (Header, MainText, Footer, Finished);
-  DataFileRec = Record
-                  LastWritten: DateTime;
-                  MsgIdString: String[32];
-                  MsgIdNum: LongInt;
-                end;
-  FileOfDataFileRec = File Of DataFileRec;
-  MsgHeader = record
-                FromName,
-                ToName:    Array[0..35] of char;
-                Subject:   Array[0..71] of char;
-                DateTime:  Array[0..19] of char;
-                TimesRead,
-                DestNode,
-                OrigNode,
-                Cost,
-                OrigNet,
-                DestNet,
-                DestZone,
-                OrigZone,
-                DestPoint,
-                OrigPoint,
-                ReplyTo,
-                Attribute,
-                NextReply: Word;
-              end;
-  Buffer = array[0..1023] of char;
-  Attributes = Set of (CrashMail, KillSent, FAttach, FileReq, Private, Hold);
+  MsgIdTypeType =       (Standard, IDServer);
+
+Var
+  ExitSave:             Pointer;
+  MsgId_p:              MsgidAbsPointer;
+  MsgIdType:            MsgIdTypeType;
 
 {************************************************************************}
 {* Rutin:       Leave                                                   *}
@@ -115,21 +82,21 @@ Var
   RunTime: String[9];
 Begin
   ExitProc := ExitSave;
+  {$IFDEF MSDOS}
   If ErrorAddr <> nil then begin
     RunTime := HexLong(Seg(ErrorAddr^) * $10000 + Ofs(ErrorAddr^));
     RunTime := Copy(RunTime, 1, 4) + ':' + Copy(RunTime, 5, 4);
     Writeln(StrLogRun, ExitCode, StrLogRn2, RunTime);
+    If LogInitialized and Log^.isOpen then
+      Log^.LogLine('!')^.LogStr(StrLogRun)^.LogInt(ExitCode)^.LogStr(StrLogRn2)^.
+           LogStr(RunTime)^.LogLn;
   end;
-  If LogToFile then begin
-    If ErrorAddr <> nil then
-      Writeln(LogFile, '! ', LogTime, LogName, StrLogRun, ExitCode, StrLogRn2,
-              RunTime);
-    Writeln(LogFile, '+ ', LogTime, LogName, StrLogEnd, BragLine, ' (',
-            MsgWritten, StrLogEn2);
-    Close(LogFile);
-    LogToFile := False;
-  end;
+  {$ENDIF}
+  If LogInitialized then
+    Dispose(Log, Done);
+  {$IFDEF MSDOS}
   ErrorAddr := nil;
+  {$ENDIF}
 End;
 {$F-}
 
@@ -137,20 +104,14 @@ End;
 {* Rutin:       DoMessage                                               *}
 {************************************************************************}
 {* Inneh†ll:    Framst„ller ett meddelande enligt angivna parametrar    *}
-{* Definition:  Function DoMessage(mFrom, mTo, Subj, FName, MsgBas:     *}
-{*              String; TagLine, Origin: String; AreaType: MsgType; Orig,}
-{*              Dest: AddrType; EchoTag: String; Var CurrentRec:        *}
-{*              DataFileRec; HeaderFile, FooterFile: String; Parts: Byte;}
-{*              Size: LongInt; Charset: CharsetType; CreateFile: String;*}
-{*              MsgAttr: Attributes; FixedWidth: Boolean): Boolean;     *}
+{* Definition:  Function DoMessage(var Global: GlobalDataType;          *}
+{*              var This: MessageConfigType;                            *}
+{*              Pkt: PacketConfigType): Boolean;                        *}
 {************************************************************************}
 
-Function DoMessage(mFrom, mTo, Subj, FName, MsgBas: String; TagLine, Origin:
-                   String; AreaType: MsgType; Orig, Dest: AddrType; EchoTag:
-                   String; Var CurrentRec: DataFileRec; HeaderFile,
-                   FooterFile: String; Parts: Byte; Size: LongInt; Charset:
-                   CharsetType; CreateFile: String; MsgAttr: Attributes;
-                   FixedWidth: Boolean): Boolean;
+Function DoMessage(var Global: GlobalDataType;
+                   var This: MessageConfigType;
+                   Pkt: PacketConfigType): Boolean;
 Var
   TF, Head, Foot, Current, ListNames:                   TFile;
   CurrentIndicator:                                     CurrPartType;
@@ -163,7 +124,7 @@ Var
   WriteEchoToss, MoreNames, MailingList, DoneOne,
   DidPost:                                              Boolean;
   MsgNum, TextSize, NextSplit, ReplyNum,
-  AccumulatedSize:                                      LongInt;
+  AccumulatedSize, CurrMsgIdNum:                        LongInt;
   TempAddr:                                             AddrType;
 
  {************************************************************************}
@@ -171,89 +132,93 @@ Var
  {************************************************************************}
  Procedure DoHeader(Subj: String);
  begin
-   Case AreaType of
+   Case This.AreaType of
      Local: begin
        Msg^.SetMailType(mmtNormal);  { M”testyp }
        Msg^.StartNewMsg;
        Msg^.SetEcho(False);          { Ska ej ekas }
-       Msg^.SetPriv(Private in MsgAttr);
+       Msg^.SetPriv(Private in This.MsgAttr);
      end;
      NetMail: begin
        Msg^.SetMailType(mmtNetmail);
        Msg^.StartNewMsg;
-       Msg^.SetOrig(Orig);           { Avs„ndaradress }
-       Msg^.SetDest(Dest);
+       Msg^.SetOrig(This.Orig);      { Avs„ndaradress }
+       Msg^.SetDest(This.Dest);
        Msg^.SetEcho(True);           { Ska ekas }
        Msg^.SetPriv(True);
        { FMPT och TOPT kr„vs ibland f”r att f† adresserna r„tt,
-         de skrivs automatiskt i MSG och Hudson. I JAM ignoreras de „nd† }
-       If (UpCase(MsgBas[1]) <> 'F') and (UpCase(MsgBas[1]) <> 'H') then
-       begin
-         If Orig.point <> 0 then
-           Msg^.DoKludgeLn(#1'FMPT ' + Long2Str(Orig.point));
-         If Dest.point <> 0 then
-           Msg^.DoKludgeLn(#1'TOPT ' + Long2Str(Dest.point));
+         de skrivs automatiskt i MSG och Hudson, och ignoreras i JAM. }
+       If Pos(This.MsgBas[1], 'FfHhJj') = 0 then begin
+         If This.Orig.point <> 0 then
+           Msg^.DoKludgeLn(#1'FMPT ' + Long2Str(This.Orig.point));
+         If This.Dest.point <> 0 then
+           Msg^.DoKludgeLn(#1'TOPT ' + Long2Str(This.Dest.point));
        end;
      end;
      EchoMail: begin
        Msg^.SetMailType(mmtEchomail);
        Msg^.StartNewMsg;
-       Msg^.SetOrig(Orig);
+       Msg^.SetOrig(This.Orig);
        Msg^.SetEcho(True);
        Msg^.SetPriv(False);
-       If PktMode then
-         Msg^.DoStringLn('AREA:' + EchoTag);
+       If Global.PktMode then
+         Msg^.DoStringLn('AREA:' + This.EchoTag);
      end;
    end; { Case }
 
    Msg^.SetRefer(0);
 
    { Meddelandeheader }
-   Msg^.SetFrom(mFrom);
-   Msg^.SetTo(mTo);
+   Msg^.SetFrom(This.mFrom);
+   Msg^.SetTo(This.mTo);
    Msg^.SetSubj(Subj);
    Msg^.SetDate(mkstring.DateStr(GetDosDate));
    Msg^.SetTime(mkstring.TimeStr(GetDosDate));
    Msg^.SetLocal(True);
 
    { Attribut }
-   If AreaType <> EchoMail then begin
-     Msg^.SetCrash(CrashMail in MsgAttr);
-     Msg^.SetKillSent(KillSent in MsgAttr);
-     Msg^.SetFAttach(FAttach in MsgAttr);
-     Msg^.SetFileReq(FileReq in MsgAttr);
-     If (UpCase(MsgBas[1]) <> 'H') or Not FixedWidth then
-       Msg^.SetHold(Hold in MsgAttr);
+   If This.AreaType <> EchoMail then begin
+     Msg^.SetCrash(CrashMail in This.MsgAttr);
+     Msg^.SetKillSent(KillSent in This.MsgAttr);
+     Msg^.SetFAttach(FAttach in This.MsgAttr);
+     Msg^.SetFileReq(FileReq in This.MsgAttr);
+     If (Pos(This.MsgBas[1], 'Hh') = 0) or Not This.FixedWidth then
+       Msg^.SetHold(Hold in This.MsgAttr);
    end;
 
-   { Undvik dubbla FLAGS-rader i Hudson (Hudson har inget HOLD-attribut) }
-   If (UpCase(MsgBas[1]) = 'H') and (Hold in MsgAttr) and FixedWidth then
-     Msg^.DoKludgeLn(#1'FLAGS NPD HLD')
-   else If FixedWidth then
-     Msg^.DoKludgeLn(#1'FLAGS NPD');
-
-   { Skapa MSGID, REPLY, SPLIT och NOTE-kludgar }
-   If EffectiveMsgIDString <> '' then
+   { Skapa MSGID, REPLY, SPLIT-kludgar }
+   If EffectiveMsgIDString <> '' then begin
      Msg^.DoKludgeLn(#1'MSGID: ' + EffectiveMsgIDString);
-   If ReplyIDString <> '' then
-     Msg^.DoKludgeLn(#1'REPLY: ' + ReplyIDString);
+     If ReplyIDString <> '' then
+       Msg^.DoKludgeLn(#1'REPLY: ' + ReplyIDString);
+   end;
    If SplitKludge <> '' then
      Msg^.DoKludgeLn(SplitKludge);
-   If ListName <> '' then
+
+   { Undvik dubbla FLAGS-rader i Hudson (Hudson har inget HOLD-attribut) }
+   If This.FixedWidth then begin
+     If (Pos(This.MsgBas[1], 'Hh') <> 0) and (Hold in This.MsgAttr) then
+       Msg^.DoKludgeLn(#1'FLAGS NPD HLD')
+     else
+       Msg^.DoKludgeLn(#1'FLAGS NPD');
+   end;
+
+   { NOTE }
+   If MailingList then
      Msg^.DoKludgeLn(#1'NOTE: Mailing list "' + ListName + '"');
-   If Registration = StrNotReg then
+   If Global.Registration = StrNotReg then
      Msg^.DoKludgeLn(#1'NOTE: Unregistered evaluation version');
 
    { CHRS-kludge }
-   Case Charset of
-     Pc8, FromIso, FromSjuBit:
-          Msg^.DoKludgeLn(#1'CHRS: IBMPC 2');
-     Sv7: Msg^.DoKludgeLn(#1'CHRS: SWEDISH 1');
-     Iso: Msg^.DoKludgeLn(#1'CHRS: LATIN-1 2');
+   Case This.Charset of
+     Pc8, FromIso, FromSjuBit:  Msg^.DoKludgeLn(#1'CHRS: IBMPC 2');
+     Sv7, IsSjuBit:             Msg^.DoKludgeLn(#1'CHRS: SWEDISH 1');
+     Iso, IsIso:                Msg^.DoKludgeLn(#1'CHRS: LATIN-1 2');
    end; { Case } { ASCII ger ingen kludge }
 
    { PID-kludge }
-   If ForcePID then
+   If Global.ForcePID or
+      (Not Global.NetMailTearline and (This.AreaType = Netmail)) then
      Msg^.DoKludgeLn(#1'PID: ' + BragLine);
 
    { Avsluta kludgar (Squish) }
@@ -267,65 +232,79 @@ Var
  Var
    TmpStr:                                       String;
  Begin
-   If Not ForcePID then
-     Msg^.DoStringLn(BragLineIntro + ' ' + BragLine);
+   If Not Global.ForcePID and
+      (Global.NetMailTearline or (This.AreaType <> Netmail)) then
+     Msg^.DoStringLn(Global.BragLineIntro + ' ' + BragLine);
 
-   If AreaType = EchoMail then begin
-     { Alltid tearline i echomail, f”rutom i PID-l„ge }
-     If Not ForcePID and (BragLineIntro <> '---') then
+   If This.AreaType = EchoMail then begin
+     { Alltid tearline i echomail, f”rutom i PID-l„ge eller Netmailtearline av }
+     If (Global.BragLineIntro <> '---') and
+        Not Global.ForcePID and
+        (Global.NetMailTearline or (This.AreaType <> Netmail)) then
        Msg^.DoStringLn('---');
      { Origin i echomail om ej i PID-l„ge, dock alltid i PKT }
-     If PktMode or Not ForcePID then begin
-       If Origin <> '' then begin
-         TmpStr := Origin + ' (' + AddrStr(Orig) + ')';
+     If Global.PktMode or Not Global.ForcePID then begin
+       If This.Origin <> '' then begin
+         TmpStr := This.Origin + ' (' + AddrStr(This.Orig) + ')';
          If Length(TmpStr) > 68 then
            TmpStr := Copy(TmpStr, Length(TmpStr) - 67, 68);
        end else
-         TmpStr := '(' + AddrStr(Orig) + ')';
+         TmpStr := '(' + AddrStr(This.Orig) + ')';
        Msg^.DoStringLn(' * Origin: ' + TmpStr);
      end;
 
-     If PktMode then begin { PATH & SEEN-BY }
-       If Orig.Point = 0 then
-         Msg^.DoStringLn('SEEN-BY: ' + Long2Str(Orig.Net) + '/' +
-                         Long2Str(Orig.Node));
-       Msg^.DoKludgeLn(#1'PATH: ' + Long2Str(Orig.Net) + '/' +
-                       Long2Str(Orig.Node));
+     If Global.PktMode then begin { PATH & SEEN-BY }
+       If This.Orig.Point = 0 then
+         Msg^.DoStringLn('SEEN-BY: ' + Long2Str(This.Orig.Net) + '/' +
+                         Long2Str(This.Orig.Node));
+       Msg^.DoStringLn('SEEN-BY: ' + Long2Str(Pkt.PktTo.Net) + '/' +
+                       Long2Str(Pkt.PktTo.Node));
+       Msg^.DoKludgeLn(#1'PATH: ' + Long2Str(This.Orig.Net) + '/' +
+                       Long2Str(This.Orig.Node));
      end;
    end;
 
-   If AreaType = NetMail then
-     Msg^.DoKludgeLn(#1'Via ' + AddrStr(Orig) +
-                     FormattedDate(idag, ' @YYYYMMDD.HHIISS ') + BragLine);
+   If This.AreaType = NetMail then
+     {$IFDEF OS2}
+     Msg^.DoKludgeLn(#1'Via ' + AddrStr(This.Orig) +
+                     FormattedDate(DosDateTime2OS2DateTime(Global.Idag),
+                     ' @YYYYMMDD.HHIISS ') + BragLine);
+     {$ELSE}
+     Msg^.DoKludgeLn(#1'Via ' + AddrStr(This.Orig) +
+                     FormattedDate(Global.Idag, ' @YYYYMMDD.HHIISS ') +
+                     BragLine);
+     {$ENDIF}
  end;
 {************************************************************************}
 begin
 
-  If (Charset <> Pc8) and Not (Charset in [FromISO, FromSjuBit]) then begin
-    mFrom := Convert(mFrom, Charset);
-    mTo := Convert(mTo, Charset);
-    Subj := Convert(Subj, Charset);
-    Origin := Convert(Origin, Charset);
-    TagLine := Convert(TagLine, Charset);
+  If Not (This.Charset in [FromISO, FromSjuBit, Pc8]) then
+  begin
+    This.mFrom :=   Convert(This.mFrom, This.Charset);
+    This.mTo :=     Convert(This.mTo, This.Charset);
+    This.Subj :=    Convert(This.Subj, This.Charset);
+    This.Origin :=  Convert(This.Origin, This.Charset);
+    This.TagLine := Convert(This.TagLine, This.Charset);
   end;
 
   DidPost := False;
 
   IDString := '';
-  If Parts = 0 then
-    Parts := 1;
+  If This.Parts = 0 then
+    This.Parts := 1;
 
   MoreNames := True;
   DoneOne := False;
 
-  MailingList := mTo[1] = '@';
+  MailingList := This.mTo[1] = '@';
 
   If MailingList then begin
     ListNames.Init;
-    ListName := copy(mTo, 2, length(mTo) - 1);
+    ListName := copy(This.mTo, 2, length(This.mTo) - 1);
     If not ListNames.OpenTextFile(ListName) then begin
       MailingList := False;
       ListNames.Done;
+      Log^.LogLine('!')^.LogStr(StrLogFil + ListName)^.LogLn;
     end; { if not opentextfile }
   end else
     ListName := '';
@@ -339,116 +318,148 @@ begin
           TmpStr := ListNames.GetString;
         end;
       end;
-      i := Pos(' ', TmpStr);
-      TmpStr2 := Copy(TmpStr, 1, i - 1);
-      ParseAddr(TmpStr2, TempAddr, Dest);
-      mTo := Copy(TmpStr, i + 1, 36);
+      ParseINI(TmpStr, TmpStr2, This.mTo);      { Dela i adress och namn    }
+      ParseAddr(TmpStr2, TempAddr, This.Dest);
     end; { If MailingList }
 
     TF.Init;                                    { Initiera textfilsobjekt   }
 
-    If HeaderFile <> '' then
+    If This.HeaderFile <> '' then
       Head.Init;                                { Initiera headerfilsobjekt }
 
-    If FooterFile <> '' then
+    If This.FooterFile <> '' then
       Foot.Init;                                { Initiera footerfilsbjekt  }
 
-    If TF.OpenTextFile(FName) then begin        { ™ppna textfilen           }
+    If TF.OpenTextFile(This.FName) then begin           { ™ppna textfilen   }
       TextSize := FileSize(TF.TF^.BufferFile);          { Storlek av texten }
 
       Current := TF;            { B”rja med texten }
       CurrentIndicator := MainText;
 
-      If HeaderFile <> '' then begin
-        If Head.OpenTextFile(HeaderFile) then begin
+      If This.HeaderFile <> '' then begin
+        If Head.OpenTextFile(This.HeaderFile) then begin
           Inc(TextSize, FileSize(Head.TF^.BufferFile)); { plus storlek av   }
           Current := Head;      { Nej, med huvudet }    { headerfilen       }
           CurrentIndicator := Header;
         end else begin
-          HeaderFile := '';     { Fanns inte }
+          This.HeaderFile := '';     { Fanns inte }
           Head.Done;
         end;
       end;
 
-      If FooterFile <> '' then begin
-        If Foot.OpenTextFile(FooterFile) then begin
+      If This.FooterFile <> '' then begin
+        If Foot.OpenTextFile(This.FooterFile) then begin
           Inc(TextSize, FileSize(Foot.TF^.BufferFile)); { plus storlek av   }
         end else begin                                  { footerfilen       }
-          FooterFile := '';     { Fanns inte }
+          This.FooterFile := '';     { Fanns inte }
           Foot.Done;
         end;
       end;
 
       AccumulatedSize := 0;
 
-      If Size <> 0 then                         { R„kna ut antalet delar     }
-        Parts := (TextSize div Size) + 1;
+      If This.Size <> 0 then                    { R„kna ut antalet delar     }
+        This.Parts := (TextSize div This.Size) + 1;
 
-      NextSplit := TextSize div Parts + 1;      { Var ska n„sta del b”rja?   }
+      NextSplit := TextSize div This.Parts + 1; { Var ska n„sta del b”rja?   }
 
-      If ((MsgBas[1] = 's') or (MsgBas[1] = 'S')) and (NextSplit > 32800) then begin
-        Parts := (TextSize div 33000) + 1;   { utvecklingspaketet klarar 33k }
-        NextSplit := TextSize div Parts + 1; { max i Squishdatabaser         }
+      If (Pos(This.MsgBas[1], 'Ss') <> 0) and (NextSplit > 32800) then
+      begin
+        This.Parts := (TextSize div 33000) + 1;{ utvecklingspaketet klarar 33k}
+        NextSplit := TextSize div This.Parts + 1; { max i Squishdatabaser     }
       end;
 
       If NextSplit < 160 then begin             { Minsta storlek = ca. 2 rader }
-        Parts := (TextSize div 160) + 1;
-        NextSplit := TextSize div Parts + 1;
+        This.Parts := (TextSize div 160) + 1;
+        NextSplit := TextSize div This.Parts + 1;
       end;
 
-      If Parts > 1 then begin                   { Initiera ev. SPLIT-kludge }
+      If This.Parts > 1 then begin              { Initiera ev. SPLIT-kludge }
         SplitKludge := #1'SPLIT:                    @                  01/   +++++++++++';
-        SplitKludge[50] := Char(48 + Parts div 10);
-        SplitKludge[51] := Char(48 + Parts mod 10);
-        TmpStr := LogTime;
-        TmpStr := Copy(TmpStr, 1, 7) + Char(48 + (Idag.Year div 10) mod 10) +
-                  Char(48 + Idag.Year mod 10) + Copy(TmpStr, 7, 9);
+        SplitKludge[50] := Char(48 + This.Parts div 10);
+        SplitKludge[51] := Char(48 + This.Parts mod 10);
+
+        {$IFDEF OS2}
+        TmpStr := FormattedDate(DosDateTime2OS2DateTime(Global.Idag),
+                                'DD NNN YY HH:II:SS');
+        {$ELSE}
+        TmpStr := FormattedDate(Global.Idag, 'DD NNN YY HH:II:SS');
+        {$ENDIF}
         Move(TmpStr[1], SplitKludge[9], 18);
-        Str(Orig.Net, TmpStr);
-        Str(Orig.Node, TmpStr2);
-        TmpStr := TmpStr + '/' + TmpStr2;
+        TmpStr := Long2Str(This.Orig.Net) + '/' + Long2Str(This.Orig.Net);
         Move(TmpStr[1], SplitKludge[29], Length(TmpStr));
-        Str(MsgWritten, TmpStr);
+        Str(Global.MsgWritten, TmpStr);
         Move(TmpStr[1], SplitKludge[41], Length(TmpStr));
       end else
         SplitKludge := '';
 
-      If OpenMsgArea(Msg, MsgBas) then begin
+      If This.AreaType = Local then
+        IDString := Global.MsgIdString
+      else
+        IDString := AddrStr(This.Orig);
 
-        If AreaType = Local then
-          IDString := MsgIdString
-        else
-          IDString := AddrStr(Orig);
+      If IDString <> '' then
+        CurrMsgIdNum := MsgId_p^.GetSerial(This.Parts)
+      else
+        CurrMsgIdNum := 0;
 
-        If IDString <> '' then
-          EffectiveMsgIDString := IDString + ' ' + LongWord(MsgIdNum)
-        else
+      If OpenMsgArea(Msg, This.MsgBas) then begin
+
+        If IDString <> '' then begin
+          EffectiveMsgIDString := IDString + ' ' + LongWord(CurrMsgIdNum)
+        end else begin
           EffectiveMsgIDString := '';
-
-        ReplyIDString := '';
-        ReplyString := CurrentRec.MsgIdString;
-        ReplyNum := CurrentRec.MsgIdNum;
-        If ReplyKludge and not MailingList and (ReplyString <> '') then
-          ReplyIDString := ReplyString + ' ' + LongWord(ReplyNum);
-
-        If not DoneOne then begin
-          CurrentRec.MsgIdString := IDString;
-          CurrentRec.MsgIdNum := MsgIdNum;
         end;
 
-        Inc(MsgIdNum);
-        DoHeader(Subj);
+        ReplyString := This.CurrentRec.MsgIdString;
+        ReplyNum := This.CurrentRec.MsgIdNum;
+        If Global.ReplyKludge and not MailingList and (ReplyString <> '') then
+          ReplyIDString := ReplyString + ' ' + LongWord(ReplyNum)
+        else
+          ReplyIDString := '';
+
+        If not DoneOne then begin
+          This.CurrentRec.MsgIdString := IDString;
+          This.CurrentRec.MsgIdNum := CurrMsgIdNum;
+        end;
+
+        If SplitKludge = '' then
+          DoHeader(This.Subj)
+        else
+          DoHeader(This.Subj + Copy(SplitKludge, 46, 6));
 
         { L„s in texten }
 
         While CurrentIndicator <> Finished do begin
           TmpStr := Current.GetString;
 
-          While Current.Stringfound do begin
-            If Current.GetTextPos + AccumulatedSize > NextSplit then begin
+          While Current.StringFound do begin
+            If ((Current.GetTextPos + AccumulatedSize) > NextSplit) and
+               Current.TF^.IsEol then begin
               { Dags att dela av }
-              Inc(NextSplit, TextSize div Parts + 1);
-              SplitKludge[48] := Char(Byte(SplitKludge[48]) + 1); { ™ka r„knaren }
+              DoFooter;
+
+              { Skriv det, logga om det inte lyckades }
+              if Msg^.WriteMsg <> 0 then begin
+                Writeln(StrErrSav, This.Subj, '"');
+                Log^.LogLine('!')^.LogStr(StrLogSav)^.LogInt(Global.Ctr)^.LogLn;
+              end else begin
+                MsgNum := Msg^.GetMsgNum;
+                Writeln(StrDidSav, MsgNum, StrDidSv2, This.MsgBas, StrDidSv3,
+                        Global.Ctr, ')');
+                Log^.LogLine(' ')^.LogStr(StrDidSAv)^.LogInt(MsgNum)^.
+                     LogStr(StrDidSv2);
+                If (This.AreaType = EchoMail) and (This.EchoTag <> '') then
+                  Log^.LogStr(This.EchoTag)
+                else
+                  Log^.LogStr(This.MsgBas);
+                Log^.LogStr(StrDidSv3)^.LogInt(Global.Ctr)^.LogStr(')')^.LogLn;
+              end;
+
+              { ™ka textdelsr„knare }
+              Inc(NextSplit, TextSize div This.Parts + 1);
+              { ™ka delr„knaren }
+              SplitKludge[48] := Char(Byte(SplitKludge[48]) + 1);
               If SplitKludge[48] = ':' then begin
                 SplitKludge[47] := Char(Byte(SplitKludge[47]) + 1);
                 SplitKludge[48] := '0';
@@ -456,54 +467,38 @@ begin
               If TmpStr = '' then
                 TmpStr := Current.GetString;
 
-              DoFooter;
-
-              { Skriv det, logga om det inte lyckades }
-              if Msg^.WriteMsg <> 0 then begin
-                Writeln(StrErrSav, Subj, '"');
-                If LogToFile then Writeln(LogFile, '! ', LogTime, LogName,
-                                          StrLogSav, Ctr);
-              end else begin
-                MsgNum := Msg^.GetMsgNum;
-                Writeln(StrDidSav, MsgNum, StrDidSv2, MsgBas, StrDidSv3, Ctr,
-                        ')');
-                If LogToFile then begin
-                  Write(LogFile, '  ', LogTime, LogName, StrDidSav, MsgNum,
-                        StrDidSv2);
-                  If (AreaType = EchoMail) and (EchoTag <> '') then
-                    Write(LogFile, EchoTag)
-                  else
-                    Write(LogFile, MsgBas);
-                  Writeln(LogFile, StrDidSv3, Ctr, ')');
-                end;
+              { P†b”rja n„sta meddelande }
+              If IDString <> '' then begin
+                Inc(CurrMsgIdNum); { Har allokerat This.Parts stycken }
+                EffectiveMsgIDString := IDString + ' ' +
+                                        LongWord(CurrMsgIdNum);
               end;
 
-              { P†b”rja n„sta meddelande }
-              If IDString <> '' then
-                EffectiveMsgIDString := IDString + ' ' + LongWord(MsgIDNum);
-              Inc(MsgIdNum);
-
-              DoHeader(Subj + Copy(SplitKludge, 46, 6));
+              DoHeader(This.Subj + Copy(SplitKludge, 46, 6));
             end; { If splithere }
 
             TmpStr2 := '';
             For i := 1 to Length(TmpStr) do
               If (TmpStr[i] >= #32) then
                 TmpStr2 := TmpStr2 + TmpStr[i];
-            If Charset <> Pc8 then
-              TmpStr2 := Convert(TmpStr2, Charset);
-            Msg^.DoStringLn(TmpStr2);
+            If Not (This.Charset in [FromISO, FromSjuBit, Pc8, IsIso, IsSjuBit]) then
+              TmpStr2 := Convert(TmpStr2, This.Charset);
+            If Current.TF^.IsEol then
+              Msg^.DoStringLn(TmpStr2)
+            else
+              Msg^.DoString(TmpStr2);
             TmpStr := Current.GetString;
           end; { While }
           Inc(AccumulatedSize, FileSize(Current.TF^.BufferFile));
 
-          If Current.CloseTextFile then;
+          Current.CloseTextFile;
 
           { Klar med denna textfil, ta nu ev. n„sta }
           If CurrentIndicator = Header then begin { om nu header, ta kropp }
             CurrentIndicator := MainText;
             Current := TF;
-          end else If (CurrentIndicator = MainText) and (FooterFile <> '') then begin
+          end else If (CurrentIndicator = MainText) and
+                      (This.FooterFile <> '') then begin
             CurrentIndicator := Footer; { om nu kropp, och finns fot, ta fot }
             Current := Foot;
           end else begin
@@ -513,57 +508,86 @@ begin
         end; { While }
 
         { Avsluta }
-        If TagLine <> '' then begin
+        If This.TagLine <> '' then begin
           If TmpStr2 <> '' then
             Msg^.DoStringLn(''); { Tomrad f”re tagline }
-          Msg^.DoStringLn(TagLineIntro + ' ' + TagLine);
+          Msg^.DoStringLn(Global.TagLineIntro + ' ' + This.TagLine);
         end;
 
         DoFooter;
 
         { Skriv det, logga om det inte lyckades }
         If Msg^.WriteMsg <> 0 then begin
-          Writeln(StrErrSav, Subj, '"');
-          If LogToFile then Writeln(LogFile, '! ', LogTime, LogName, StrLogSav,
-                                    Ctr);
+          Writeln(StrErrSav, This.Subj, '"');
+          Log^.LogLine('!')^.LogStr(StrLogSav)^.LogInt(Global.Ctr)^.LogLn;
         end else begin
-          Inc(MsgWritten);
+          Inc(Global.MsgWritten);
           DidPost := True;
           MsgNum := Msg^.GetMsgNum;
-          Writeln(StrDidSav, MsgNum, StrDidSv2, MsgBas, StrDidSv3, Ctr, ')');
-          If LogToFile then begin
-            Write(LogFile, '  ', LogTime, LogName, StrDidSav, MsgNum,
-                  StrDidSv2);
-            If (AreaType = EchoMail) and (EchoTag <> '') then
-              Write(LogFile, EchoTag)
-            else
-              Write(LogFile, MsgBas);
-            Writeln(LogFile, StrDidSv3, Ctr, ')');
-          end;
+          Writeln(StrDidSav, MsgNum, StrDidSv2, This.MsgBas, StrDidSv3,
+                  Global.Ctr, ')');
+          Log^.LogLine(' ')^.LogStr(StrDidSav)^.LogInt(MsgNum)^.
+               LogStr(StrDidSv2);
+          If (This.AreaType = EchoMail) and (This.EchoTag <> '') then
+            Log^.LogStr(This.EchoTag)
+          else
+            Log^.LogStr(This.MsgBas);
+          Log^.LogStr(StrDidSv3)^.LogInt(Global.Ctr)^.LogStr(')')^.LogLn;
 
-          { Skriv post i Echotoss.log-filen }
-          If (EchoTag <> '') and (EchoTossLogFile <> '') and
-             (PktMode = False) then begin
+          { Skriv post i Echotoss.log- eller Echomail.Jam/Netmail.Jam-fil }
+          If (Pos(This.MsgBas[1], 'Jj') <> 0) and (Global.JamTossLogPath <> '')
+             and (not Global.PktMode) and (This.AreaType <> Local)
+             then
+          begin
+            FileMode := fmReadWrite or fmDenyAll;
+            If This.AreaType = EchoMail then { Loggfilsnamn }
+              TmpStr := Global.JamTossLogPath + 'EchoMail.jam'
+            else
+              TmpStr := Global.JamTossLogPath + 'NetMail.Jam';
+            TmpStr2 := Copy(This.MsgBas, 2, Length(This.MsgBas) - 1) + ' ' +
+                       Long2Str(MsgNum); { V„rde som ska skrivas }
+            Assign(EchoToss, TmpStr);
+            {$I-}
+            Reset(EchoToss);
+            Append(EchoToss);
+            If IOResult <> 0 then begin
+              Rewrite(EchoToss);
+              If IOResult <> 0 then begin
+                Writeln(StdErr, StrErrTos, Global.EchoTossLogFile);
+                Log^.LogLine('!')^.LogStr(StrLogTos + Global.EchoTossLogFile)^.LogLn;
+              end else begin
+                Writeln(EchoToss, TmpStr2);
+                Close(EchoToss);
+              end; { If IOResult }
+            end else begin
+              Writeln(EchoToss, TmpStr2);
+              Close(EchoToss);
+            end; { If IOResult }
+
+            FileMode := fmReadOnly or fmDenyNone;
+            {$I+}
+
+          end else If (This.EchoTag <> '') and (Global.EchoTossLogFile <> '') and
+             (not Global.PktMode) and (This.AreaType = EchoMail) then begin
             WriteEchoToss := True;
             FileMode := fmReadWrite or fmDenyAll;
-            Assign(EchoToss, EchoTossLogFile);
+            Assign(EchoToss, Global.EchoTossLogFile);
             {$I-}
             Reset(EchoToss);
             If IOResult = 0 then begin
               While (not eof(EchoToss)) do begin
                 Readln(EchoToss, TmpStr);
-                If UpStr(TmpStr) = EchoTag then
+                If UpStr(TmpStr) = This.EchoTag then
                   WriteEchoToss := False;
               end; { While }
               Close(EchoToss);
             end else begin
               Rewrite(EchoToss);
               If IOResult <> 0 then begin
-                Writeln(StdErr, StrErrTos, EchoTossLogFile);
-                If LogToFile then Writeln(LogFile, '! ', LogTime, LogName,
-                                          StrLogTos, EchoTossLogFile);
+                Writeln(StdErr, StrErrTos, Global.EchoTossLogFile);
+                Log^.LogLine('!')^.LogStr(StrLogTos + Global.EchoTossLogFile)^.LogLn;
               end else begin
-                Writeln(EchoToss, EchoTag);
+                Writeln(EchoToss, This.EchoTag);
                 Close(EchoToss);
               end; { If IOResult }
               WriteEchoToss := False;
@@ -572,11 +596,11 @@ begin
             If WriteEchoToss = True then begin
               Append(EchoToss);
               If IOResult <> 0 then begin
-                Writeln(StdErr, StrErrTo2, EchoTossLogFile);
-                If LogToFile then Writeln(LogFile, '! ', LogTime, LogName,
-                                          StrLogTo2, EchoTossLogFile);
+                Writeln(StdErr, StrErrTo2, Global.EchoTossLogFile);
+                Log^.LogLine('!')^.LogStr(StrLogTo2 + Global.EchoTossLogFile)^.
+                     LogLn;
               end else begin
-                Writeln(EchoToss, EchoTag);
+                Writeln(EchoToss, This.EchoTag);
                 Close(EchoToss);
               end; { If IOResult }
             end; { If WriteEchoToss }
@@ -585,38 +609,34 @@ begin
             {$I+}
           end; { If ska skriva till echotosslog }
 
-          If CreateFile <> '' then begin { Skapa semaforfil }
-            Assign(EchoToss, CreateFile);
+          If This.CreateFile <> '' then begin { Skapa semaforfil }
+            Assign(EchoToss, This.CreateFile);
             {$I-}
             Rewrite(EchoToss);
             If IOResult <> 0 then begin
-              Writeln(StdErr, StrLogCrf, CreateFile);
-              If LogToFile then Writeln(LogFile, '! ', LogTime, LogName,
-                                        StrLogCrf, CreateFile);
+              Writeln(StdErr, StrLogCrf, This.CreateFile);
+              Log^.LogLine('!')^.LogStr(StrLogCrf + This.CreateFile)^.LogLn;
             end else begin
               Close(EchoToss);
-              Writeln(StdErr, StrLogCrs, CreateFile);
-              If LogToFile then Writeln(LogFile, '  ', LogTime, LogName,
-                                        StrLogCrs, CreateFile);
+              Writeln(StdErr, StrLogCrs, This.CreateFile);
+              Log^.LogLine(' ')^.LogStr(StrLogCrs + This.CreateFile)^.LogLn;
             end; { If IOResult }
           end; { If CreateFile }
         end; { If Msg^.WriteMsg }
-        If CloseMsgArea(Msg) then;
+        CloseMsgArea(Msg);
       end else begin
-        Writeln(StrErrBas, MsgBas);
-        If LogToFile then Writeln(LogFile, '! ', LogTime, LogName, StrLogBas,
-                                  MsgBas);
+        Writeln(StrErrBas, This.MsgBas);
+        Log^.LogLine('!')^.LogStr(StrLogBas + This.MsgBas)^.LogLn;
       end;
     end else begin
-      Writeln(StrErrFil, FName);
-      If LogToFile then Writeln(LogFile, '! ', LogTime, LogName, StrLogFil,
-                                FName);
+      Writeln(StrErrFil, This.FName);
+      Log^.LogLine('!')^.LogStr(StrLogFil + This.FName)^.LogLn;
     end; { If OpenTextFile }
 
     TF.Done;
-    If HeaderFile <> '' then
+    If This.HeaderFile <> '' then
       Head.Done;
-    If FooterFile <> '' then
+    If This.FooterFile <> '' then
       Foot.Done;
 
     If MailingList then begin
@@ -631,444 +651,12 @@ begin
   end; { While MoreNames }
 
   If MailingList then begin
-    If ListNames.CloseTextFile then;
+    ListNames.CloseTextFile;
     ListNames.Done;
   end;
 
   DoMessage := DidPost;
 end;
-
-{************************************************************************}
-{* Rutin:       DisplayInfo                                             *}
-{************************************************************************}
-{* Inneh†ll:    Visar information om postning                           *}
-{* Definition:  Procedure DisplayInfo(IniFile: String);                 *}
-{************************************************************************}
-
-Procedure DisplayInfo(IniFile: String; Maint: Boolean);
-Var
-  Ini:                                          Text;
-  DataFile, NewDataFile:                        File of DataFileRec;
-  CurrentRec:                                   DataFileRec;
-  Counter, DaysSince, Interval, OnDate, Temp:   Word;
-  MinSize, FDate:                               LongInt;
-  Rad, Data, SemaphorFile, MsgFile:             String;
-  Found, UpdatedSend, PlaceHolder:              Boolean;
-  TmpFile:                                      File;
-  FileDate:                                     DateTime;
-Begin
-  Assign(Ini, IniFile);
-  {$I-}
-  Reset(Ini);
-  If IOResult <> 0 then begin
-    { Kolla om filen finns med till„gget .INI }
-    Assign(Ini, IniFile + '.INI');
-    Reset(Ini);
-    If IOResult <> 0 then begin
-      Writeln(StdErr, StrErrOp1, IniFile, StrErrOp2);
-      Writeln(StdErr, IniFile, '.INI');
-      Halt(1);
-    end; { If IOResult }
-    IniFile := IniFile + '.INI';
-    Writeln(#254#32, IniFile);
-  end else { If IOResult }
-    Writeln(#254#32, IniFile);
-
-  { ™ppna datafilen }
-  Assign(DataFile, Copy(IniFile, 1, length(IniFile) - 4) + '.DAT');
-  Reset(DataFile);
-  If IOResult <> 0 then begin
-    Writeln(StdErr, StrErrDaf, Copy(IniFile, 1, length(IniFile) - 4) + '.DAT');
-    Halt(1);
-  end; { If IOResult }
-
-  { Namn„ndra datafilen om vi k”r i maintanence-l„ge, och ”ppna en ny }
-  If Maint = True then begin
-    Close(DataFile);
-    Rename(DataFile, Copy(IniFile, 1, length(IniFile) - 4) + '.OLD');
-    If IOResult <> 0 then begin
-      Writeln(StdErr, StrErrDar);
-      Halt(1);
-    end; { If IOResult }
-    Reset(DataFile);
-    FileMode := fmReadWrite or fmDenyWrite;
-    Assign(NewDataFile, Copy(IniFile, 1, length(IniFile) - 4) + '.DAT');
-    Rewrite(NewDataFile);
-    If IOResult <> 0 then begin
-      Writeln(StdErr, StrErrDat, Copy(IniFile, 1, length(IniFile) - 4), '.DAT');
-      Halt(1);
-    end; { If IOResult }
-    FileMode := fmReadOnly or fmDenyNone;
-  end; { If Maint }
-  {$I+}
-
-  Counter := 0;
-  While not eof(DataFile) do begin
-    Read(DataFile, CurrentRec);
-    Inc(Counter);
-    Found := False;
-    UpdatedSend := False;
-
-    If not eof(Ini) then begin
-      { Leta efter mallen }
-      Repeat
-        Readln(Ini, Rad);
-      Until (UpStr(Rad) = 'MSG') or (UpStr(Rad) = 'PLACEHOLDER') or Eof(Ini);
-
-      If not eof(Ini) then begin
-        If UpStr(Rad) <> 'PLACEHOLDER' then begin
-          Found := True;
-          PlaceHolder := False;
-          Interval := 0;
-          OnDate := 0;
-          SemaphorFile := '';
-          MinSize := -1;
-          Repeat
-            Readln(Ini, Rad);
-            Rad := UpStr(Rad);
-            If Copy(Rad, 1, 8) = 'INTERVAL' then begin
-              Data := Copy(Rad, 10, Length(Rad)-9);
-              If Data[1] = '@' then
-                Val(Copy(Data, 2, Length(Data)-1), OnDate, Temp)
-              else
-                Val(Data, Interval, Temp);
-            end else if Copy(Rad, 1, 7) = 'MINSIZE' then begin
-              Data := Copy(Rad, 9, Length(Rad)-8);
-              Val(Data, MinSize, Temp);
-            end else if Copy(Rad, 1, 9) = 'SEMAPHORE' then
-              SemaphorFile := Copy(Rad, 11, Length(Rad)-10)
-            else if Copy(Rad, 1, 4) = 'FILE' then
-              MsgFile := Copy(Rad, 6, Length(Rad)-5)
-            else if Rad = 'UPDATEDSEND YES' then
-              UpdatedSend := True;
-          Until Rad = '.END';
-        end else begin { Placeholder }
-          PlaceHolder := True;
-        end;
-      end; { If not eof }
-    end; { If not eof }
-
-    If CurrentRec.LastWritten.Day <> 0 then begin
-      Write(StrInfMsg, Counter, StrInfLst, NLS.DateStr(CurrentRec.LastWritten),
-            StrInfClk, NLS.TimeStr(CurrentRec.LastWritten), ' (');
-      DaysSince := check_date(FormattedDate(Idag, 'MM-DD-YY'),
-                              FormattedDate(CurrentRec.LastWritten, 'MM-DD-YY'));
-      Case DaysSince of
-      0: Writeln(StrInfTod);
-      1: Writeln(StrInfYst);
-      else
-        Writeln(DaysSince, StrInfAgo);
-      end; { Case }
-    end else begin
-      Writeln(StrInfNop);
-    end; { If Day <> 0 }
-
-    If CurrentRec.MsgIdString <> '' then
-      Writeln(StrInfLat, CurrentRec.MsgIdString, ' ',
-              LongWord(CurrentRec.MsgIdNum));
-
-    FDate := 0;
-
-    If Found then begin
-      { Kontrollera intervall }
-      If Interval <> 0 then begin
-        Write(StrInfInt, Interval, StrInfDag, StrInfDa2);
-        If DaysSince < Interval then
-          Writeln(StrInfLes)
-        else
-          Writeln(StrInfMor);
-      end; { If Interval }
-      { Kontrollera postningsdatum }
-      If OnDate <> 0 then begin
-        Write(StrInfDat, OnDate, StrInfDa2);
-        If OnDate <> Idag.Day then
-          Writeln(StrInfLes)
-        else
-          If DaysSince = 0 then
-            Writeln(StrNotIn5, '.')
-          else
-            Writeln(StrInfMor);
-      end; { If OnDate }
-      { Kontrollera semaforfil }
-      If SemaphorFile <> '' then begin
-        Write(StrInfSem);
-        If FileExist(SemaphorFile) then
-          Writeln(StrInfSye)
-        else
-          Writeln(StrInfSno);
-        {$I+}
-      end; { If SemaphorFile }
-      { Kontrollera minsta storlek }
-      If MinSize <> -1 then begin
-        Write(StrInfMin, MinSize, StrInfMi2);
-        Assign(TmpFile, MsgFile);
-        {$I-}
-        Reset(TmpFile, 1);
-        If IOResult = 0 then begin
-          If Filesize(TmpFile) > MinSize then
-            Writeln(StrInfMye)
-          else
-            Writeln(StrInfMno);
-          GetFTime(TmpFile, FDate);
-          Close(TmpFile);
-        end else
-          Writeln(StrInfMno);
-        {$I+}
-      end; { If MinSize }
-      { Kontrollera om filen „r uppdaterad }
-      If UpdatedSend then begin
-        Write(StrInfUpd);
-        If FDate = 0 then begin { Ingen undansparad filtid }
-          Assign(TmpFile, MsgFile);
-          {$I-}
-          Reset(TmpFile, 1);
-          If IOResult = 0 then begin
-            GetFTime(TmpFile, FDate);
-            Close(TmpFile);
-          end else
-            Write(StrInfUno);
-          {$I+}
-        end;
-        If FDate <> 0 then begin
-          UnpackTime(FDate, FileDate);
-          If DTToUnixDate(FileDate) <=
-             DTToUnixDate(CurrentRec.LastWritten) then
-            Write(StrInfUno);
-        end;
-        Writeln(StrInfUp2);
-      end;
-      If Maint then Write(NewDataFile, CurrentRec);
-    end else begin { If found }
-      If PlaceHolder then begin
-        Writeln(StrInfPlc);
-        If Maint then Write(NewDataFile, CurrentRec);
-      end else begin
-        Writeln(StrInfFnn);
-        If Maint then Writeln(StrInfRem);
-      end;
-    end; { If Found }
-
-  end; { While not eof }
-
-  If not eof(Ini) then begin
-    Counter := 0;
-    While not eof(Ini) do begin
-      Readln(Ini, Rad);
-      If (UpStr(Rad) = 'MSG') or (UpStr(Rad) = 'PLACEHOLDER') then
-        Inc(Counter);
-    end; { While not eof }
-    If Counter <> 0 then
-      Write(Counter, StrInfYtt);
-  end; { If not eof }
-
-  If Maint then begin
-    Close(DataFile);
-    Erase(DataFile);
-    Close(NewDataFile);
-  end; { If Maint }
-
-  Close(Ini);
-end;
-
-{************************************************************************}
-{* Rutin:       BuildPacket                                             *}
-{************************************************************************}
-{* Inneh†ll:    Bygger ihop MSG-filer till en PKT-fil                   *}
-{* Definition:  Procedure BuildPacket(PktSpec, MsgSpec: String;         *}
-{*              PktFrom, PktTo: AddrType; PktPwd: String);              *}
-{************************************************************************}
-
-Procedure BuildPacket(PktSpec, MsgSpec: String; PktFrom, PktTo: AddrType;
-                      PktPwd: String);
-Var
-  PktHead_p:                    ^PKTheader;
-  PktMsg_p:                     ^PkdMSG;
-  MsgHead_p:                    ^MsgHeader;
-  Buff_p:                       ^Buffer;
-  Temp, NumWritten, NumRead:    Word;
-  PktFile, MsgFile:             File;
-  FileSearch:                   SearchRec;
-  i:                            Byte;
-  LeftToWrite:                  LongInt;
-  PktDidExist:                  Boolean;
-Begin
-  New(PktHead_p);
-  New(PktMsg_p);
-  New(MsgHead_p);
-  New(Buff_p);
-  If (PktHead_p <> nil) and (PktMsg_p <> nil) and (MsgHead_p <> nil) and
-     (Buff_p <> nil) then begin
-    FileMode := fmReadWrite or fmDenyAll;
-    Assign(PktFile, PktSpec);
-    {$I-}
-    PktDidExist := True;
-    Reset(PktFile, 1);
-    If IOResult <> 0 then begin
-      Rewrite(PktFile, 1);
-      PktDidExist := False;
-    end; { If }
-    If IOResult <> 0 then begin
-      Writeln(StdErr, StrErrPOp, PktSpec);
-      If LogToFile then
-        Writeln(LogFile, '- ', LogTime, LogName, StrErrPOp, PktSpec);
-    end else begin
-      {$I+}
-      If PktDidExist then begin
-        Seek(PktFile, FileSize(PktFile) - 2);
-      end else begin
-        FillChar(PktHead_p^, SizeOf(PKTHeader), #0);
-        With PktHead_p^ do begin
-          QOrgZone := PktFrom.Zone;
-          OrgZone := PktFrom.Zone;
-          If Fsc0048 and (PktFrom.Point <> 0) then begin
-            OrgNet := $ffff;
-            Filler := PktFrom.Net;
-            ProdData := '0048';
-          end else
-            OrgNet := PktFrom.Net;
-          OrgNode := PktFrom.Node;
-          OrgPoint := PktFrom.Point;
-          QDstZone := PktTo.Zone;
-          DstZone := PktTo.Zone;
-          DstNet := PktTo.Net;
-          DstNode := PktTo.Node;
-          DstPoint := PktTo.Point;
-          GetDate(Year, Month, Day, Temp);
-          Dec(Month); { Justera m†nadsnummer till 0-11 }
-          GetTime(Hour, Min, Sec, Temp);
-          PktVer := 2;
-          PrdCodL := $fe; { No product ID allocated }
-          CapValid := $100;
-          CapWord := $1;
-          PVMinor := VerMin; { Version }
-          PVMajor := VerMaj;
-          For i := 0 to 7 do
-            If i < Length(PktPwd) then
-              Password[i] := PktPwd[i+1];
-        end; { With PktHead_p^ }
-        BlockWrite(PktFile, PktHead_p^, SizeOf(PKTheader), NumWritten);
-        Dispose(PktHead_p);
-        If NumWritten <> SizeOf(PKTheader) then begin
-          Writeln(StdErr, StrErrWri);
-          If LogToFile then
-            Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-        end; { If }
-      end; { If }
-
-      FindFirst(MsgSpec + '*.MSG', AnyFile - VolumeId, FileSearch);
-      While DosError = 0 do begin
-        {$I-}
-        Assign(MsgFile, MsgSpec + FileSearch.Name);
-        Reset(MsgFile, 1);
-        If IOResult = 0 then begin
-          {$I+}
-          BlockRead(MsgFile, MsgHead_p^, SizeOf(MsgHeader), NumRead);
-          If NumRead = SizeOf(MsgHeader) then begin
-            FillChar(PktMsg_p^, SizeOf(PkdMSG), #0);
-            With PktMsg_p^ do begin
-              PktVer := $2;
-              OrgNode := MsgHead_p^.OrigNode;
-              DstNode := MsgHead_p^.DestNode;
-              OrgNet := MsgHead_p^.OrigNet;
-              DstNet := MsgHead_p^.DestNet;
-              If (DstNet = 0) and (DstNode = 0) then begin
-                DstNet := PktTo.Net;
-                DstNode := PktTo.Node;
-              end;
-              Attribute := MsgHead_p^.Attribute and 2059;
-              For i := 0 to 19 do
-                DateTime[i] := MsgHead_p^.DateTime[i];
-            end; { With PktMsg_p^ }
-            BlockWrite(PktFile, PktMsg_p^, SizeOf(PkdMsg), NumWritten);
-            If NumWritten <> SizeOf(PkdMsg) then begin
-              Writeln(StdErr, StrErrWri);
-              If LogToFile then
-                Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-            end; { If NumWritten }
-            i := 0;
-            While (i < 36) and (MsgHead_p^.ToName[i] <> #0) do
-              Inc(i); { Ta reda p† l„ngd p† namnf„ltet }
-            BlockWrite(PktFile, MsgHead_p^.ToName, i + 1, NumWritten);
-            If NumWritten <> (i + 1) then begin
-              Writeln(StdErr, StrErrWri);
-              If LogToFile then
-                Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-            end; { If NumWritten }
-            i := 0;
-            While (i < 36) and (MsgHead_p^.FromName[i] <> #0) do
-              Inc(i); { Ta reda p† l„ngd p† namnf„ltet }
-            BlockWrite(PktFile, MsgHead_p^.FromName, i + 1, NumWritten);
-            If NumWritten <> (i + 1) then begin
-              Writeln(StdErr, StrErrWri);
-              If LogToFile then
-                Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-            end; { If NumWritten }
-            i := 0;
-            While (i < 72) and (MsgHead_p^.Subject[i] <> #0) do
-              Inc(i); { Ta reda p† l„ngd p† „mnesf„ltet }
-            BlockWrite(PktFile, MsgHead_p^.Subject, i + 1, NumWritten);
-            If NumWritten <> (i + 1) then begin
-              Writeln(StdErr, StrErrWri);
-              If LogToFile then
-                Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-            end; { If NumWritten }
-            LeftToWrite := FileSize(MsgFile) - SizeOf(MsgHeader);
-            While LeftToWrite > SizeOf(Buffer) do begin
-              BlockRead(MsgFile, Buff_p^, SizeOf(Buffer){, NumRead});
-              BlockWrite(PktFile, Buff_p^, SizeOf(Buffer), NumWritten);
-              If NumWritten <> SizeOf(Buffer) then begin
-                Writeln(StdErr, StrErrWri);
-                If LogToFile then
-                  Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-              end; { If NumWritten }
-              Dec(LeftToWrite, SizeOf(Buffer));
-            end; { While }
-            BlockRead(MsgFile, Buff_p^, LeftToWrite{, NumRead});
-            BlockWrite(PktFile, Buff_p^, LeftToWrite, NumWritten);
-            If NumWritten <> LeftToWrite then begin
-              Writeln(StdErr, StrErrWri);
-              If LogToFile then
-                Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-            end;
-          end else begin
-            Writeln(StdErr, StrErrRea);
-            If LogToFile then
-              Writeln(LogFile, '- ', LogTime, LogName, StrErrRea);
-          end; { If NumRead }
-          Close(MsgFile);
-          Erase(MsgFile);
-        end else begin
-          Writeln(StdErr, StrErrMOp, MsgSpec + FileSearch.Name);
-          If LogToFile then
-            Writeln(LogFile, '- ', LogTime, LogName, StrErrMOp,
-                    MsgSpec + FileSearch.Name);
-        end; { If gick att ”ppna MSG-fil }
-
-        FindNext(FileSearch);
-      end; { While not DosError }
-      Buff_p^[0] := #0;
-      Buff_p^[1] := #0;
-      BlockWrite(PktFile, Buff_p^, 2, NumWritten);
-      If NumWritten <> 2 then begin
-        Writeln(StdErr, StrErrWri);
-        If LogToFile then
-          Writeln(LogFile, '- ', LogTime, LogName, StrErrWri);
-      end;
-      Close(PktFile);
-      Writeln(StrLogPkt, PktSpec);
-      If LogToFile then
-        Writeln(LogFile, '  ', LogTime, LogName, StrLogPkt, PktSpec);
-    end; { If gick att skapa PktFile }
-    Dispose(PktMsg_p);
-    Dispose(MsgHead_p);
-    Dispose(Buff_p);
-    filemode := fmReadOnly or fmDenyNone;
-  end else begin
-    Writeln(StdErr, StrErrAll);
-    If LogToFile then
-      Writeln(LogFile, '- ', LogTime, LogName, StrErrAll);
-  end;
-End;
 
 {************************************************************************}
 {* Rutin:       Initialize                                              *}
@@ -1077,27 +665,39 @@ End;
 {* Definition:  Procedure Initialize;                                   *}
 {************************************************************************}
 
-Procedure Initialize;
+Procedure Initialize(var Global: GlobalDataType);
 Var
   Temp:         Word;
+  Env:          String;
 Begin
-  With Idag do begin
+  With Global.Idag do begin
     GetDate(Year, Month, Day, Temp);
     GetTime(Hour, Min, Sec, Temp);
   end;
 
-  MsgIdNum := ((DTToUnixDate(Idag) and $7fffffff) shl 4) + (byte(Temp) shr 3);
-  Registration := StrNotReg;
-  BragLineIntro := '---';
-  TagLineIntro := '...';
-  MsgIdString := '';
-  LogToFile := False;
-  EchoTossLogFile := '';
-  Ctr := 0;                     { R„kna mallnummer }
-  MsgWritten := 0;              { R„kna antalet skrivna }
-  ReplyKludge := True;
-  ForcePID := False;
-  Fsc0048 := False;
+  With Global do begin
+    Registration := StrNotReg;
+    BragLineIntro := '---';
+    TagLineIntro := '...';
+    MsgIdString := '';
+    EchoTossLogFile := '';
+    JamTossLogPath := '';
+    Ctr := 0;                   { R„kna mallnummer }
+    MsgWritten := 0;            { R„kna antalet skrivna }
+    ReplyKludge := True;
+    ForcePID := False;
+    Fsc0048 := False;
+    NetMailTearline := True;
+  end; { With Global }
+
+  Env := GetEnv('IDSERVER');
+  If Env = '' then begin
+    MsgId_p := New(MsgIdStdPointer, Init);
+    MsgIdType := Standard;
+  end else begin
+    MsgId_p := New(MsgIdServPointer, Init(Env));
+    MsgIdType := IDServer;
+  end;
 End;
 
 {************************************************************************}
@@ -1108,63 +708,60 @@ End;
 {************************************************************************}
 
 Var
-  Ini:                                                          Text;
-  IniFile, Rad, Name1, Name2, mFrom, mTo, Subj, FName, MsgBas,
-  Keyword, Data, TagLine, Env, Origin, EchoTag, TagFile,
-  HeaderFile, FooterFile, SemaphorFile, PktPath, PktPwd,
-  CreateFile:                                                   String;
-  PktName:                                                      String[12];
+  GlobalInfo:                                           GlobalDataType;
+  MessageInfo:                                          MessageConfigType;
+  PacketInfo:                                           PacketConfigType;
+  Ini:                                                  Text;
+  IniFile, Rad, Keyword, Data, Env, TagFile,
+  SemaphorFile, PktPath:                                String;
   Maint, SemaphorExist, TooSmall, UpdatedSend, Updated,
-  BinkleyName, FixedWidth, IntervalDate, PostResult:            Boolean;
-  Position, NumTagLines, i, Interval, DaysSince,
-  MsgCount, Temp:                                               Word;
-  SplitParts:                                                   Byte;
-  RegCode, MinSize, FDate, SplitSize:                           LongInt;
-  Test:                                                         Integer;
-  Distribution:                                                 MsgType;
-  OrigAddr, DestAddr, TempAddr, PktFrom, PktTo:                 AddrType;
-  Charset:                                                      CharsetType;
-  DataFile:                                                File of DataFileRec;
-  Semaphor:                                                     File;
-  WhatToDo:                                                     RunMode;
-  CurrentRec:                                                   DataFileRec;
-  FileDate:                                                     DateTime;
-  MsgAttributes:                                                Attributes;
+  BinkleyName, IntervalDate, PostResult, PostThis,
+  LeaveDates, DoSimulate:                               Boolean;
+  i, Interval, DaysSince, MsgCount, Temp:               Word;
+  RegCode, MinSize, FDate:                              LongInt;
+  Test:                                                 Integer;
+  TempAddr:                                             AddrType;
+  DataFile:                                             File of DataFileRec;
+  Semaphor:                                             File;
+  WhatToDo:                                             RunMode;
+  FileDate:                                             DateTime;
+  AskPostAnswer:                                        Char;
+  TosserConfig_p:                                       TosserPointer;
+
 Begin
+  {$IFDEF MSDOS}
+  If not SelfTest(Virustest) then begin
+    Writeln(StrErrVir);
+    Halt(255);
+  end;
+  {$ENDIF}
+
   { Initiera variabler }
+  LogInitialized := False;
   ExitSave := ExitProc;         { Critical error handler }
   ExitProc := @Leave;
+  SetTitle('Announcer');
   MsgCount := 0;                { R„kna offset i datafilen }
-  NumTagLines := 0;
-  Origin := StrStdOri;
   TagFile := '';
+  TosserConfig_p := Nil;
 
   Randomize;
-  Initialize;
+  Initialize(GlobalInfo);
 
-  Assign(Output, '');           { Till†t omdirigering }
-  Rewrite(Output);
-
-  Assign(StdErr, '');           { ™ppna StdErr-handtaget }
-  Rewrite(StdErr);
-  TextRec(StdErr).Handle := 2;
+  StdoutOn(True);               { Till†t omdirigering }
 
   FileMode := fmReadOnly or fmDenyNone;
 
   { Kolla registreringen }
-  Env := GetEnv('ANNOUNCER');
+  Env := CheckRegistration(InSameDir(ParamStr(0), 'ANNOUNCE.KEY'));
   If Env <> '' then begin
-    Val(Copy(Env, 1, 5), RegCode, Test);
-    If (Test = 0) and (RegCode = RegiCode(Copy(Env, 6, Length(Env)-5))) then
-    begin
-      Registration := Copy(Env, 6, Length(Env) - 5);
-      BragLine := BragLine + '+';       { Identifiera registrerad version }
-    end;
+    GlobalInfo.Registration := Env;
+    BragLine := BragLine + '+';       { Identifiera registrerad version }
   end; { If Env }
 
   { ** F”r begr„nsad betatest ** }
   {$IFDEF BETA}
-  If Registration = StrNotReg then begin
+  If GlobalInfo.Registration = StrNotReg then begin
     Writeln(StdErr, 'To use this beta version, you need a valid registration key.');
     Halt(255);
   end; { If Registration }
@@ -1172,28 +769,39 @@ Begin
 
   { ** Tidsbegr„nsad gammaversion ** }
   {$IFDEF GAMMA}
-  If Registration = StrNotReg then begin
-    If ((Idag.Year <> 1997) or (Idag.Month > 3)) and (Idag.Year <> 1996) then begin
-      Writeln(StdErr, 'This unregistered GAMMA version expired April 1st, 1997');
+  If GlobalInfo.Registration = StrNotReg then begin
+    If (GlobalInfo.Idag.Year <> 1997) then begin
+      Writeln(StdErr, 'This unregistered GAMMA version expired January 1st, 1998');
       Writeln(StdErr, 'Please contact the author to get an updated version.');
       Halt(255);
     end else begin
-      Writeln(StdErr, 'This unregistered GAMMA version will expire April 1st, 1997');
+      Writeln(StdErr, 'This unregistered GAMMA version will expire January 1st, 1998');
     end;
   end;
   {$ENDIF}
 
-  If ParamStr(1) = '/?' then
-    HelpScreen(BragLine, Registration);
+{ Writeln(StdErr, 'This SPECIAL version may not be used by any other person than Johan');
+  Writeln(StdErr, 'Segern„s.');}
 
-  If Registration = StrNotReg then
+  If ParamStr(1) = '/?' then
+    HelpScreen(BragLine, GlobalInfo.Registration);
+
+  {$IFNDEF BETA}
+  If GlobalInfo.Registration = StrNotReg then begin
     BragLine := BragLine + '-';
+    Writeln(StrNotReg);
+  end;
+  {$ENDIF}
+
+  New(Log, Init(BragLine, LogName, StrLogBeg, StrLogEnd));
+  LogInitialized := True;
 
   { Kolla kommandoradsv„xlar }
-  WhatToDo := CommandLine(StdErr, IniFile, Maint, ForcePid, Name1, Name2);
+  WhatToDo := CommandLine(StdErr, IniFile, Maint, GlobalInfo.ForcePid,
+                          LeaveDates, DoSimulate);
 
   If WhatToDo = DisplayData then begin
-    DisplayInfo(IniFile, Maint);
+    DisplayInfo(IniFile, Maint, GlobalInfo.Idag);
     Halt;
   end;
 
@@ -1224,214 +832,249 @@ Begin
   end; { If IOResult }
   {$I+}
 
-  If WhatToDo = Simulate then begin
-    Assign(LogFile, '');
-    Rewrite(LogFile);
-    Writeln(LogFile, '+ ', LogTime, LogName, StrLogBeg, BragLine);
-    Writeln(LogFile, '  ', LogTime, LogName, StrLogIni, IniFile);
-  end;
+  If DoSimulate then begin
+    Log^.OpenLog('');
+    Log^.LogLine(' ')^.LogStr(StrLogIni + IniFile)^.LogLn;
+  end; { If DoSimulate }
 
   FileMode := fmReadOnly or fmDenyNone;
 
-  PktPwd := '';
-  PktMode := False;
+  PacketInfo.PktPwd := '';
+  GlobalInfo.PktMode := False;
   BinkleyName := False;
   FillChar(TempAddr, SizeOf(TempAddr), #0);
-  FillChar(PktFrom, SizeOf(PktFrom), #0);
-  FillChar(PktTo, SizeOf(PktTo), #0);
+  FillChar(PacketInfo.PktFrom, SizeOf(PacketInfo.PktFrom), #0);
+  FillChar(PacketInfo.PktTo, SizeOf(PacketInfo.PktTo), #0);
 
   Repeat { Until EOF }
     Repeat { Until 'MSG' or 'PLACEHOLDER' or EOF }
       Readln(Ini, Rad);
-      RemoveJunk(Rad);
+{     RemoveJunk(Rad);}
 
       If (Rad[1]<>';') and (UpStr(Rad)<>'.END') then begin
-        Position := Pos(' ', Rad);
-        If Position <> 0 then begin
-          Keyword := UpStr(Copy(Rad, 1, Position - 1));
-          Data := Copy(Rad, Position + 1, Length(Rad) - Position);
-          If (Data[1] = '"') and (Data[Byte(Data[0])] = '"') then
-            Data := Copy(Data, 2, Length(Data) - 2);
-          If Data = '%1' then Data := Name1;
-          If Data = '%2' then Data := Name2;
+        If ParseINI(Rad, Keyword, Data) then begin
+          If Data[1] = '%' then begin
+            Temp := Str2Long(Copy(Data, 2, 2));
+            If (Temp >= 1) and (Temp <= 10) then
+              Data := Name[Temp];
+          end;
           If Keyword = 'TAGLINEFILE' then begin
             TagFile := Data
           end else if Keyword = 'BRAGLINEINTRO' then
-            BragLineIntro := Copy(Data + '   ', 1, 3)
+            GlobalInfo.BragLineIntro := Copy(Data + '   ', 1, 3)
           else if Keyword = 'TAGLINEINTRO' then
-            TagLineIntro := Copy(Data + '   ', 1, 3)
+            GlobalInfo.TagLineIntro := Copy(Data + '   ', 1, 3)
           else if Keyword = 'ECHOTOSSLOG' then
-            EchoTossLogFile := Data
-          else if Keyword = 'REPLYKLUDGE' then
-            Case UpCase(Data[1]) of
-              'Y': ReplyKludge := True;
-              'N': ReplyKludge := False;
-            end
+            GlobalInfo.EchoTossLogFile := Data
+          else if Keyword = 'JAMTOSSLOG' then begin
+            GlobalInfo.JamTossLogPath := Data;
+            If GlobalInfo.JamTossLogPath[Length(GlobalInfo.JamTossLogPath)] <> '\'
+               then
+              GlobalInfo.JamTossLogPath := GlobalInfo.JamTossLogPath + '\';
+          end else if Keyword = 'REPLYKLUDGE' then
+            GlobalInfo.ReplyKludge := YesNo(Data)
           else if Keyword = 'LOGFILE' then begin
-            If LogToFile = True then begin
-              Writeln(StdErr, StrErrIni, IniFile, ':');
-              Writeln(StdErr, StrErrLog);
-              Close(Ini);
-              Halt(2);
-            end else begin
-              If WhatToDo <> Simulate then begin
+            If Not DoSimulate then begin
+              If Log^.isOpen = True then begin
+                Writeln(StdErr, StrErrIni, IniFile, ':');
+                Writeln(StdErr, StrErrLog);
+                Close(Ini);
+                Halt(2);
+              end else begin
                 FileMode := fmReadWrite or fmDenyWrite;
-                Assign(LogFile, Data);
-                {$I-}
-                Append(LogFile);
-                If IOResult <> 0 then begin
-                  Rewrite(LogFile);
-                  If IOResult <> 0 then begin
-                    Writeln(StdErr, StrErrLo2);
-                    Close(Ini);
-                    Halt(2);
-                  end; { If IOResult }
-                end; { If IOResult }
-                {$I+}
-                Writeln(LogFile);
-                Writeln(LogFile, '+ ', LogTime, LogName, StrLogBeg, BragLine);
-                Writeln(LogFile, '  ', LogTime, LogName, StrLogIni, IniFile);
+                If Not Log^.OpenLog(Data) then begin
+                  Writeln(StdErr, StrErrLo2);
+                  Halt(2);
+                end; { If Log }
+                Log^.LogLine(' ')^.LogStr(StrLogIni + IniFile)^.LogLn;
                 FileMode := fmReadOnly or fmDenyNone;
               end;
-              LogToFile := True;
             end;
           end else if Keyword = 'MSGID' then
-            MsgIdString := Data
+            GlobalInfo.MsgIdString := Data
           else if Keyword = 'PKTMODE' then begin
-            PktMode := True;
-            MsgBas := 'F' + Data;
-            If MsgBas[Length(MsgBas)] <> '\' then
-              MsgBas := MsgBas + '\';
+            GlobalInfo.PktMode := True;
+            MessageInfo.MsgBas := 'F' + Data;
+            PacketInfo.MsgSpec := Data;
+            If PacketInfo.MsgSpec[Length(PacketInfo.MsgSpec)] <> '\' then
+              PacketInfo.MsgSpec := PacketInfo.MsgSpec + '\';
           end else if Keyword = 'PKTPATH' then begin
             PktPath := Data;
             If PktPath[Length(PktPath)] <> '\' then
               PktPath := PktPath + '\';
           end else if Keyword = 'PKTFROM' then begin
-            If (not ParseAddr(Data, TempAddr, PktFrom)) or (PktFrom.Zone =
-                0) then begin
+            If (not ParseAddr(Data, TempAddr, PacketInfo.PktFrom)) or
+               (PacketInfo.PktFrom.Zone = 0) then begin
               Writeln(StdErr, StrErrIni, IniFile, ':');
               Writeln(StdErr, StrErrOrg, Data);
             end;
           end else if Keyword = 'PKTTO' then begin
-            If (not ParseAddr(Data, TempAddr, PktTo)) or (PktTo.Zone =
-                0) then begin
+            If (not ParseAddr(Data, TempAddr, PacketInfo.PktTo)) or
+               (PacketInfo.PktTo.Zone = 0) then begin
               Writeln(StdErr, StrErrIni, IniFile, ':');
               Writeln(StdErr, StrErrDst, Data);
             end;
           end else if Keyword = 'PKTPWD' then
-            PktPwd := Data
-          else if Keyword = 'BINKLEYNAME' then begin
-            Case UpCase(Data[1]) of
-              'Y': BinkleyName := True;
-              'N': BinkleyName := False;
+            PacketInfo.PktPwd := Data
+          else if Keyword = 'BINKLEYNAME' then
+            BinkleyName := YesNo(Data)
+          else if Keyword = 'FSC-0048' then
+            GlobalInfo.Fsc0048 := YesNo(Data)
+          else if Keyword = 'IDSERVER' then begin
+            If UpStr(Data) = 'NO' then begin
+              If MsgIdType = IDServer then begin
+                Dispose(MsgId_p);
+                MsgId_p := New(MsgIdStdPointer, Init);
+                MsgIdType := Standard;
+              end;
+            end else begin
+              Dispose(MsgId_p);
+              MsgId_p := New(MsgIdServPointer, Init(Data));
+              MsgIdType := IDServer;
             end;
-          end else if Keyword = 'FSC-0048' then begin
-            Case UpCase(Data[1]) of
-              'Y': Fsc0048 := True;
-              'N': Fsc0048 := False;
+          end else if (Keyword = 'SQUISHCFG') or (Keyword = 'FMAILCFG') or
+                      (Keyword = 'GECHOCFG') or (Keyword = 'TERMAILCFG')
+                      then begin
+            If TosserConfig_p = Nil then begin
+              Case Keyword[1] of
+                'S': TosserConfig_p := New(TosserSquishMailPointer, Init);
+                'T': TosserConfig_p := New(TosserTerMailPointer, Init);
+                {$IFDEF OS2}
+                else Writeln('Not implemented yet:- ', Keyword);
+                {$ELSE}
+                'F': TosserConfig_p := New(TosserFMailPointer, Init);
+                'G': TosserConfig_p := New(TosserGEchoPointer, Init);
+                {$ENDIF}
+              end;
+              TosserConfig_p^.Import(Data);
+            end else begin
+              Writeln(StrErrTor);
+              Log^.LogLine('!')^.LogStr(StrErrTor)^.LogLn;
             end;
+          end else If Keyword = 'NETMAILTEARLINE' then begin
+            GlobalInfo.NetMailTearLine := YesNo(Data);
           end; { If Keyword }
-        end; { If Position }
+        end; { If ParseINI }
       end; { If ';' }
     Until (UpStr(Rad) = 'MSG') or (UpStr(Rad) = 'PLACEHOLDER') or EOF(Ini);
 
     If not EOF(Ini) then begin
       If UpStr(Rad) <> 'PLACEHOLDER' then begin
-        Inc(Ctr);
-        mFrom := '';
-        mTo := '';
-        Subj := '';
-        FName := '';
-        If Not PktMode then MsgBas := '';
-        HeaderFile := '';
-        FooterFile := '';
+        Inc(GlobalInfo.Ctr);
+        With MessageInfo do begin
+          mFrom := '';
+          mTo := '';
+          Subj := '';
+          FName := '';
+          If Not GlobalInfo.PktMode then MsgBas := '';
+          HeaderFile := '';
+          FooterFile := '';
+          CreateFile := '';
+          TagLine := '';
+          AreaType := Local;
+          EchoTag := '';
+          Charset := Pc8;
+          MsgAttr := [];
+          FixedWidth := False;
+          FillChar(Orig, SizeOf(Orig), #0);
+          FillChar(Dest, SizeOf(Dest), #0);
+          Parts := 1;
+          Size := 0;
+          Origin := StrStdOri;
+        end; { With }
+        FillChar(TempAddr, SizeOf(TempAddr), #0);
         SemaphorFile := '';
-        TagLine := '';
-        Distribution := Local;
-        EchoTag := '';
         Interval := 0;
         IntervalDate := False;
         DaysSince := 0;
         MinSize := -1;
-        SplitParts := 1;
-        SplitSize := 0;
-        Charset := Pc8;
         UpdatedSend := False;
-        CreateFile := '';
-        MsgAttributes := [];
-        FixedWidth := False;
-        FillChar(TempAddr, SizeOf(TempAddr), #0);
-        FillChar(OrigAddr, SizeOf(OrigAddr), #0);
-        FillChar(DestAddr, SizeOf(DestAddr), #0);
 
         Repeat { Until '.END' }
           {$I-}
           Seek(DataFile, MsgCount);
-          Read(DataFile, CurrentRec);
+          Read(DataFile, MessageInfo.CurrentRec);
           If IOResult <> 0 then
-            FillChar(CurrentRec, SizeOf(CurrentRec), #0);
+            FillChar(MessageInfo.CurrentRec, SizeOf(MessageInfo.CurrentRec), #0);
           {$I+}
           Readln(Ini, Rad);
-          If (Rad[1]<>';') and (UpStr(Rad)<>'.END') then begin
-            Position := Pos(' ', Rad);
-            If Position <> 0 then begin
-              Keyword := UpStr(Copy(Rad, 1, Position-1));
-              Data := Copy(Rad, Position+1, Length(Rad)-Position);
-              If (Data[1] = '"') and (Data[Byte(Data[0])] = '"') then
-                Data := Copy(Data, 2, Length(Data) - 2);
-              If Data = '%1' then Data := Name1;
-              If Data = '%2' then Data := Name2;
-  {$IFDEF MY} Writeln(Keyword, ': ', Data); {$ENDIF}
+          If (Rad[1] <> ';') and (UpStr(Rad) <> '.END') then begin
+            If ParseINI(Rad, Keyword, Data) then begin
+              If Data[1] = '%' then begin
+                Temp := Str2Long(Copy(Data, 2, 2));
+                If (Temp >= 1) and (Temp <= 10) then
+                  Data := Name[Temp];
+              end;
+              Temp := Pos('%d%', Data);
+              If Temp > 0 then
+                {$IFDEF OS2}
+                Data := Copy(Data, 1, Temp - 1) +
+                        DateStr(DosDateTime2OS2DateTime(GlobalInfo.Idag)) +
+                        Copy(Data, Temp + 3, Length(Data) - Temp - 2);
+                {$ELSE}
+                Data := Copy(Data, 1, Temp - 1) + DateStr(GlobalInfo.Idag) +
+                        Copy(Data, Temp + 3, Length(Data) - Temp - 2);
+                {$ENDIF}
+              Temp := Pos('%t%', Data);
+              If Temp > 0 then
+                {$IFDEF OS2}
+                Data := Copy(Data, 1, Temp - 1) +
+                        TimeStr(DosDateTime2OS2DateTime(GlobalInfo.Idag)) +
+                        Copy(Data, Temp + 3, Length(Data) - Temp - 2);
+                {$ELSE}
+                Data := Copy(Data, 1, Temp - 1) + TimeStr(GlobalInfo.Idag) +
+                        Copy(Data, Temp + 3, Length(Data) - Temp - 2);
+                {$ENDIF}
               If Keyword = 'FROM' then
-                mFrom := Data
+                MessageInfo.mFrom := Data
               else if Keyword = 'TO' then
-                mTo := Data
+                MessageInfo.mTo := Data
               else if Keyword = 'SUBJECT' then
-                Subj := Data
+                MessageInfo.Subj := Data
               else if Keyword = 'FILE' then
-                FName := Data
-              else if (Keyword = 'PATH') and Not PktMode then
-                MsgBas := Data
+                MessageInfo.FName := Data
+              else if (Keyword = 'PATH') and Not GlobalInfo.PktMode then
+                MessageInfo.MsgBas := Data
               else if Keyword = 'PRIVATE' then
-                Case UpCase(Data[1]) of
-                  'Y': MsgAttributes := MsgAttributes + [Private];
-                  'N': MsgAttributes := MsgAttributes - [Private];
+                Case YesNo(Data) of
+                  True:  MessageInfo.MsgAttr := MessageInfo.MsgAttr + [Private];
+                  False: MessageInfo.MsgAttr := MessageInfo.MsgAttr - [Private];
                 end
               else if Keyword = 'DISTRIBUTION' then begin
                 Data := UpStr(Data);
                 If Data = 'NETMAIL' then
-                  Distribution := NetMail
+                  MessageInfo.AreaType := NetMail
                 else if Data = 'ECHOMAIL' then
-                  Distribution := EchoMail
+                  MessageInfo.AreaType := EchoMail
                 else if Data = 'LOCAL' then begin
-                  Distribution := Local;
-                  If PktMode = True then begin
+                  If GlobalInfo.PktMode = True then begin
                     Writeln(StdErr, StrErrIni, IniFile, ':');
                     Writeln(StdErr, StrErrLoc);
                     Close(Ini);
                     Halt(2);
                   end;
+                  MessageInfo.AreaType := Local;
                 end;
               end else if Keyword = 'ORIG' then begin
-                If (not ParseAddr(Data, TempAddr, OrigAddr)) or (OrigAddr.Zone =
-                    0) then begin
+                If (not ParseAddr(Data, TempAddr, MessageInfo.Orig)) or
+                   (MessageInfo.Orig.Zone = 0) then begin
                   Writeln(StdErr, StrErrIni, IniFile, ':');
                   Writeln(StdErr, StrErrOrg, Data);
                   Close(Ini);
                   Halt(2);
                 end; { If Addr }
               end else if Keyword = 'DEST' then begin
-                If (not ParseAddr(Data, TempAddr, DestAddr)) or (DestAddr.Zone =
-                    0) then begin
+                If (not ParseAddr(Data, TempAddr, MessageInfo.Dest)) or
+                   (MessageInfo.Dest.Zone = 0) then begin
                   Writeln(StdErr, StrErrIni, IniFile, ':');
                   Writeln(StdErr, StrErrDst, Data);
                   Close(Ini);
                   Halt(2);
                 end; { If Addr }
               end else if Keyword = 'ORIGIN' then
-                Origin := Data
+                MessageInfo.Origin := Data
               else if Keyword = 'ECHO' then
-                EchoTag := UpStr(Data)
+                MessageInfo.EchoTag := UpStr(Data)
               else if Keyword = 'INTERVAL' then begin
                 If Data[1] = '@' then begin
                   Val(Copy(Data, 2, 3), Interval, Temp);
@@ -1441,35 +1084,41 @@ Begin
                   IntervalDate := False;
                 end;
               end else if Keyword = 'HEADER' then
-                HeaderFile := Data
+                MessageInfo.HeaderFile := Data
               else if Keyword = 'FOOTER' then
-                FooterFile := Data
+                MessageInfo.FooterFile := Data
               else if Keyword = 'SEMAPHORE' then
                 SemaphorFile := Data
               else if Keyword = 'SPLIT' then
                 If Data[1] = '@' then begin
-                  Val(Copy(Data, 2, 10), SplitSize, Temp);
-                  SplitParts := 1;
+                  Val(Copy(Data, 2, 10), MessageInfo.Size, Temp);
+                  MessageInfo.Parts := 1;
                 end else begin
-                  Val(Data, SplitParts, Temp);
-                  SplitSize := 0;
+                  Val(Data, MessageInfo.Parts, Temp);
+                  MessageInfo.Size := 0;
                 end
               else if Keyword = 'MINSIZE' then
                 Val(Data, MinSize, Temp)
               else if Keyword = 'CHARSET' then begin
                 Data := UpStr(Data);
                 If Data = 'PC8' then
-                  Charset := Pc8
+                  MessageInfo.Charset := Pc8
                 else if Data = 'SV7' then
-                  Charset := Sv7
+                  MessageInfo.Charset := Sv7
                 else if Data = 'ISO' then
-                  Charset := Iso
+                  MessageInfo.Charset := Iso
                 else if Data = 'ASCII' then
-                  Charset := Ascii
+                  MessageInfo.Charset := Ascii
                 else if Data = '-ISO' then
-                  Charset := FromIso
+                  MessageInfo.Charset := FromIso
                 else if Data = '-SV7' then
-                  Charset := FromSjuBit
+                  MessageInfo.Charset := FromSjuBit
+                else if Data = '-ASCII' then
+                  MessageInfo.Charset := FromASCII
+                else if Data = '+SV7' then
+                  MessageInfo.Charset := IsSjuBit
+                else if Data = '+ISO' then
+                  MessageInfo.Charset := IsIso
                 else begin
                   Writeln(StdErr, StrErrIn2, IniFile, ':');
                   Writeln(StdErr, Rad);
@@ -1477,35 +1126,29 @@ Begin
                   Halt(2);
                 end
               end else if Keyword = 'UPDATEDSEND' then
-                Case UpCase(Data[1]) of
-                  'Y': UpdatedSend := True;
-                  'N': UpdatedSend := False;
-                end
+                UpdatedSend := YesNo(Data)
               else if Keyword = 'CREATE' then
-                CreateFile := Data
+                MessageInfo.CreateFile := Data
               else if Keyword = 'ATTRIBUTES' then begin
                 For i := 1 To Length(Data) do begin
                   Case UpCase(Data[i]) of
-                  'C': MsgAttributes := MsgAttributes + [CrashMail];
-                  'K': MsgAttributes := MsgAttributes + [KillSent];
-                  'A': MsgAttributes := MsgAttributes + [FAttach];
-                  'R': MsgAttributes := MsgAttributes + [FileReq];
-                  'P': MsgAttributes := MsgAttributes + [Private];
-                  'H': MsgAttributes := MsgAttributes + [Hold];
-                  ' ': else
-                         begin
-                          Writeln(StdErr, StrErrIn2, IniFile, ':');
-                          Writeln(StdErr, Rad);
-                          Close(Ini);
-                          Halt(2);
-                       end;
+                    'A': MessageInfo.MsgAttr := MessageInfo.MsgAttr + [FAttach];
+                    'C': MessageInfo.MsgAttr := MessageInfo.MsgAttr + [CrashMail];
+                    'H': MessageInfo.MsgAttr := MessageInfo.MsgAttr + [Hold];
+                    'K': MessageInfo.MsgAttr := MessageInfo.MsgAttr + [KillSent];
+                    'P': MessageInfo.MsgAttr := MessageInfo.MsgAttr + [Private];
+                    'R': MessageInfo.MsgAttr := MessageInfo.MsgAttr + [FileReq];
+                    ' ': ;
+                    else begin
+                       Writeln(StdErr, StrErrIn2, IniFile, ':');
+                       Writeln(StdErr, Rad);
+                       Close(Ini);
+                       Halt(2);
+                    end; { else }
                   end; { Case }
                 end; { For }
               end else if Keyword = 'FIXEDWIDTH' then
-                Case UpCase(Data[1]) of
-                  'Y': FixedWidth := True;
-                  'N': FixedWidth := False;
-                end
+                MessageInfo.FixedWidth := YesNo(Data)
               else if Keyword = 'TAGLINE' then begin
                 If Data = '@' then begin
                   If TagFile = '' then begin
@@ -1513,44 +1156,60 @@ Begin
                     Writeln(StdErr, StrErrTag);
                     Close(Ini);
                     Halt(2);
-                  end; { If NumTagLines }
+                  end; { If TagFile }
                   Repeat
-                    TagLine := ReadRandomLine(TagFile);
-                  Until ((TagLine[1] <> ';') and (TagLine[1] <> '%'))
+                    MessageInfo.TagLine := ReadRandomLine(TagFile);
+                  Until Pos(MessageInfo.TagLine[1], '%;') = 0;
                 end else
-                  TagLine := Data;
+                  MessageInfo.TagLine := Data;
               end else begin
                 Writeln(StdErr, StrErrIn2, IniFile, ':');
                 Writeln(StdErr, Rad);
                 Close(Ini);
                 Halt(2);
               end; { If Keyword }
-            end; { If Position }
+            end; { If ParseINI }
           end; { If Rad }
         Until UpStr(Rad) = '.END';
 
-        If (FName = '') or (mFrom = '') or (Subj = '') or (MsgBas = '') or
-           (PktMode and (Distribution = EchoMail) and (EchoTag = '')) or
-           (PktMode and (Distribution = Local)) then begin
-          If logtofile then Writeln(LogFile, '! ', LogTime, LogName, StrLogMis,
-                                    Ctr);
-        end else begin
+        If Not GlobalInfo.PktMode and (MessageInfo.MsgBas = '') and
+           (TosserConfig_p <> Nil) and (MessageInfo.EchoTag <> '') then
+          If not TosserConfig_p^.GetAreaInfo(MessageInfo.EchoTag,
+                                             MessageInfo.MsgBas,
+                                             MessageInfo.Orig,
+                                             MessageInfo.AreaType) then
+            Log^.LogLine('!')^.LogStr(StrLogTor + Messageinfo.EchoTag +
+                                      StrLogTr2)^.LogLn;
 
+        If (MessageInfo.FName = '') or (MessageInfo.mFrom = '') or
+           (MessageInfo.Subj = '') or (MessageInfo.MsgBas = '') or
+           (GlobalInfo.PktMode and (MessageInfo.AreaType = EchoMail) and
+           (MessageInfo.EchoTag = '')) or (GlobalInfo.PktMode and
+           (MessageInfo.AreaType = Local)) then begin
+          Log^.LogLine('!')^.LogStr(StrLogMis)^.LogInt(GlobalInfo.Ctr)^.LogLn;
+        end else begin
           FDate := 0; { Nolla fildatum }
 
           If IntervalDate then begin { Posta bara speciellt datum? }
-            If Idag.Day <> Interval then { Fel datum? }
+            If GlobalInfo.Idag.Day <> Interval then { Fel datum? }
               DaysSince := 0 { posta inte }
             else begin
-              If Idag.Month <> CurrentRec.LastWritten.Month then
+              If GlobalInfo.Idag.Month <> MessageInfo.CurrentRec.LastWritten.Month then
                 DaysSince := 65535; { posta }
             end;
           end else begin
-            If CurrentRec.LastWritten.Day = 0 then
+            If MessageInfo.CurrentRec.LastWritten.Day = 0 then
               DaysSince := 65535
             else
-              DaysSince := check_date(FormattedDate(Idag, 'MM-DD-YY'),
-                                      FormattedDate(CurrentRec.LastWritten, 'MM-DD-YY'));
+              {$IFDEF OS2}
+              DaysSince := check_date(FormattedDate(DosDateTime2OS2DateTime(GlobalInfo.Idag),
+                                                    'MM-DD-YY'),
+                                      FormattedDate(DosDateTime2OS2DateTime(MessageInfo.CurrentRec.LastWritten),
+                                                    'MM-DD-YY'));
+              {$ELSE}
+              DaysSince := check_date(FormattedDate(GlobalInfo.Idag, 'MM-DD-YY'),
+                                      FormattedDate(MessageInfo.CurrentRec.LastWritten, 'MM-DD-YY'));
+              {$ENDIF}
           end;
 
           SemaphorExist := True;
@@ -1559,7 +1218,7 @@ Begin
 
           TooSmall := False;
           If MinSize <> -1 then begin
-            Assign(Semaphor, FName);
+            Assign(Semaphor, MessageInfo.FName);
             {$I-}
             Reset(Semaphor, 1);
             If IOResult = 0 then begin
@@ -1571,9 +1230,9 @@ Begin
           end; { If MinSize }
 
           Updated := True;
-          If (UpdatedSend = True) and (CurrentRec.LastWritten.Day <> 0) then begin
+          If (UpdatedSend = True) and (MessageInfo.CurrentRec.LastWritten.Day <> 0) then begin
             If FDate = 0 then begin { Ingen undansparad filtid }
-              Assign(Semaphor, FName);
+              Assign(Semaphor, MessageInfo.FName);
               {$I-}
               Reset(Semaphor);
               If IOResult = 0 then begin
@@ -1586,105 +1245,157 @@ Begin
             If FDate <> 0 then begin
               UnpackTime(FDate, FileDate);
               Updated := DTToUnixDate(FileDate) >
-                         DTToUnixDate(CurrentRec.LastWritten);
+                         {$IFDEF OS2}
+                         DTToUnixDate(DosDateTime2OS2DateTime(MessageInfo.CurrentRec.LastWritten));
+                         {$ELSE}
+                         DTToUnixDate(MessageInfo.CurrentRec.LastWritten);
+                         {$ENDIF}
             end;
           end; { If UpdatedSend }
 
-          If DaysSince >= Interval then begin
-            If SemaphorExist = True then begin
-              If not TooSmall then begin
-                If Updated then begin
-                  If WhatToDo = Simulate then begin
-                    Write(LogFile, '  ', LogTime, LogName, StrDidSav, StrDidSim,
-                          StrDidSv2);
-                    If (Distribution = EchoMail) and (EchoTag <> '') then
-                      Write(LogFile, EchoTag)
-                    else
-                      Write(LogFile, MsgBas);
-                    Writeln(LogFile, StrDidSv3, Ctr, ')');
-                    Inc(MsgWritten);
-                  end else begin { not Simulate }
-                    PostResult := DoMessage(mFrom, mTo, Subj, FName, MsgBas,
-                                  TagLine, Origin, Distribution, OrigAddr,
-                                  DestAddr, EchoTag, CurrentRec, HeaderFile,
-                                  FooterFile, SplitParts, SplitSize, Charset,
-                                  CreateFile, MsgAttributes, FixedWidth);
-                    If PostResult = True then begin
-                      CurrentRec.LastWritten := Idag;
-                      {$I-}
-                      Seek(DataFile, MsgCount);
-                      Write(DataFile, CurrentRec);
-                      If IOResult <> 0 then;
-                      {$I+}
-                    end; { If PostResult }
-                  end;
-                end else begin { not Updated }
-                  If LogToFile then begin
-                    Write(LogFile, '- ', LogTime, LogName, StrNotUpd, Ctr);
-                    If EchoTag <> '' then
-                      Writeln(LogFile, StrDidSv2, EchoTag)
-                    else
-                      Writeln(LogFile);
-                  end; { If LogToFile }
-                end; { If Updated }
-              end else begin { TooSmall }
-                If LogToFile then begin
-                  Write(LogFile, '- ', LogTime, LogName, StrTooSml, Ctr);
-                  If EchoTag <> '' then
-                    Writeln(LogFile, StrDidSv2, EchoTag)
-                  else
-                    Writeln(LogFile);
-                end; { If LogToFile }
-              end; { If TooSmall }
-            end else begin { not SemaphorExist }
-              If LogToFile then begin
-                Writeln(LogFile, '- ', LogTime, LogName, StrNotSem, Ctr);
-                If EchoTag <> '' then
-                  Writeln(LogFile, StrDidSv2, EchoTag)
-                else
-                  Writeln(LogFile);
-              end; { If LogToFile }
-            end; { If SemaphorExist }
-          end else begin { not DaysSince }
-            If LogToFile then begin
-              Write(LogFile, '- ', LogTime, LogName, StrNotInt, Ctr);
-              If EchoTag <> '' then
-                Write(LogFile, StrDidSv2, EchoTag);
-              Writeln(LogFile, StrNotIn2);
-              Write(LogFile, '  ', LogTime, LogName, '  (');
-              If IntervalDate then
-                If Interval <> Idag.Day then
-                  Writeln(LogFile, StrNotIn4, Interval, '.)')
-                else
-                  Writeln(LogFile, StrNotIn5, ')')
+          PostThis := False;                    { Flagga om postning }
+
+          If WhatToDo = PostForce then begin
+            PostThis := True;                   { Posta alltid }
+            Log^.LogLine('!')^.LogStr(StrLogFor)^.LogInt(GlobalInfo.Ctr)^.LogLn;
+          end else If WhatToDo = PostForceAsk then begin
+            Write(StrAskPos, MessageInfo.Subj, StrAskPo2);  { Fr†ga om postning }
+            If MessageInfo.EchoTag <> '' then
+              Write(MessageInfo.EchoTag)
+            else
+              Write(MessageInfo.MsgBas);
+            Write(StrAskPo3);
+
+            Readln(AskPostAnswer);
+            PostThis := UpCase(AskPostAnswer) = ChrYes;
+
+            If PostThis then begin
+              Log^.LogLine('!')^.LogStr(StrLogFor)^.LogInt(GlobalInfo.Ctr)^.LogLn;
+            end else begin
+              Log^.LogLine('!')^.LogStr(StrLogFno)^.LogInt(GlobalInfo.Ctr)^.
+                   LogStr(StrLogFn2)^.LogLn;
+            end;
+          end else begin
+            If DaysSince >= Interval then begin { Kolla om ska postas }
+              If SemaphorExist = True then begin
+                If not TooSmall then begin
+                  If Updated then begin
+                    PostThis := True;           { Ska postas }
+                  end else begin { not Updated }
+                    Log^.LogLine('-')^.LogStr(StrNotUpd)^.LogInt(GlobalInfo.Ctr);
+                    If MessageInfo.EchoTag <> '' then
+                      Log^.LogStr(StrDidSv2 + MessageInfo.EchoTag);
+                    Log^.LogLn;
+                  end; { If Updated }
+                end else begin { TooSmall }
+                  Log^.LogLine('-')^.LogStr(StrTooSml)^.LogInt(GlobalInfo.Ctr);
+                  If MessageInfo.EchoTag <> '' then
+                    Log^.LogStr(StrDidSv2 + MessageInfo.EchoTag);
+                  Log^.LogLn;
+                end; { If TooSmall }
+              end else begin { not SemaphorExist }
+                Log^.LogLine('-')^.LogStr(StrNotSem)^.LogInt(GlobalInfo.Ctr);
+                If MessageInfo.EchoTag <> '' then
+                  Log^.LogStr(StrDidSv2 + MessageInfo.EchoTag);
+                Log^.LogLn;
+              end; { If SemaphorExist }
+            end else begin { not DaysSince }
+              Log^.LogLine('-')^.LogStr(StrNotInt)^.LogInt(GlobalInfo.Ctr);
+              If MessageInfo.EchoTag <> '' then
+                Log^.LogStr(StrDidSv2 + MessageInfo.EchoTag);
+              Log^.LogStr(StrNotIn2)^.LogLn;
+              Log^.LogLine(' ')^.LogStr('  (');
+              If IntervalDate then begin
+                If Interval <> GlobalInfo.Idag.Day then begin
+                  Log^.LogStr(StrNotIn4)^.LogInt(Interval)^.LogStr('.)')^.LogLn;
+                end else begin
+                  Log^.LogStr(StrNotIn5 + ')')^.LogLn;
+                end;
+              end else begin
+                Log^.LogInt(DaysSince)^.LogStr(StrNotIn3)^.LogInt(Interval)^.
+                     LogStr(')')^.LogLn;
+              end;
+            end; { If DaysSince }
+          end; { If Force }
+
+          If PostThis then begin
+            If DoSimulate then begin
+              Log^.LogLine(' ')^.LogStr(StrDidSav + StrDidSim + StrDidSv2);
+              If (MessageInfo.AreaType = EchoMail) and
+                 (MessageInfo.EchoTag <> '') then
+                Log^.LogStr(MessageInfo.EchoTag)
               else
-                Writeln(LogFile, DaysSince, StrNotIn3, Interval, ')');
-            end; { If LogToFile }
-          end; { If DaysSince }
+                Log^.LogStr(MessageInfo.MsgBas);
+              Log^.LogStr(StrDidSv3)^.LogInt(GlobalInfo.Ctr)^.LogStr(')')^.LogLn;
+              Inc(GlobalInfo.MsgWritten);
+            end else begin { = not DoSimulate }
+              PostResult := DoMessage(GlobalInfo, MessageInfo, PacketInfo);
+              If PostResult = True then begin
+                If Not LeaveDates then
+                  MessageInfo.CurrentRec.LastWritten := GlobalInfo.Idag;
+                {$I-}
+                Seek(DataFile, MsgCount);
+                Write(DataFile, MessageInfo.CurrentRec);
+                If IOResult <> 0 then;
+                {$I+}
+              end; { If PostResult }
+            end; { If DoSimulate }
+          end; { If PostThis }
+
           Inc(MsgCount);
         end; { If "kr„vda delar ifyllda" }
-      end else begin { PlaceHolder }
-        Inc(Ctr);
+      end else begin { = PlaceHolder }
+        {$I-}
+        Seek(DataFile, MsgCount);
+        Read(DataFile, MessageInfo.CurrentRec);
+        If IOResult <> 0 then begin
+          FillChar(MessageInfo.CurrentRec, SizeOf(MessageInfo.CurrentRec), #0);
+          Seek(DataFile, MsgCount);     { 0-fyll ickeexisterande poster }
+          Write(DataFile, MessageInfo.CurrentRec);
+          If IOResult <> 0 then;
+        end; { If IOResult }
+        {$I+}
+        Inc(GlobalInfo.Ctr);
         Inc(MsgCount);
-      end;
+      end; { If PlaceHolder }
     end; { If EOF }
   Until EOF(Ini);
+
+  { St„ng filer }
 
   Close(Ini);
   Close(DataFile);
 
+  { Avallokera objekt }
+
+  Dispose(MsgId_p);
+
+  If TosserConfig_p <> Nil then
+    Dispose(TosserConfig_p, Done);
+
   { Bygg PKT-fil }
 
-  If PktMode and (MsgWritten <> 0) then begin
+  If GlobalInfo.PktMode and (GlobalInfo.MsgWritten <> 0) then begin
     If BinkleyName then
-      PktName := LongWord(LongInt(PktTo.Net) shl 16 + PktTo.Node) + '.OUT'
-    else
-      PktName := LongWord(msgidnum) + '.PKT';
-    If WhatToDo = Simulate then
-      Writeln(LogFile, '  ', LogTime, LogName, StrLogPkt, StrDidSim, ' ',
-              PktName)
-    else
-      buildpacket(PktPath + PktName, Copy(MsgBas, 2, Length(MsgBas) - 1),
-                  PktFrom, PktTo, PktPwd);
-  end;
+      PacketInfo.PktSpec := PktPath + LongWord(LongInt(PacketInfo.PktTo.Net)
+                                               shl 16 + PacketInfo.PktTo.Node)
+                            + '.OUT'
+    else begin
+      {$IFDEF OS2}
+      PacketInfo.PktSpec := PktPath +
+                            LongWord(((DTToUnixDate(DosDateTime2OS2DateTime(GlobalInfo.Idag))
+                                                    and $7fffffff) shl 4) +
+                                     Random(16)) + '.PKT';
+      {$ELSE}
+      PacketInfo.PktSpec := PktPath + LongWord(((DTToUnixDate(GlobalInfo.Idag)
+                                                 and $7fffffff) shl 4) +
+                                               Random(16)) + '.PKT';
+      {$ENDIF}
+    end;
+    If DoSimulate then begin
+      Log^.LogLine(' ')^.LogStr(StrLogPkt + StrDidSim + ' ' +
+                                PacketInfo.PktSpec)^.LogLn;
+    end else
+      buildpacket(GlobalInfo, PacketInfo);
+  end; { If GlobalInfo.PktMode }
 End.

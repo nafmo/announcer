@@ -7,7 +7,7 @@
 {* Funktion:    Best„mmer de riktiga textstr„ngarna beroende p† lands-  *}
 {*              informationen resp. milj”variabeln ANNLANG              *}
 {************************************************************************}
-{* Version:     1.10                                                    *}
+{* Version:     1.12                                                    *}
 {* F”rfattare:  Peter Karlsson                                          *}
 {*              Gjort efter ADSTRING.PAS (c) Thomas Mainka f”r ADIR     *}
 {************************************************************************}
@@ -17,27 +17,32 @@
 {*              1.00 Lade till texter                        1996-03-09 *}
 {*              1.10 Lade till/tog bort/„ndrade texter       1996-08-14 *}
 {*              1.11 Lade till/tog bort/„ndrade texter       1996-11-15 *}
+{*              1.12 Lade till/tog bort/„ndrade texter       1997-04-03 *}
+{*              1.2  Lade till/tog bort/„ndrade texter       1997-07-18 *}
 {************************************************************************}
 
 Unit AnStr;
 {$G+,D-}
 Interface
 
-Var StrErrSav, StrErrBas, StrErrFil, StrErrPar, StrErrOp1, StrErrOp2,
-    StrErrIni, StrErrIn2, StrErrTag, StrErrLog, StrErrLo2, StrErrOrg,
-    StrErrDst, StrErrTos, StrErrTo2, StrErrDat, StrErrDaf, StrErrDar,
-    StrErrLoc, StrErrAll, StrErrRea, StrErrWri, StrErrMOp, StrErrPOp,
+Var StrErrVir, StrErrSav, StrErrBas, StrErrFil, StrErrPar, StrErrPrc,
+    StrErrOp1, StrErrOp2, StrErrIni, StrErrIn2, StrErrTag, StrErrLog,
+    StrErrLo2, StrErrOrg, StrErrDst, StrErrTos, StrErrTo2, StrErrDat,
+    StrErrDaf, StrErrDar, StrErrLoc, StrErrAll, StrErrRea, StrErrWri,
+    StrErrMOp, StrErrPOp, StrErrIds, StrErrId2, StrErrId3, StrErrTor,
     StrLogBeg, StrLogEnd, StrLogEn2, StrLogSav, StrLogBas, StrLogFil,
     StrLogIni, StrLogTos, StrLogTo2, StrLogRun, StrLogRn2, StrLogMis,
-    StrLogPkt, StrLogCrf, StrLogCrs,
+    StrLogPkt, StrLogCrf, StrLogCrs, StrLogFor, StrLogFno, StrLogFn2,
+    StrLogTor, StrLogTr2, StrLogTr3, StrLogTr4,
     StrStdOri, StrDidSav, StrDidSv2, StrDidSv3, StrDidSim, StrNotInt,
     StrNotIn2, StrNotIn3, StrNotIn4, StrNotIn5, StrNotSem, StrNotReg,
-    StrTooSml, StrNotUpd,
+    StrTooSml, StrNotUpd, StrAskPos, StrAskPo2, StrAskPo3,
     StrInfMsg, StrInfLst, StrInfClk, StrInfAgo, StrInfTod, StrInfYst,
     StrInfInt, StrInfDag, StrInfLes, StrInfMor, StrInfDat, StrInfDa2,
-    StrInfFnn, StrInfNop, StrInfRem, StrInfSem, StrInfSno, StrInfSye,
-    StrInfMin, StrInfMi2, StrInfMno, StrInfMye, StrInfUpd, StrInfUno,
-    StrInfUp2, StrInfLat, StrInfYtt, StrInfPlc: String;
+    StrInfFnn, StrInfNop, StrInfRem, StrInfZer, StrInfSem, StrInfSno,
+    StrInfSye, StrInfMin, StrInfMi2, StrInfMno, StrInfMye, StrInfUpd,
+    StrInfUno, StrInfUp2, StrInfLat, StrInfYtt, StrInfPlc: String;
+    ChrYes, ChrNo: Char;
     Language : String[3];
 
 Implementation
@@ -73,10 +78,12 @@ begin
    if Language='SWE' then
    begin
      { Felmeddelanden }
+     StrErrVir := 'Sj„lvtest misslyckades'#7;
      StrErrSav := 'Fel vid sparande av meddelandet "';
      StrErrBas := 'Stackars lilla jag kan inte hitta meddelandebasen ';
      StrErrFil := 'Lyckades inte lokalisera filen ';
      StrErrPar := 'Felaktig kommandoradsparameter:';
+     StrErrPrc := 'Felaktig kommandoradsparameterskombination: /FA och /Q';
      StrErrOp1 := 'Kunde inte ”ppna varken ';
      StrErrOp2 := ' eller ';
      StrErrIni := 'Fel i ';
@@ -97,6 +104,10 @@ begin
      StrErrWri := 'Fel vid skrivning av PKT-fil';
      StrErrMOp := 'Fel vid ”ppning av MSG-fil ';
      StrErrPOp := 'Fel vid skapande av PKT-fil ';
+     StrErrIds := 'Kan ej ”ppna eller skapa MSGID-serverfil ';
+     StrErrId2 := 'MSGID-serverfil har felaktig signatur, skapar ny.';
+     StrErrId3 := 'MSGID-serverfil har felaktig kontrollsumma, skapar ny';
+     StrErrTor := 'Endast en tosserkonfigurationsfil kan specificeras';
      { Texter i loggfilen }
      StrLogBeg := 'Start, ';
      StrLogEnd := 'Slut, ';
@@ -113,6 +124,13 @@ begin
      StrLogPkt := 'Skapade PKT-fil ';
      StrLogCrf := 'Kunde inte skapa semaforfil ';
      StrLogCrs := 'Skapade semaforfil ';
+     StrLogFor := 'Framtvingad postning av mall ';
+     StrLogFno := 'Postning av mall ';
+     StrLogFn2 := ' bortvald';
+     StrLogTor := 'M”tesdefinition saknas f”r ';
+     StrLogTr2 := ' i tosserkonfigurationen';
+     StrLogTr3 := 'Kunde ej l„sa tosserkonfigurationsfil ';
+     StrLogTr4 := 'Fel vid l„sning av tosserkonfigurationsfil ';
      { Str„ngar }
      StrStdOri := 'Standard-Origin-rad';
      StrDidSav := 'Skrev meddelande ';
@@ -128,6 +146,9 @@ begin
      StrNotReg := 'OREGISTRERAD';
      StrTooSml := 'Filen „r f”r liten, mall ';
      StrNotUpd := 'Filen „r inte uppdaterad, mall ';
+     StrAskPos := 'Posta "';
+     StrAskPo2 := '" i ';
+     StrAskPo3 := '? (J/N) ';
      { Informationsstr„ngar }
      StrInfMsg := 'Meddelande ';
      StrInfLst := ' postades senast den ';
@@ -141,9 +162,10 @@ begin
      StrInfMor := '„r redo f”r postning.';
      StrInfDat := ' ™nskat postningsdatum „r ';
      StrInfDa2 := ', meddelandet ';
-     StrInfFnn := ' Meddelandedefinition kunde ej hittas i inst„llningsfilen';
-     StrInfNop := 'Meddelandet har inte postats';
-     StrInfRem := ' Datafilsposten har tagits bort';
+     StrInfFnn := ' Meddelandedefinition kunde ej hittas i inst„llningsfilen.';
+     StrInfNop := 'Meddelandet har inte postats.';
+     StrInfRem := ' Datafilsposten har tagits bort.';
+     StrInfZer := ' Datafilsposten har nollst„llts.';
      StrInfSem := ' Semaforfil ';
      StrInfSno := 'existerar inte, meddelandet kommer ej postas.';
      StrInfSye := 'existerar, meddelandet „r redo f”r postning.';
@@ -157,14 +179,19 @@ begin
      StrInfLat := ' Senaste MSGID: ';
      StrInfYtt := ' ytterligare meddelandemall(ar) finns.';
      StrInfPlc := ' Meddelandemallen „r oanv„nd.';
+     { Svar Ja/Nej }
+     ChrYes := 'J';
+     ChrNo  := 'N';
    end
    else if Language='ENG' then
    begin
      { Felmeddelanden }
+     StrErrVir := 'Self test failed'#7;
      StrErrSav := 'Error while saving the message "';
      StrErrBas := 'Poor little me could not find the message base ';
      StrErrFil := 'Unable to localize the file ';
      StrErrPar := 'Illegal command line parameter:';
+     StrErrPrc := 'Illegal command line parameter combination: /FA and /Q';
      StrErrOp1 := 'Can not open neither ';
      StrErrOp2 := ' nor ';
      StrErrIni := 'Error in ';
@@ -185,6 +212,10 @@ begin
      StrErrWri := 'Error while writing PKT file';
      StrErrMOp := 'Error while opening MSG file ';
      StrErrPOp := 'Error while creating PKT file ';
+     StrErrIds := 'Unable to open or create MSGID server file ';
+     StrErrId2 := 'MSGID server file has invalid signature, creating new.';
+     StrErrId3 := 'MSGID server file has invalid checksum, creating new.';
+     StrErrTor := 'No more than one tosser configuration file can be specified';
      { Texter i loggfilen }
      StrLogBeg := 'Begin, ';
      StrLogEnd := 'End, ';
@@ -201,6 +232,13 @@ begin
      StrLogPkt := 'Created PKT file ';
      StrLogCrf := 'Unable to create semaphore file ';
      StrLogCrs := 'Created semaphore file ';
+     StrLogFor := 'Forced posting of template #';
+     StrLogFno := 'Posting of template #';
+     StrLogFn2 := ' deselected';
+     StrLogTor := 'Area definition for ';
+     StrLogTr2 := ' missing in tosser config';
+     StrLogTr3 := 'Unable to read tosser configuration file ';
+     StrLogTr4 := 'Error while reading tosser configuration file ';
      { Str„ngar }
      StrStdOri := 'Default Origin Line';
      StrDidSav := 'Wrote message #';
@@ -216,6 +254,9 @@ begin
      StrNotReg := 'NOT REGISTERED';
      StrTooSml := 'The file is too small, template #';
      StrNotUpd := 'The file is not updated, template #';
+     StrAskPos := 'Post "';
+     StrAskPo2 := '" in ';
+     StrAskPo3 := '? (Y/N) ';
      { Informationsstr„ngar }
      StrInfMsg := 'Message ';
      StrInfLst := ' last posted on ';
@@ -229,9 +270,10 @@ begin
      StrInfMor := 'is ready to be posted.';
      StrInfDat := ' Defined date of posting is ';
      StrInfDa2 := ', the message ';
-     StrInfFnn := ' Message template could not be found';
-     StrInfNop := 'Message has not been posted';
-     StrInfRem := ' The data file item has been removed';
+     StrInfFnn := ' Message template could not be found in the configuration file.';
+     StrInfNop := 'Message has not been posted.';
+     StrInfRem := ' The data file entry has been removed.';
+     StrInfZer := ' The data file entry has been zeroed out.';
      StrInfSem := ' Semaphore file ';
      StrInfSno := 'does not exist, message will not be posted.';
      StrInfSye := 'exists, message is ready to be posted.';
@@ -245,6 +287,9 @@ begin
      StrInfLat := ' Latest MSGID: ';
      StrInfYtt := ' more message template(s) exists.';
      StrInfPlc := ' The message template is not in use.';
+     { Svar Ja/Nej }
+     ChrYes := 'Y';
+     ChrNo  := 'N';
    end
    else
    begin

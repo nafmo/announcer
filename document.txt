@@ -1,11 +1,11 @@
 ÛßßÛ     ÛÞÝÛ    TM     SoftWolves Software     Announce.Doc
 ÛÜÜÜÄÄÄÄÄÛÞÝÛÄÄÄÄÄÄ     c/o Peter Karlsson
 Ü  Û OFT ÛÞÝÛ OLVES     V„rnsta, Ullers„ter     Documentation for
-ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     S-718 92  FR™VI         Announcer v1.11
-  Hear the howl       SWEDEN    fax +46-(0)581-32110
+ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     S-718 92  FR™VI         Announcer v1.2
+  Hear the howl       SWEDEN    fax +46-(0)21-132367
 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-Announcer v1.11 - Posts files in message areas att BBSes
+Announcer v1.2 - Posts files in message areas at BBSes
 
 Copyright (c) 1995, 1996, 1997: Peter Karlsson
 A Softwolves Software(TM) Release in 1997
@@ -26,7 +26,7 @@ If you want to use the standard settings that exist for Announcer, you simply en
 
 at the command line, and the program will execute. It will now use the standard configuration file ANNOUNCE.INI and do what is told there. If any errors occur, they will be printed on the screen, and the program execution will end. A common error is that files or message bases are missing, which mostly is caused by misspelled file names, but it can also be caused by the file or message base being locked by another program.
 
-If you wish to use the settings of another configuration file, read the chapter titled "Command line format". If you want to use the possability to specify sender and receiver names on the command line, see the chapter "The %1 and %2 variables". If you want a more detailed description on how the configuration file is structured, see the chapter "ANNOUNCE.INI, the configuration file". See also the examples in the included sample configuration file.
+If you wish to use the settings of another configuration file, read the chapter titled "Command line format". If you want to use the possibility to specify sender and receiver names on the command line, see the chapter "The % variables". If you want a more detailed description on how the configuration file is structured, see the chapter "ANNOUNCE.INI, the configuration file". See also the examples in the included sample configuration file.
 
 And if you want to learn everything, read this manual through carefully and memorize it :-)
 
@@ -61,7 +61,8 @@ THIS SOFTWARE AND MANUAL ARE SOLD "AS IS" AND WITHOUT WARRANTIES AS TO PERFORMAN
         {Included files}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-ANNOUNCE.EXE    The excutable program
+ANNOUNCE.EXE    The executable program
+ANNOUNCE.ICO    Icon (OS/2 format)
 FILE_ID.DIZ     Short description for BBSes
 ANNOUNCE.DOK    Documentation in Swedish
 ANNOUNCE.DOC    Documentation
@@ -72,8 +73,8 @@ WOLVES.COM      Softwolves Software's program catalogue
         {Command line format}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/P] [/Q] [/S]
-         [name1 [name2]]
+ANNOUNCE [/I[drive:][path]filename] [/D[M]] [/P] [/Q] [/S]
+         [/F[A]] [/L] [names ...]
 ANNOUNCE /?
 
   /I[drive:][path]filename
@@ -82,39 +83,52 @@ This parameter tells Announcer that it is to use another configuration file than
 
   /D
 
-This option will tell Announcer not to post messages, but instead show satus information. The things that are shown is how long time have passed since the messages have been posted, the intervals that have been specified for the messages (if any), the wanted minimum size, the existance of a semaphore file, and the MSGID that were used at the last posting. Please notice that you need to have run Announcer at least once to be able to use this command line switch.
+This option will tell Announcer not to post messages, but instead show status information. What is shown is the time that have passed since the messages have been posted, the intervals that have been specified for the messages (if any), the wanted minimum size, the existence of a semaphore file, and the MSGID that were used at the last posting. Please notice that you need to have run Announcer at least once to be able to use this command line switch.
 
-  /M
+  the M modifier (/DM)
 
-This command line parameter will get Announcer to clean up the data file, so that items that are in the file which does not match any message template in the configuration file will be removed. This is useful when message templates have been deleted from the data file. It can only be used together with /D, and will otherwise be ignored. Please note that if the data file and the templates get "out of sync", for example if you delete a template somewhere in the middle, you cannot use /M, but have to use the special PlaceHolder token instead.
+This modifier to the /D parameter will get Announcer to clean up the data file, so that items that are in the file and that does not match any message template in the configuration file will be removed. This is useful when message templates have been deleted from the data file. It can only be used together with /D, and will otherwise be ignored.
+
+Please note that if the data file and the templates get "out of sync", for example if you delete a template somewhere in the middle, you cannot use /M, but have to use the special PlaceHolder token instead. /M will though zero out entries that are defined as "PlaceHolder"s.
 
   /P
 
-When specifying this command line parameter, Announcer will not create tear lines in the messages it creates, but instead show its name in a PID kludge. When posting echomail to message bases, this command line option will also result in Announcer not adding an Origin line, leaving that to the tosser. When in .PKT mode, an Origin line will be created, but no tear line.
+When specifying this command line parameter, Announcer will not create tear lines in the messages it creates, but instead shows its name in a PID kludge. When posting echomail to message bases, this command line option will also result in Announcer not adding an Origin line, leaving that to the tosser. When in .PKT mode, an Origin line will be created, but no tear line.
 
 Please note that the tosser TerMail, at least in some versions, do not add a tear and Origin line when tossing, so this option will then generate invalid messages according to the Fidonet specifications. Use with caution.
 
   /Q
 
-This command line option will inhibit Announcer from showing anything on the screen, except for error messages, which are always printed to the stderr device.
-
-  name1
-  name2
-
-These texts will be use wherever you enter %1 or %2, respectively, in the configuration file. They may be used to make it possible to post a standardized message to different people. If you want a space in the name you should exchange it with an underscore character ("_"). If you don't supply any names both %1 and %2 will have the value "Announcer". If you only supply one name %2 will give "Announcer" while %1 will have the value you specified. These names have no effect when used together with /D.
+This command line option will inhibit Announcer from showing any output, except for error messages, which are always printed to the stderr device. Normally all output is written to the device connected to stdout (usually the screen). May not be used together with the /FA option.
 
   /S
 
 Use this command line option to simulate a run by Announcer. Announcer will do everything like if it has been a real run, except that it won't create the messages or semaphores, it won't log anything to the log file (it is instead logged to the screen), and the data file is not updated. This can be useful for debugging configuration files.
 
+  /F
+
+This command line option is used to force posting of messages even though the requirements for their posting aren't met (because of, e.g. interval or minimum file size).
+
+  the A modifier (/FA)
+
+If you use /F all messages will be posted, while /FA asks for posting for each template. /FA cannot be used together with /Q.
+
+  /L
+
+If you enter the /L parameter, Announcer will not update the latest posting date for the messages that are posted (the latest used MSGID will be updated, though). This can be useful for e.g. posting updated rule files directly when they are changed, together with /FA, without disturbing interval driver postings, but still get them into the same reply chain.
+
+  names
+
+These texts will be use wherever you enter %1 to %10 (the number corresponding to the ordering on the command line), in the configuration file. They may be used to make it possible to post a standardized message to different people. If you want a space in the name you should change it to an underscore character ("_"). If you supply less than ten names, the remaining %n variables will evaluate as "Announcer". These names have no effect when used together with /D.
+
   /?
 
 Displays the quick help screen.
 
-        {ANNOUNCE.INI, the configuration file}
+        {ANNOUNCE.INI, the configuration file}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-The configuration file, default name ANNOUNCE.INI, tells Announcder what it is supposed to do, and in what way it should be done. To use Announcer, a configuration file is a must, and to use Announcer's functions I recommend you to read through this chapter. Some explanations are also included in the sample configuration file that comes with the distribution archive.
+The configuration file, default name ANNOUNCE.INI, tells Announcer what it is supposed to do, and in what way it should be done. To use Announcer, a configuration file is a must, and to use Announcer's functions I recommend you to read through this chapter. Some explanations are also included in the sample configuration file that comes with the distribution archive.
 
 If you want comments in the file you can enter them on lines that have a semi colon (";") in the left-hand position.
 
@@ -122,9 +136,9 @@ By default, Announcer will look for a configuration file that is placed in the s
 
 For each configuration file, a data file, with the file type .DAT, will be created. This file contains information on latest posting date, used by the interval handling, as well as the MSGID that was used, so that the next posting can contain a REPLY kludge. (If you have "ReplyKludge No" set, no REPLY kludge will be created, but the MSGID will still be logged).
 
-The configuration file contains two different "areas", the first is the global area where you define default settings for alle massages, and the second area is the individual settings for each message that is to be created. The settings that are used in the two areas are completely different, but they have influence on each other.
+The configuration file contains two different "areas", the first one is the global area where you define default settings for all massages, and the second area is the individual settings for each message that is to be created. The settings that are used in the two areas are completely different, but they have influence on each other.
 
-Each message template begins with a line which has the only word
+Each message template begins with a line that has the only word
 
         Msg
 
@@ -142,7 +156,7 @@ which will make Announcer just process the next one.
 
 For the global settings there are default values, which are indicated in the text below. Default values also exist for some of the message template settings, except for "From", "Subj", "File" and "Path". These four are vital, and have to be included for every message template definition. The addresses used in netmail and echomail are not considered as vital, but without them, you won't get any good results.
 
-It is not of importance whether the keywords are written in upper- or lowercase, the only thing you have to keep in mind is that there may not be more than one space between the keyword and the data.
+It is not of importance whether the keywords are written in upper- or lowercase. If you wish to have spaces included in the beginning or end of the data, you have to surround the value with quotation marks (").
 
   {  Global settings}
     ---------------
@@ -153,27 +167,62 @@ These are the available global settings:
 
 This keyword refers to the .PKT mode of Announcer. It is documented in the chapter "Creating .PKT files".
 
-  BragLineIntro <intro characters for the bragline>
+  BragLineIntro <intro characters for the brag-line>
 
-This defines what should be placed before the bragline. If this is not set up, it will default to "---" (a Fidonet tearline). This setting can be a maximum of three characters long.
+This defines what should be placed before the brag-line. If this is not set up, it will default to "---" (a Fidonet tearline). This setting can be a maximum of three characters long.
 
 example:
 BragLineIntro ___
 
   EchoTossLog <file name for the echotoss log file>
 
-If you have many echomail areas turned on, but don't write in all of them at once, it's a good idea to log which areas you have written to, and only scan through these message areas for new messages. This is why there is an ECHOTOSS.LOG file. It is a text file that contains a list of areatags, one on each line. These tags specify the areas in which new messages are present. Since Announcer has the possability to send echomail, it's nice if it's able to write to such a file. That's what this keyword is for.
+If you have many echomail areas turned on, but don't write in all of them at once, it's a good idea to log which areas you have written to, and only scan through these message areas for new messages. This is why there is an ECHOTOSS.LOG file. It is a text file that contains a list of area tags, one on each line. These tags specify the areas in which new messages are present. Since Announcer has the possibility to send echomail, it's nice if it's able to write to such a file. That's what this keyword is for.
 
 As a parameter to this keyword you should specify a full path and filename to the file in which the area tags should be added. If the file isn't present, it will be created when needed. If the area tag already is present in the file, it will not be repeated.
 
-For this to work, you also need to use the keyword "Echo" in the message templates. See this keyword.
+For this to work, you also need to use the keyword "Echo" in the message templates. See this keyword. See also "JamTossLog" below.
 
 example:
 EchoTossLog C:\SQUISH\ECHOTOSS.LOG
 
+  FMailCfg <path and filename for FMail.Cfg>
+
+Makes Announcer read FMail's (version 1.22) configuration file, so that one does not need to specify the paths to all message areas. Announcer will only read the FMAIL.CFG and FMAIL.AR files.
+
+example:
+FMailCfg C:\FMAIL\FMAIL.CFG
+
+  GEchoCfg <path and filename for GEcho.Cfg>
+
+Makes Announcer read GEcho's (version 1.20) configuration file, so that one does not need to specify the paths to all message areas. Announcer will only read the GECHO.CFG and AREAFILE.GE files.
+
+example:
+GEchoCfg C:\GECHO\GECHO.CFG
+
+  IdServer <directory for the IDServer file>
+  IdServer No
+
+According to the MSGID kludge specifications, the MSGID numbers that are generated should be unique for three years. With one program this is easy to handle, but with more than one it can be hard. IDServer was creaated to avoid this problem. An IDServer is a small data file that contains the next free MSGID number (and a few other things). By using this in all programs that are used, all the programs will create unique MSGID codes.
+
+IDServer can be specified either via the environment variable IDSERVER or via this configuration option. If you have the environment variable IDSERVER set, and, by any reason, do not want Announcer to use this setting, you can specify the parameter "NO". The IDServer will then not be used.
+
+example:
+IDServer C:\
+
+  JamTossLog <path to echomail.jam/netmail.jam>
+
+If you are using JAM areas, ECHOTOSS.LOG (see EchoTossLog above) is normally not used, but instead the files ECHOMAIL.JAM and NETMAIL.JAM. To create them, use this keyword.
+
+As a parameter to this keyword you should specify the path to the directory in which the files are to be written. In the file, the database path and the message numbers will be logged, so it is not necessary to use "Echo".
+
+If you have both EchoTossLog and JamTossLog defined, both will be used, but not simultaneously. JamTossLog will be used for JAM areas, and EchoTossLog for the others. If you do not use JamTossLog, but do have EchoTossLog, JAM areas will be logged in the EchoTossLog.
+
+example:
+JamTossLog C:\FASTECHO\
+
   LogFile <file name for the log file>
 
-If you want Announcer to log its actions to a logfile, you should enable this keyword. If the file you specify is not present, it will be created, otherwise the new log lines will be appended to the end of the file.
+If you want Announcer to log its actions to a log file, you should enable this keyword. If the file you specify is not present, it will be created, otherwise the new log lines will be appended to the end of the file.
 
 example:
 LogFile D:\LOGS\ANNOUNCE.LOG
@@ -184,6 +233,13 @@ If you want to create MSGID kludges in local message areas, you need to specify 
 
 example:
 MsgId 999:42/417.25@MyNet
+
+  NetMailTearLine <Yes/No>
+
+Controls whether or not you want a tearline in netmail messages or not. Please note that the PID kludge control (the /P command line option) has precedence to this setting. The default value is that tearlines are used in netmail.
+
+example:
+NetMailTearLine No
 
   PktFrom
   PktMode
@@ -202,6 +258,13 @@ REPLY kludges will not be created in mailing lists.
 example:
 ReplyKludge Yes
 
+  SquishCfg <path and filename for Squish.Cfg>
+
+Makes Announcer read SquishMail's (version 1.11) configuration file, so that one does not need to specify the paths to all message areas.
+
+example:
+SquishCfg C:\SQUISH\SQUISH.CFG
+
   TagLineFile <file name for the tagline file>
 
 If you want to use random taglines (taglines are quite commonly used in e-mail communities to add a small one liner joke), you need to tell Announcer where it can find a file with such things in. The tagline file you define can then be used by message *subsequent* templates. It is possible to change tagline files between the message templates. The new tagline file will then only be available to subsequent templates.
@@ -218,12 +281,21 @@ This defines what should be placed before the tagline (taglines are quite common
 example:
 TagLineIntro .!.
 
+  TerMailCfg <path and filename for Tm.Cfg>
+
+Makes Announcer read TermMail's (version 3.0-5.0) configuration file, so that one does not need to specify the paths to all message areas.
+
+Please note that if you are using relative paths in your area list, you need to difine an absolute Terminate path in Tm.Cfg (keyword 'TERMINATE').
+
+example:
+TerMailCfg C:\TERMINAT\TERMAIL\TM.CFG
+
   {  Message templates}
     -----------------
 
 The message templates consist of the following settings:
 
-Please note that the settings that are marked with a [*] are optional. Some other parameters can be more or less limited in certain scenarios, such things are noted under the individual options.
+Please note that the settings that are marked with a [*] symbol are optional. Some other parameters might be more or less limited in certain scenarios, such things are noted under the individual options.
 
   Attributes <message attributes> [*]
 
@@ -237,7 +309,7 @@ Available attributes are:
   "P": Private
   "H": Hold for pickup.
 
-Please note that the Private status also can be controlled with "Private" (see this keyword), and that the flag is ignored in netmail and echomail. You can not use specified attributes in echomail.
+Please note that the Private status also can be controlled with "Private" (see this keyword), and that the flag is ignored in netmail and echomail. You cannot use specified attributes in echomail.
 
 example:
 Attributes CK
@@ -248,12 +320,16 @@ Here you can set the character set to be used for the message that is to be post
 
 You can also convert your texts to PC8, code page 437, from either ISO 8859-1 or Swedish seven bit code. To do this, use the same string as above, but prefixed with a minus sign, i.e "-ISO" for conversion from ISO 8559-1 or "-SV7" for Swedish seven bit code.
 
+If you enter "-ASCII", conversion will be made from ASCII with parity to ASCII without parity (i.e. the high bit in the characters will be zeroed).
+
+If you have got a text that is in either Swedish seven bit code or ISO 8859-1, and want to post it in that character set, you can use the same strings as above, but prefixed with a plus sign, i.e "+ISO" for files in ISO 8859-1 or "+SV7" for Swedish seven bit code. The configuration file data should still be in PC8, as conversion will be done based on this presumption.
+
 example:
 Charset ISO
 
   Create <path and file name of semaphore file> [*]
 
-If you enter a path and file name here, Announcer will create a zero-byte semaphore file if the message was posted.
+If you enter a path and file name here, Announcer will create a zero-byte semaphore file if the message were posted.
 
 If you want Announcer to post only if a semaphore file exists, see the 'Semaphore' keyword.
 
@@ -269,9 +345,11 @@ Dest 2:204/999.41
 
   Distribution <type of message base> [*]
 
-Here you can set what type of message base it is that the message will be created in. Unfortunately, the program has no way of automatically recognize the base type, so you need to set it up correctly here. If you don't use this keyword at all, it will be considered as being a local area, and the parameters will be set that way. If you want to create netmail or echomail, these message base types need to be set explicity, which can be done by using this keyword followed by either the text "NetMail" or "EchoMail". For local areas, it is optional to use the parameter "Local".
+Here you can set what type of message base it is that the message will be created in. Unfortunately, the program has no way of automatically recognize the base type, so you need to set it up correctly here. If you don't use this keyword at all, it will be considered as being a local area, and the parameters will be set that way. If you want to create netmail or echomail, these message base types need to be set explicitly, which can be done by using this keyword followed by either the text "NetMail" or "EchoMail". For local areas, it is optional to use the parameter "Local".
 
 Please note that when you specify NetMail, you also need to specify Orig and Dest (see these keywords), and that Private (see this keyword) will not be active. If you choose EchoMail you need to specify Orig (see this keyword), and that if you want another Origin text than "Default Origin Line" you also need to define Origin (see this keyword). The Private flag will not be active here either.
+
+The area type is automatically determined if you are importing a tosser configuration, and uses the area tag to find an area.
 
 example:
 Distribution NetMail
@@ -280,28 +358,30 @@ Distribution NetMail
 
 This keyword is used in conjunction with EchoTossLog in the global settings (see this section) to log in what areas there are messages to be sent. If you don't specify both, nothing will happen.
 
+If you are importing a tosser configuration, and leave out the Path keyword, the area will be looked up using this tag. It need not then be an echomail area.
+
 example:
 Echo BLUEWAVE
 
   File <path and filename to be posted>
 
-With this keyword you specify which file should be used for the message body in the created message. The file must exist, otherwise the program will abort with an error message. If you specify a filename without a path, it will be looked for in the directory that is active when the program is started.
+With this keyword you specify the file to be used as message body in the created message. The file must exist, otherwise the program will abort with an error message. If you specify a filename without a path, it will be looked for in the directory that is active when the program is started.
 
 example:
 File C:\STAT\WRITERS.TXT
 
   FixedWidth <flag for monospace> [*]
 
-With FixedWidtth, you can tell wether the message you want to post is meant to be shown with a monospaced font or not. Since graphical user interfaces are becoming more and more common even among Fidonet readers, it is also getting more common to read using a proportional typeface, which, unfortunately, makes tables and similar look strange. With a monospaced typeface, this problem can be cured.
+With FixedWidth, you can tell whether the message you want to post is meant to be shown with a monospaced font or not. Since graphical user interfaces are becoming more and more common even among Fidonet readers, it is also getting more common to read using a proportional typeface, which, unfortunately, makes tables and similar look strange. With a monospaced typeface, this problem can be cured.
 
 Fixed Width uses a kludge line that was first specified in FrontDoor APX/w, namely "FLAGS: NPD".
 
 The default is not to use this kludge.
 
-exempel:
+example:
 FixedWidth Yes
 
-  Footer <path and filname for footer file> [*]
+  Footer <path and filename for footer file> [*]
 
 This keyword specifies a footer file, which will be added after the "big" file. It can be a signature file, or something in that direction. If you don't give any, no footer file will be used.
 
@@ -315,7 +395,7 @@ Footer C:\SIG\MY.SIG
 Here the sender name for the message to be created is specified. If the message base format does not restrict it further, the maximum length of the name is 35 characters, if you enter a name that is too long, it will be truncated to fit the maximum length.
 
 example:
-From Statistiscs Generator
+From Statistics Generator
 
   Header <path and file name header file> [*]
 
@@ -329,7 +409,7 @@ Header C:\LOGOS\MY.LGO
   Interval <interval> [*]
   Interval @<posting date> [*]
 
-If you don't want the message to be posted everytime the program is run, you can enter an interval, given as a number of days, here. If you run Announcer each day of the week, and have the interval set to 7, a message will only be posted once a week anyway. If you don't give an interval, or an interval of zero, the message will be posted each time the program is run.
+If you don't want the message to be posted every time the program is run, you can enter an interval, given as a number of days, here. If you run Announcer each day of the week, and have the interval set to 7, a message will only be posted once a week anyway. If you don't give an interval, or an interval of zero, the message will be posted each time the program is run.
 
 You may also tell Announcer only to post messages on certain dates, then prefix the date with an at sign ("@"). Please note that you actually need to run Announcer on that date, if you don't, it won't be posted until next month.
 
@@ -343,23 +423,25 @@ Interval @1
 
 With this optional keyword, you can specify the minimum size the message file must have for it to be posted. If the file is smaller than this amount, including the file not existing, it will not be posted.
 
-This can also be used to only post messages if the message file exists, (if it doesn't, it is considered too small), just use MinSize 0. (To do this, you might also use Semaphore).
+This can also be used to post messages only if the message file exists, (if it doesn't, it is considered too small), just use MinSize 0. (To do this, you might also use Semaphore).
 
 example:
 MinSize 1024
 
   Orig <originating address>
 
-With this keyword you enter the originating address for the message that shall be created. It is only active in netmail and echomail, and will be otherwised ignored. The address you enter here will be used to create a MSGID kludge. (MSGID will always be created for netmail and echomail).
+With this keyword you enter the originating address for the message that shall be created. It is only active in netmail and echomail, and will be ignorde otherwise. The address you enter here will be used to create a MSGID kludge. (MSGID will always be created for netmail and echomail).
+
+The originating address is automatically determined if you are importing a tosser configuration, and uses the area tag to find an area.
 
 example:
 Orig 2:204/999.42
 
   Origin <origin line> [*]
 
-This is an optional keyword which only is active when you are creating echomail, and it is used to specify the text that should be used on the Origin line. Origin lines will always be createdm, even if you haven't specified any text, but it might be nice to have your own text here.
+This is an optional keyword that is only active when you are creating echomail messages, and it is used to specify the text that should be used on the Origin line. Origin lines will always be created, even if you haven't specified any text, but it might be nice to have your own text here.
 
-Since the Fidonet specifications says that an Origin line can be a maximum of 79 characters, including the prefix " * Origin: " and the suffix " (address)", you cannot enter a line that is too long. The line will be truncated from the right if that is the case. How long precisely your text can be depends on how long your address is. There is room for more text if you have the address 7:7/7 than 999:999/999.999
+Since the Fidonet specifications says that an Origin line can be a maximum of 79 characters, including the prefix " * Origin: " and the suffix " (address)", you cannot enter a line that is too long. The line will be truncated from the right if that is the case. Precisely how long your text can be depends on how long your address is. There is room for more text if you have the address 7:7/7 than 999:999/999.999
 
 example:
 Origin My spot in the universe
@@ -368,7 +450,7 @@ Origin My spot in the universe
 
 In order for Announcer to know where the message should be posted, you need to tell it what message base should be used. The format of this path depends on the format of the message base according to the table below:
 
-Squish: The letter "S" followed by the path to the message base stemfile (without extension).
+Squish: The letter "S" followed by the path to the message base stem file (without extension).
 example:
 Path SC:\MAX\MSG\MUFFIN
 
@@ -380,11 +462,11 @@ Fido (*.MSG): The letter "F" followed by the path to the directory in which the 
 example:
 Path FC:\FD\NET\
 
-JAM: The letter "J" followed by the path to the message base stemfile (without extension).
+JAM: The letter "J" followed by the path to the message base stem file (without extension).
 example:
 Path JC:\RA2\MSG\RA_UTIL
 
-EzyCom (before version 1.10 of EzyCom): The letter "E" followed by a for-digit, decimal, number that specifies the area number, and this in its turn followed by the path to the messagebase (without extension).
+EzyCom (before version 1.10 of EzyCom): The letter "E" followed by a for-digit, decimal, number that specifies the area number, and this in its turn followed by the path to the message base (without extension).
 example:
 Path E0001F:\EZY\MSG
 
@@ -397,13 +479,13 @@ Private Yes
 
   Semaphore <path and file name of semaphore file> [*]
 
-With this keyword you can control the posting of the message with a so called semaphore file. If the specified file does not exist, no message will be created. Semaphore files are generally 0 byte files that are created by a program to signal that a certain situation has occured. An example is that a new user has logged in at the BBS. The semaphore file is not removed by Announcer.
+With this keyword you can control the posting of the message with a so called semaphore file. If the specified file does not exist, no message will be created. Semaphore files are generally zero byte files that are created by a program to signal that a certain situation has occurred. An example is that a new user has logged in at the BBS. The semaphore file is not removed by Announcer.
 
-This can also be used to only post messages if the message file exists (otherwise Announcer will give an error message), just use the same file name for the semaphore file as for the message file. (To do this, you might also use MinSize).
+This can also be used to post messages only if the message file exists (otherwise Announcer will give an error message), just use the same file name for the semaphore file as for the message file. (To do this, you might also use MinSize).
 
-If you want Announcer to create a semaphore if the message was posted, see the 'Create' keyword.
+If you want Announcer to create a semaphore if the message were posted, see the 'Create' keyword.
 
-exemple:
+example:
 Semaphore c:\timed\netmail.sem
 
   Split <number of parts> [*]
@@ -413,7 +495,7 @@ If the message file you want to post is large, and not all message processors on
 
 It is also possible to give the maximum allowed size that the resulting message may have, in that case you should prefix the byte count with an at sign ("@"). The size does not include the kludges. The messages are still divided evenly.
 
-When posting to Squish databases, the routines used do not support messages larger than approximately 33,000 characters. If you specify larger parts, even if it's because you're leaving out the Split keyword, the message will be splitted so that each part will not exceed 33,000 characters.
+When posting to Squish databases, the routines that are used do not support messages larger than approximately 33,000 characters. If you specify larger parts, even if it's because you're leaving out the Split keyword, the message will be splitted so that each part will not exceed 33,000 characters.
 
 If you want the originating address in the SPLIT kludge to be correct, you have to give an Orig address, even for local messages.
 
@@ -434,7 +516,7 @@ Subject Top ten message writers
 
 With this keyword you determine whether a tagline will be added to the message or not. If you don't specify this keyword, no tagline will be used. You can also set it up so that the same tagline will be used every time (a static tagline), or if it is to vary each time by reading randomly from the file you have specified with the keyword TagLineFile in the global settings (see this section).
 
-If you want the same tagline to be used every time you can give the tagline text after the keyword (a maximum length of 80 characters is allowed), and if you want it to be choosen at random, you only enter a commercial at sign ("@").
+If you want the same tagline to be used every time you can give the tagline text after the keyword (a maximum length of 80 characters is allowed), and if you want it to be chosen at random, you only enter a commercial at sign ("@").
 
 example:
 TagLine @
@@ -444,7 +526,7 @@ TagLine @
 
 Here the receiver name of the message to be created is specified. If the message base does not restrict it further, the maximum length of the receiver name is 35 characters, if you enter a name that is too long, it will be truncated to fit the maximum length. If you don't enter any name, the receiver field will be empty.
 
-If you wish to create a mailing list (ie. post the same message to several people), you should enter a commercial at sign ("@") followed by the name of the file that contains all the recipients in the mailing list instead of the receiver name. This file contains lines with receiver address and receiver name separated by a space. For more information, see the chapter "Using mailing lists".
+If you wish to create a mailing list (i.e. post the same message to several people), you should enter a commercial at sign ("@") followed by the name of the file that contains all the recipients in the mailing list instead of the receiver name. This file contains lines with receiver address and receiver name separated by a space. For more information, see the chapter "Using mailing lists".
 
 You can't use the two variants of the To keyword together in the same message template.
 
@@ -452,19 +534,19 @@ example:
 To All
 To @MYLIST.TXT
 
-  UpdatedSend <updatingflag>
+  UpdatedSend <updating-flag>
 
 With this keyword you can select whether the message file should only be posted if it has been updated since the last posting. If you select "Yes", the file date will be checked against the last posting date, and if it is older, the message will not be posted. If you select "No", no such checking will be made.
 
 example:
 UpdatedSend Yes
 
-        {The %1 and %2 variables}
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        {The % variables}
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-To make it easier to post messages to different people without having to edit the configuration file each time, it is possible to enter two parameters on the command line. These parameters are meant to be used as the sender and/or receiver names, but you can use them as easily for subject lines, file names, receiver address in netmail, and all the other settings that are included in the message templates.
+To make it easier to post messages to different people without having to edit the configuration file each time, it is possible to enter up to ten parameters on the command line. These parameters can be used them for sender/receiver names, subject lines, file names, receiver address in netmail, and all the other settings that are included in the message templates.
 
-To use the parameters you pass on the command line, you should use the "%1" and "%2" variables in the configuration file. These will then be exchanged with the parameters you entered. If you want a space in the name, these must be exchanged with an underscore ("_") on the command line.
+To use the parameters you pass on the command line, you should use the "%1" to "%10" variables in the configuration file. The numbering corresponds to the ordering of the parameters on the command line. They will then be exchanged with the parameters you entered. If you want spaces in the strings, they must be exchanged with an underscore ("_") on the command line.
 
 Example: We want to send a welcoming message to new BBS members, and want a special configuration file that we can use at those times. Then a combination of the /I parameter (for more information on this parameter, please look at the chapter "Command line format"), name on the command line and variables are a good thing to have. Let's say that we define the message templates as follows:
 
@@ -488,7 +570,7 @@ If we name the configuration file NEWUSER.INI, and want to welcome a person call
     To:   John Doe
     Subj: New user - welcome
     =============================================
-    ..contens of the file newuser.txt..
+    ..contents of the file newuser.txt..
 
     ... My little BBS - for you and me
 
@@ -497,9 +579,9 @@ If you forget to enter a name on the command line, the variables will be exchang
         {Using mailing lists}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-Mailing lists are a convenient way to post the same messages to several poople at once. Say for example that you're the head of a local computer club, and you want to netmail its member with a bulletin each month. Posting individual messages, or setting up Announcer with one template for each receiver is tedious, the easy way out is to set up a mailing list.
+Mailing lists are a convenient way to post the same message to several people at once. Say for example that you're the head of a local computer club, and you want to netmail its member with a bulletin each month. Posting individual messages, or setting up Announcer with one template for each receiver is tedious, the easy way out is to set up a mailing list.
 
-To tell Announcer that it is a mailing liss you want to do, and not a normal mail, you need to create a file containing all the names and addresses, and point to that file in the message template. The format of the mailing list file is straightforward, each line contains the address of the recipient, followed by the name, the two fields separated with a single space. For Announcer to understand that it is a list of names it should look for, prefix the file name at the To keyword with a commercial at sign ("@").
+To tell Announcer that it is a mailing list you want to do, and not a normal mail, you need to create a file containing all the names and addresses, and point to that file in the message template. The format of the mailing list file is straightforward, each line contains the address of the recipient, followed by the name, the two fields separated with a single space. For Announcer to understand that it is a list of names it should look for, prefix the file name at the To keyword with a commercial at sign ("@").
 
 Announcer will identify messages posted to a mailing list by inserting a special kludge "NOTE", which shows the name of the mailing list file. If you want to change this to something more descriptive, enter the name you want on the first line of the mailing list file, prefixed with a semi colon (";").
 
@@ -609,14 +691,14 @@ This keyword is mandatory in .PKT mode. Also, the "Local" distribution method is
 example:
 Distribution EchoMail
 
-  Echo <echotag>
+  Echo <echo tag>
 
-This keyword is mandatory for writing echomail in .PKT mode, since the echotag must be known. It is not used for an EchoToss.Log file.
+This keyword is mandatory for writing echomail in .PKT mode, since the echo tag must be known. It is not used for an EchoToss.Log/EchoMail.Jam file, neither together with a tosser configuration file.
 
 example:
 Echo ISDN.EUR
 
-The "Path" keyword can not be used in .PKT mode. It will abort with an error message. Since all .MSG files are created in the temporary directory, there is no need to specify an alternative path.
+The "Path" keyword cannot be used in .PKT mode. It will abort with an error message. Since all .MSG files are created in the temporary directory, there is no need to specify an alternative path.
 
 It should also be noted that .PKT mode and normal mode can be combined in one configuration file, but only in a limited fashion. Once .PKT mode is initiated, you can't turn it off. It is also only possible to create one .PKT file per configuration file. If you enter a new PktMode keyword, the previous one will be discarded, and the .PKT file will be created from the newly defined directory. The same applies to the PktPath keyword.
 
@@ -679,7 +761,7 @@ will set the language to English. If you want to set the language automatically 
 + Can take two names on the command line except for the INI file
   name
 * Changed the format of the INI file
-* Changef from Bluewave bragline (~~~) to standard (___)
+* Changed from Bluewave bragline (~~~) to standard (___)
 
 0.21beta        August 19th, 1995
 ! Checks whether the configuration file exists
@@ -704,7 +786,7 @@ will set the language to English. If you want to set the language automatically 
 
 0.25beta        November 9th, 1995
 ! Now underscores in the names on the command line works again
-+ Possability to log to file
++ Possibility to log to file
 
 0.30beta        January 7th, 1996
 ! The tagline intro string wasn't really USED
@@ -748,31 +830,47 @@ will set the language to English. If you want to set the language automatically 
 * Changed the MSGID generation to reduce the risk of dupes
 * Logs echo tag instead of message base in the log file
 
-1.11
+1.11            March 5th, 1997
 ! Split position now calculated over the entire message
 ! Fixes bug with lost lines in netmail in Squish format
 ! Only writes posting date when message actually was posted
 + Support for packets according to FSC-0048
-+ Possability to post only on certain dates
++ Possibility to post only on certain dates
 + Split can now define the maximum size of each part
 + Simulation mode
-+ Placeholder
-+ Multiple command line switches without space inbetween
-* Support for kludge for fixed width
-* Shows echotag in log file when messages aren't posted
++ PlaceHolder
++ Multiple command line switches without space in-between
++ Support for kludge for fixed width
+* Shows echo tag in log file when messages aren't posted
 * Some long log file lines are splitted up
 
-        {Known limitations}
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
-Each paragraph can as of now be as most 255 characters long. This is because of that a Pascal string at most can be this long.
+1.2             November 11th, 1997
+! Zeroing of entries that are initially PlaceHolder
+! Spaces between keywords and data are accepted
+! Handles paragraphs longer than 255 characters
+! Fixed bug in attribute handling of *.MSG areas
+! Only loggs to echotoss.log for echomail areas
+! SEEN-BY line bug fixed
+! Bugfix in INI parser
++ Added /F[A] to force posting
++ Added /L to not change the latest posting dates
++ Added conversion from ASCII with parity
++ "+ISO", "+SV7" for posting of non-PC8 files
++ Support for ECHOMAIL.JAM/NETMAIL.JAM
++ IDSERVER support, configuration option: IdServer
++ Read tosser config of SquishMail, FMail, GEcho, TerMail
++ Added %d% and %t% to include date and time in strings
++ Possibility to turn tearline in netmail off
+* /M will now zero out PlaceHolder entries in the data file
+* Internal checksum calculation in the EXE file
+* The EXE file is no longer compressed
+* Up to ten names (%1-%10) on the command line
+* New registration code format
 
         {Plans for future versions}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-* OS/2 version
-* Reading the Squish configuration file
-* Area statistics
+* OS/2 version [in the works]
 * Definable max number of lines when splitting messages
 
         {Thanks}
@@ -780,15 +878,17 @@ Each paragraph can as of now be as most 255 characters long. This is because of 
 
 I would like to thank the beta testers, Peter Korkala (a.k.a PKaze) and Mikael Klasson (a.k.a Omega/Moment 22), for their help with finding bug and coming up with new features! Without you this program would never have become what it is now. Thanks!
 
-Thanks also to Carl Olofsson and Leif T Andresson for the help with ideas on how to read a random line from a file.
+Thanks also to Carl Olofsson and Leif T Andersson for the help with ideas on how to read a random line from a file.
 
-Thanks for ideas from Fredrik Fischer and Cristoffer Crussell.
+Thanks for ideas from Fredrik Fischer, Cristoffer Crussell and Andreas Selstam.
 
-This program uses source code written by Eddy L O Jansson, Fidonet#2:205/233, that is released as Public Domain. It also uses the module NLS.PAS, written by Thomas Mainka, with permission from the author, and the routine check_date, written by Michael Hoenie, from the SWAG archives.
+Thanks to Andreas Hansson and Harald Fragner for information about how to make waiting loops without disturbing multitasking operating systems.
+
+This program uses source code written by Eddy L O Jansson, Fidonet#2:206/233, that is released as Public Domain. It also uses the module NLS.PAS, written by Thomas Mainka, with permission from the author, and the routine check_date, written by Michael Hoenie, from the SWAG archives.
 
 Finally, a slightly modified version of Mythical Kingdom Software's "MK Msg Access Source" is used, which is copyright 1992-1994 by Mark May, and released as freeware. This uses parts of the JAM API, JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats Birch, Mats Wallin. ALL RIGHTS RESERVED.
 
-The pagination and table of contens of this document was created using Pager version 4.2c from Softwolves Software.
+The pagination and table of contents of this document were created using Pager version 4.2c from Softwolves Software.
 
 Trademarks mentioned in this documentation:
 
@@ -796,7 +896,9 @@ Trademark                    Owner
 =========                    =====
 BinkleyTerm                  Bit Bucket Software, Co.
 Blue Wave                    Cutting Edge Computing
-Fidonet                      Tom Jennings, Fido Software
+FMail                        Folkert J. Wijnstra
+FrontDoor/APX                Definite Solutions
+GEcho                        Gerard J. van der Land
 Squish                       Lanius Corporation
 TerMail                      Bo Bendtsen, SerWiz
 
@@ -852,5 +954,5 @@ Send to:
 
 Electronic mail:
 
-        Fidonet:  2:206/221.0 2:204/145.42
-        Internet: m9944@abc.se
+        Fidonet:  2:206/221.0
+        Internet: pk@abc.se
