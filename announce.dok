@@ -1,0 +1,816 @@
+        Announcer V1.00                                              Sida 1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        ÛßßÛ     ÛŞİÛ    TM     SoftWolves Software     Announcde.Dok
+        ÛÜÜÜÄÄÄÄÄÛŞİÛÄÄÄÄÄÄ     c/o Peter Karlsson
+        Ü  Û OFT ÛŞİÛ OLVES     V„rnsta, Ullers„ter     Dokumentation f”r
+        ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     718 92  FR™VI           Announcer v1.00
+        N„r vargarna ylar     Telefax 0581-32110
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Announcer v1.00 - Postar filer i brevareor p† BBS:er
+
+        Copyright (c) 1995, 1996: Peter Karlsson
+        A Softwolves Software(TM) Release in 1996
+
+        Inneh†llsf”rteckning
+
+        Snabbstart ...................................................... 2
+        Syfte ........................................................... 2
+        Status .......................................................... 2
+        Licens .......................................................... 2
+        Avs„gande av ansvar ............................................. 2
+        Medf”ljande filer ............................................... 2
+        Kommandoradsformat .............................................. 3
+        Inst„llningsfilen, ANNOUNCE.INI ................................. 3
+          Globala inst„llningar ......................................... 4
+          Meddelandemallar .............................................. 5
+        Variablerna %1 och %2 ........................................... 7
+        Spr†k ........................................................... 8
+        Versionshistoria ................................................ 8
+        Planer inf”r kommande versioner ................................. 9
+        Tack ............................................................ 9
+        Registreringsformul„r .......................................... 10
+        Sida 2                                              Announcer V1.00
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Dokumentation
+        
+                Snabbstart (eller vad du verkligen b”r veta)
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        Announcer styrs helt fr†n kommandoraden och sin inst„llningsfil (se
+        respektive kapitel). Det finns ingen interaktiv del, vilket g”r att
+        det  blir enkelt att s„tta upp programmet f”r att automatiskt posta
+        filer.  Detta  medf”r  „ven  att  man  m†ste  veta  en  del  om hur
+        programmet  styrs  innan  det  g†r  att  anv„nda. Jag rekommenderar
+        d„rf”r att du l„ser igenom de tv† kapitlen "Kommandoradsformat" och
+        "Inst„llningsfilen",   eller   †tminstone   kommentarerna   i   den
+        inst„llningsfil  som medf”ljer som exempel. Det besparar en hel del
+        arbete.
+        
+        Om   du   vill  anv„nda  de  standardinst„llningar  som  finns  f”r
+        Announcer, skriver du helt enkelt fr†n kommandoraden
+        
+                ANNOUNCE
+        
+        och   programmet   utf”rs.   Programmet   kommer   nu  att  anv„nda
+        standardinst„llningsfilen  ANNOUNCE.INI och g”ra det som d„r anges.
+        Om  n†gra  fel  uppst†r kommer detta att skrivas ut p† sk„rmen, och
+        programk”rningen  kommer att avbrytas. Ett vanligt fel „r att filer
+        eller  meddelandebaser  saknas,  vilket  oftast beror p† felstavade
+        filnamn,  men  kan  „ven bero p† att filen eller meddelandebasen „r
+        l†st av ett annat program.
+        
+        Om  du  vill  anv„nda  inst„llningarna  i en annan inst„llningsfil,
+        l„ser   du   kapitlet  "Kommandoradsformat".  Om  du  vill  anv„nda
+        m”jligheten  att  ange avs„ndar- och mottagarnamn p† kommandoraden,
+        se  kapitlet  "Variablerna  %1  och  %2".  Om du vill ha detaljerad
+        information  om  hur  inst„llningsfilerna „r uppbyggda, se kapitlet
+        "Inst„llningsfilen,   ANNOUNCE.INI".   Se   „ven   exemplen  i  den
+        medf”ljande exempelinst„llningsfilen.
+        
+        Och  om du vill l„ra dig allt lusl„ser du hela manualen och l„r dig
+        den utantill :-)
+        
+        Jag  ber  dig  „ven  l„sa  kapitlet  "Status",  som talar om hur du
+        betalar f”r programmet.
+        
+                Syfte
+                ÄÄÄÄÄ
+        
+        Det  h„r  programmet  skrev jag ursprungligen f”r en lokal BBS, d„r
+        jag  "t„vlade"  med  ett par kompisar om vem som hade skrivit flest
+        inl„gg,  och  eftersom jag inte gillar att ligga uppkopplad, s† tog
+        jag  hem  posten  och  l„ste offline. Problemet var d† att jag inte
+        kunde  kolla  p†  statistiken n„r jag var offline, och att jag j„mt
+        gl”mde att titta n„r jag var uppkopplad.
+        
+        S†,  jag  skrev  ihop  det  h„r  programmet, till en b”rjan v„ldigt
+        begr„nsat,  men  allteftersom betatestarna och jag sj„lv kom p† nya
+        id‚er  v„xte  programmet fram till vad det nu „r. Det kan nu mer „n
+        bara  posta  topplistor, det kan posta v„lkomstmeddelanden till nya
+        anv„ndare, m”tesregler i echomailm”ten, automatiska p†minnelsebrev,
+        och  mycket mer. Endast fantasin s„tter gr„nsen (n†ja, s† l„nge det
+        „r inom programmets anv„ndningsomr†de. Styra mikrov†gsugnen kan det
+        inte).
+        
+                Status
+                ÄÄÄÄÄÄ
+        
+        Detta  program  „r shareware. Det betyder att du har r„tt att fritt
+        sprida  detta program, givet att alla filer som beskrivs i kapitlet
+        "Medf”ljande filer" medf”ljer of”r„ndrade. Om du anv„nder det i mer
+        „n  trettio dagar s† m†ste du registrera programmet, dvs. betala en
+        summa  pengar  till  f”rfattaren. Shareware „r ingen sorts program,
+        utan  ett  s„tt  att  distribuera  program, i likhet med butikss†ld
+        mjukvara. Registreringsformul„r bifogas i slutet av filen.
+        
+        Med  shareware f†r du den ultimativa pengarna-tillbaka-garantin, om
+        du inte anv„nder produkten beh”ver du inte betala f”r den.
+        
+        Detta    program    har    inga    som    helst   begr„nsningar   i
+        sharewareversionen.  Den  enda  skillnaden  „r  att  braglinen inte
+        inneh†ller  n†got  plustecken efter versionsnumret och att en extra
+        kludgerad kommer att skrivas.
+        
+                Licens
+                ÄÄÄÄÄÄ
+        
+        Anv„ndning till†ts enligt ovan. Undantag fr†n trettio-dagars-regeln
+        medges  d†  du har registrerat programmet men „nnu inte f†tt kvitto
+        p†  betalning.  En enanv„ndarlicens till†ter att programmet anv„nds
+        endast  p†  en  dator vid ett givet tillf„lle. Fleranv„ndarlicenser
+        medger  anv„ndning  p†  flera  datorer samtidigt, dock maximalt det
+        antal  datorer  f”r vilka avgiften har erlagts. Registrering medger
+        fri   anv„ndning   av   alla   framtida   versioner   enligt  ovan.
+        Uppgraderingar kan best„llas fr†n f”rfattaren.
+        
+                Avs„gande av ansvar
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        DENNA  MJUKVARA,  OCH  DESS  MANUAL,  SLJS  UTAN  GARANTI F™R DESS
+        FUNKTION  OCH  UTAN  ALLA  ANDRA  GARANTIER, VARKEN UTTRYCKTA ELLER
+        IMPLICERADE.    P   GRUND   AV   DE   VARIERANDE   HRDVARU-   OCH
+        MJUKVARUMILJ™ERNA  I  VILKA DETTA PROGRAM KAN KOMMA ATT ANVNDAS S
+        GES  INGEN  GARANTI  F™R DESS FUNKTION I NGON SPECIELL ANVNDNING.
+        F™RFATTAREN  F™RS™KER  DOCK  ATT EFTER BSTA F™RMGA, OCH EFTER ATT
+        BLIVIT  UPPMRKSAMMAD  P  OLIKA FELAKTIGHETER, ATT RTTA TILL FEL.
+        ETT  BRA  DATAHANTERINGSPROTOKOLL SGER ATT ALLA PROGRAM SKA TESTAS
+        UTF™RLIGT  P  ICKE-KRITISK DATA INNAN DEN BETROS. ANVNDAREN MSTE
+        TA  ALL  RISK  F™R ANVNDANDE AV PROGRAMMET. ALLT ERSTTNINGSANSVAR
+        HOS   SLJAREN   BEGRNSAS   EXKLUSIVT   TILL  PRODUKTUTBYTE  ELLER
+        ERSTTNING AV F™RSLJNINGSPRISET.
+        
+                Medf”ljande filer
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        ANNOUNCE.EXE    Det k”rbara programmet
+        FILE_ID.DIZ     Kort beskrivning f”r BBSer
+        ANNOUNCE.DOK    Dokumentation
+        ANNOUNCE.DOC    Dokumentation p† engelska
+        ANNOUNCE.INI    Exempel p† inst„llningsfil
+        SOFTWOLV.FRM    Best„llningsformul„r f”r Softwolvesprogram
+        WOLVES.COM      Softwolves programkatalog
+        
+        Announcer V1.00                                              Sida 3
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+                Kommandoradsformat
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        ANNOUNCE [/I[enhet:][s”kv„g]filnamn] [/D [/M]] [/Q]
+                 [namn1 [namn2]]
+        ANNOUNCE /?
+        
+          /I[enhet:][s”kv„g]filnamn
+        
+        Den  h„r  parametern  talar om f”r Announcer att det ska anv„nda en
+        annan  inst„llningsfil  „n  ANNOUNCE.INI som „r standard (s†vida du
+        inte  „ndrat  namn  p† den k”rbara programfilen, Announcer anv„nder
+        namn   och   s”kv„g   till  denna  fil  f”r  att  skapa  namnet  p†
+        standardinst„llningsfilen,  s†  om  du bytt namn p† programmet till
+        A.EXE kommer inst„llningsfilens standardnamn att vara A.INI).
+        
+          /D
+        
+        Detta f†r Announcer att inte posta meddelanden, utan i st„llet visa
+        statusinformation.   Det   som  visas  „r  hur  l„nge  sedan  varje
+        meddelande   postades,   vilket   intervall   som  definierats  f”r
+        meddelandena  (om  n†got),  och  det MSGID som anv„ndes vid senaste
+        postningen.  Observera  att  du m†ste ha k”rt Announcer en g†ng f”r
+        att kunna k”ra med denna v„xel.
+        
+          /M
+        
+        Denna kommandoradsv„xel f†r Announcer att rensa upp i datafilen, s†
+        att  poster  i  den  filen  som inte har n†gra motsvarande poster i
+        konfigurationsfilen  kommer  att  tas  bort. Detta „r anv„ndbart om
+        mallar  har  tagits  bort  fr†n  datafilen.  Den  kan bara anv„ndas
+        tillsammans  med /D, annars kommer den att ignoreras. Observera att
+        om  datafilen  och  meddelandemallarna kommer "i otakt", t.ex om du
+        tar  bort  poster  i  mitten,  s† m†ste du tyv„rr ta bort datafilen
+        helt.
+        
+          /Q
+        
+        Med   denna   kommandoradsv„xel  kommer  Announcer  att  inte  visa
+        n†gonting  p† sk„rmen, undantaget felmeddelanden, som alltid skrivs
+        till stderr-enheten.
+        
+          namn1
+          namn2
+        
+        Dessa  texter  kommer  att anv„ndas d„r du anger %1 respektive %2 i
+        inst„llningsfilen.  Kan l„mpligen anv„ndas f”r att g”ra det m”jligt
+        att posta ett standardmeddelande till olika personer. Om du vill ha
+        mellanslag i namnet anv„nder du i st„llet ett understreck ("_"). Om
+        du  inte  anger  n†gra  namn  kommer  b†de  %1 och %2 att f† v„rdet
+        "Announcer".  Ger du ett namn kommer %2 att ge "Announcer" medan %1
+        kommer  att  ge  det v„rde du har angett. De h„r namnen kommer inte
+        att anv„ndas om du anger /D.
+        
+          /?
+        
+        Visar snabbhj„lpsk„rmen.
+        
+                Inst„llningsfilen, ANNOUNCE.INI
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        Inst„llningsfilen,   standardnamn   ANNOUNCE.INI,   talar   om  f”r
+        Announcer  vad  det ska g”ra, och p† vilket s„tt det ska g”ras. F”r
+        att  anv„nda  Announcer „r en inst„llningsfil ett krav, och f”r att
+        kunna  anv„nda Announcers funktioner rekommenderar jag att du l„ser
+        genom detta kapitel. Vissa f”rklaringar finns „ven i den exempelfil
+        som medf”ljer distributionsarkivet.
+        
+        Om  du  vill  ha  kommentarer  i  filen skriver du dem p† rader som
+        inleds med semikolon (";").
+        
+        Normalt  kommer  Announcer  att  leta  efter en inst„llningsfil som
+        ligger  i  samma  katalog  som  programmet, och som har samma namn,
+        f”rutom   att   filtypen   „r  .INI.  T„nk  p†  det  om  du  „ndrar
+        programnamnet,  byter  du namnet till A.EXE heter inst„llningsfilen
+        A.INI.
+        
+        F”r  varje  inst„llningsfil  du  anv„nder  kommer  en  datafil, med
+        filtypen  .DAT,  att  skapas.  Den  filen inneh†ller information om
+        senaste  postningstidpunkt, f”r intervallstyrningen, samt det MSGID
+        som anv„ndes s† att n„sta postning kan inneh†lla en REPLY-kludge.
+        
+        Inst„llningsfilen  best†r  av  tv†  olika  "delar",  den ena „r den
+        globala  delen  som  definierar  standardinst„llningar f”r samtliga
+        meddelanden,  och  det andra „r de individuella inst„llningarna f”r
+        varje  meddelande  som  ska skapas. Det „r helt olika inst„llningar
+        som anv„nds i de olika delarna, men de p†verkar varandra.
+        
+        Varje meddelandemall b”rjar med en rad som det endast st†r
+        
+                Msg
+        
+        p†, och avslutas med texten
+        
+                .End
+        
+        Mellan  dessa  rader  skrivs de konfigurationsposter som beh”vs f”r
+        meddelandet,  och  utanf”r  dessa  kan  de  globala inst„llningarna
+        st„llas in. Observera att det inte finns n†got krav p† den inb”rdes
+        ordningen hos de olika inst„llningarna.
+        
+        F”r  de globala inst„llningarna finns standardv„rden, vilka anges i
+        texten   neden,   men   f”r   meddelandemallarna  „r  inneh†llet  i
+        definitionerna oftast odefinierat tills dess att de definieras.
+        Sida 4                                              Announcer V1.00
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Det  spelar  ingen  roll  om nyckelorden skrivs med stora eller sm†
+        bokst„ver,  det  enda man m†ste t„nka p† „r att man inte f†r ha mer
+        „n ett mellanslag mellan nyckelordet och datat.
+        
+            Globala inst„llningar
+            ---------------------
+        
+        De globala inst„llningar som finns „r dessa:
+        
+          BragLineIntro <introduktionstecken f”r reklamraden>
+        
+        Definierar  vad  som  ska  inleda reklamraden. Om ingen inst„llning
+        anges  s†  kommer  "---"  (en  Fidonet  tearline)  att anv„ndas som
+        standard. Denna inst„llning kan vara max tre tecken l†ng.
+        
+        exempel:
+        BragLineIntro ___
+        
+          EchoTossLog <filnamn f”r echotoss-loggfilen>
+        
+        Om  du  har  m†nga  echomailm”ten p†slagna, men inte skriver i alla
+        varje  g†ng,  s†  „r  det  en bra id‚ att logga vilka m”ten man har
+        skrivit  texter  i,  och  bara  avs”ka  dessa m”ten efter nya brev,
+        d„rf”r finns ECHOTOSS.LOG-filen. Det „r en textfil som best†r av en
+        lista med m”testags, ett p† varje rad, som talar om vilka m”ten som
+        det  finns  nya brev i. Eftersom Announcer har m”jlighet att skicka
+        echomail,  s†  „r det l„mpligt om det kan skriva till en s†dan fil,
+        och det „r det detta nyckelord „r till f”r.
+        
+        Som  parameter  till  nyckelordet  anger du fullst„ndig s”kv„g samt
+        filnamn  till  den fil som m”testagarna ska l„ggas till i. Om filen
+        inte  finns  kommer  den  att  skapas n„r det beh”vs. Om m”testagen
+        redan finns i filen kommer den inte att skrivas till en g†ng till.
+        
+        F”r   att  detta  ska  fungera  m†ste  du  „ven  anv„nda  "Echo"  i
+        meddelandemallen, se detta nyckelord.
+        
+        exempel:
+        EchoTossLog C:\SQUISH\ECHOTOSS.LOG
+        
+          LogFile <filnamn f”r loggfilen>
+        
+        Om  du vill att Announcer ska logga vad det g”r till en loggfil ska
+        du  anv„nda  det h„r kommandot. Om filen du anger inte finns kommer
+        den  att skapas, annars kommer de nya loggraderna att l„ggas till i
+        slutet p† filen.
+        
+        exempel:
+        LogFile D:\LOGS\ANNOUNCE.LOG
+        
+          MsgId <adress att anv„nda i MsgId-str„ngen>
+        
+        Om  du  vill  att  en  MSGID-kludge ska skapas i lokala meddelanden
+        m†ste  du  ange  vilken adresstr„ng som ska anv„ndas f”r den. Trots
+        att  du  kan skriva precis vad som helst (dock maximalt 32 tecken),
+        s†  kan  det  vara  en f”rdel att h†lla sig till specifikationerna,
+        n„mligen  att  det  ska  vara  en "giltig returadress", samt att om
+        adressen  inneh†ller  mellanslag  ska  den st† inom citationstecken
+        (").  F”r  netmail  och  echomail  kommer  alltid MSGID-kludgar att
+        skapas,  och dess adresstr„ng kommer att best† av avs„ndaradressen.
+        D„r har allts† denna inst„llning ingen funktion.
+        
+        exempel:
+        MsgId 999:42/417.25@MyNet
+        
+          TagLineFile <filnamn f”r taglinefilen>
+        
+        Om  du  vill  anv„nda  slumpvalda taglines (taglines anv„nds ganska
+        flitigt i brevsammanhang f”r att l„gga till ett litet enradssk„mt),
+        m†ste  du  f”rst tala om f”r Announcer var det kan hitta en fil med
+        s†dana  i.  Den  taglinefil  du  definierar  kan  sedan anv„ndas av
+        *efterkommande*   meddelandemallar.   Det   „r   m”jligt  att  byta
+        taglinefil  mellan  meddelandemallarna,  denna taglinefil kommer d†
+        endast att vara tillg„nglig i efterf”ljande mallar.
+        
+        Alla   rader   som   b”rjar   p†  antingen  semikolon  (";")  eller
+        procenttecken   ("%")   kommer   att  antas  vara  kommentarer  och
+        ignoreras.
+        
+        exempel:
+        TagLineFile D:\BlueWave\Default.Tag
+        
+          TagLineIntro <introduktionstecken f”r tagline>
+        
+        Definierar vad som ska inleda taglineraden (taglines anv„nds ganska
+        flitigt   i   e-post-sammanhang   f”r  att  l„gga  till  ett  litet
+        enradssk„mt).  Om  ingen  inst„llning anges s† kommer "..." (som „r
+        vanligast)  att  anv„ndas  som  standard,  d†  detta  „r  det  mest
+        f”rekommando  f”r  taglines.  Denna  inst„llning  kan  vara max tre
+        tecken l†ng.
+        
+        exempel:
+        TagLineIntro .!.
+        
+        Announcer V1.00                                              Sida 5
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+            Meddelandemallar
+            ----------------
+        
+        Meddelandemallarna „r uppbyggda av f”ljande inst„llningar:
+        
+        Observera  att  de inst„llningar som markeras med [*] „r frivilliga
+        parametrar.  Vissa  andra  parametrar  kan  vara  mer  eller mindre
+        begr„nsade i olika l„gen, det st†r d† under respektive rubrik.
+        
+          Dest <mottagaradress>
+        
+        Med  det  h„r nyckelordet anger du mottagaradressen f”r meddelandet
+        som  ska  skapas. Det „r bara aktivit i netmail, och kommer i andra
+        fall  att  ignoreras.  Om  du  skapar  netmailmeddelanden  m†ste du
+        definiera  b†de  Orig och Dest, annars kan konstiga saker h„nda, d†
+        dessa v„rden „r odefinierade annars.
+        
+        exempel:
+        Dest 2:204/999.41
+        
+          Distribution <meddelandebastyp> [*]
+        
+        H„r  st„ller  du  in  vilken  typ av meddelandebas inl„gget som ska
+        skapas  kommer  att  hamna i. Programmet har tyv„rr ingen m”jlighet
+        att  automatiskt  k„nna  av  det, s† du m†ste st„lla in det korrekt
+        h„r.  Om  du  inte  anger detta nyckelord alls kommer det att antas
+        vara  en  lokal  area,  och  parametrarna  kommer att s„ttas p† det
+        s„ttet.  Om  du  vill  skapa  netmail  eller  echomail  m†ste dessa
+        meddelandebastyper  att  s„ttas  explicit,  vilket du g”r genom att
+        skriva  nyckelordet  f”ljt  av  texten  "NetMail",  "EchoMail". F”r
+        lokala m”ten kan du, om du vill, anv„nda parametern "Local".
+        
+        Observera  „ven  att  om du anger NetMail m†ste du „ven specificera
+        Orig  och  Dest  (se  dessa  nyckelord), samt att Private (se detta
+        nyckelord) inte kommer att vara verksam. Om du anger EchoMail m†ste
+        du  specificera  Orig  (se  detta nyckelord), samt om du vill ha en
+        annan  Origin-text  „n  "Standard-Origin-rad"  m†ste  du  definiera
+        Origin  (se  detta nyckelord). Ej heller h„r kommer Private-flaggan
+        att vara verksam.
+        
+        exempel:
+        Distribution NetMail
+        
+          Echo <m”testag> [*]
+        
+        Detta  nyckelord  anv„nds  tillsammans med EchoTossLog i de globala
+        inst„llningarna  (se detta avsnitt) f”r att logga i vilka m”ten det
+        finns  brev som ska skickas. Om du inte anger b†da kommer inget att
+        h„nda.
+        
+        exempel:
+        Echo R20_NEWPROG.FILESECHO
+        
+          File <s”kv„g och filnamn till fil som ska postas>
+        
+        Med detta nyckelord specificerar du vilken fil som ska anv„ndas som
+        meddelandekropp  f”r  det  meddelande  som  ska skapas. Filen m†ste
+        existera,   annars   kommer   programmet   att   avslutas  med  ett
+        felmeddelande. Om du anger ett filnamn utan s”kv„g kommer filen att
+        efters”kas i den katalog som „r aktuell vid programstart.
+        
+        exempel:
+        File C:\STAT\WRITERS.TXT
+        
+          Footer <s”kv„g och filnamn till fotfil> [*]
+        
+        Detta  nyckelord specificerar en fotfil, som kommer att l„ggas till
+        efter  den "stora" filen. Kan exempelvis vara en signaturfil, eller
+        n†got  i den stilen. Om du inte anger n†gon kommer ingen fotfil att
+        anv„ndas.
+        
+        Inget felmeddelande ges om filen inte existerar.
+        
+        exempel:
+        Footer C:\SIG\MY.SIG
+        
+          From <avs„ndarnamn>
+        
+        H„r   anger  du  vilket  avs„ndarnamn  som  ska  anv„ndas  f”r  det
+        meddelande  som ska skapas. Om inte meddelandebasformatet begr„nsar
+        det ytterligare, „r maxl„ngden p† namnet 35 tecken, om du anger f”r
+        l†nga namn kommer det att trunkeras till maxl„ngden.
+        
+        exempel:
+        From Statistikgeneratorn
+        
+          Header <s”kv„g och filnamn till huvudfil> [*]
+        
+        Detta  nyckelord  specificerar  en  huvudfil, som kommer att l„ggas
+        till  f”re  den  "stora"  filen. Kan exempelvis vara en logotypfil,
+        eller  n†got  i  den  stilen.  Om  du inte anger n†gon kommer ingen
+        huvudfil att anv„ndas.
+        Sida 6                                              Announcer V1.00
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Inget felmeddelande ges om filen inte existerar.
+        
+        exempel:
+        Header C:\LOGOS\MY.LGO
+        
+          Interval <intervall>
+        
+        Om du inte vill att meddelandet ska postas vid varje k”rning kan du
+        h„r  ange ett intervall, angivet i dagar. Om du k”r Announcer varje
+        dag,  och har interval satt till 7, kommer det „nd† bara att postas
+        ett  meddelande  i  veckan. Om du inte anger n†got intervall, eller
+        intervallet noll, kommer meddelandet att postas vid varje k”rning.
+        
+          Orig <avs„ndaradress>
+        
+        Med  det  h„r nyckelordet anger du avs„ndaradressen f”r meddelandet
+        som  ska  skapas.  Det  „r  bara aktivt i netmail och echomail, och
+        kommer  annars  att  ignoreras. Den adress du anger h„r kommer „ven
+        att  anv„ndas  f”r  att skapa en MSGID-kludge. (MSGID kommer alltid
+        att skapas f”r netmail och echomail).
+        
+        exempel:
+        Orig 2:204/999.42
+        
+          Origin <originrad> [*]
+        
+        Detta  „r  ett valfritt alternativ som bara „r aktivt d† du skriver
+        echomail,  och  det anv„nds f”r att specificera vilken text som ska
+        anv„ndas  p†  Origin-raden. Origin-rader kommer alltid att skapas i
+        echomail, oavsett om du specificerat n†gon text eller inte, men det
+        kan vara trevligt att ha en egen text.
+        
+        Eftersom Fidonet-specifikationerna s„ger att en Origin-rad maximalt
+        kan vara 79 tecken, inklusive prefixet " * Origin: " och suffixet "
+        (adress)",  kan  du  inte  skriva  en hur l†ng rad som helst. Raden
+        kommer att trunkeras fr†n h”ger om raden „r f”r l†ng. Hur l†ng text
+        du  exakt  kan ha beror p† hur l†ng din adress „r. Du f†r plats med
+        mer text om du har adressen 7:7/7 „n om du har 999:999/999.999
+        
+        exempel:
+        Origin Min plats i v„rldsrymden
+        
+          Path <s”kv„g till meddelandebasen>
+        
+        F”r att Announcer ska veta var det ska posta sitt meddelande, m†ste
+        du tala om vilken meddelandebas som ska anv„ndas. Formatet p† denna
+        s”kv„g  varierar  beroende  p†  formatet  p† meddelandebasen enligt
+        tabellen nedan:
+        
+        Squish:  Bokstaven  "S"  f”ljt  av  s”kv„gen  till meddelandebasens
+        stamfil (utan extension).
+        exempel:
+        Path SC:\Max\Msg\Muffin
+        
+        Hudson:  Bokstaven  "H"  f”ljt av ett tresiffrigt, decimalt, nummer
+        som  anger  areanumret,  och detta f”ljt av namnet p† katalogen som
+        meddelandebasen ligger i.
+        exempel:
+        H007C:\Ra\Msg\Msgbase
+        
+        Fido (*.MSG): Bokstaven "F" f”ljt av s”kv„gen till meddelandebasens
+        katalog.
+        exempel:
+        FC:\FD\Net\
+        
+        JAM:  Bokstaven "J" f”ljt av s”kv„gen till meddelandebasens stamfil
+        (utan extension).
+        exempel:
+        JC:\Ra2\Msg\RA_Util
+        
+        EzyCom:  Bokstaven  "E"  f”ljt av ett fyrsiffrigt, decimalt, nummer
+        som   anger   areanumret,   och   detta   f”ljt  av  s”kv„gen  till
+        meddelandebasen (utan extension).
+        exempel:
+        E0001F:\Ezy\Msg
+        
+          Private <privatflagga>
+        
+        Detta nyckelord talar om huruvida meddelandet som ska skapas kommer
+        att  vara  privat eller inte. Du anger "Yes" om det ska vara privat
+        eller  "No"  om  det  ska  kunna  ses  av alla. Observera att om du
+        skriver  echomail kommer det automatiskt att kunna ses av alla, och
+        om  du skriver netmail kommer det automatiskt att vara privat, s† i
+        dessa b†da fall beh”ver du inte anv„nda detta nyckelord.
+        
+        exempel:
+        Private Yes
+        
+        Announcer V1.00                                              Sida 7
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+          Subject <„renderad>
+        
+        H„r  anger  du vilken „renderad som ska anv„ndas f”r det meddelande
+        som   ska  skapas.  Om  inte  meddelandebasformatet  begr„nsar  det
+        ytterligare, „r maxl„ngden p† „renderaden 75 tecken, om du anger en
+        f”r l†ng „renderad kommer den att trunkeras till maxl„ngden.
+        
+        exempel:
+        Subject Tio-i-topp brevskrivare
+        
+          TagLine <den tagline som ska anv„ndas> [*]
+        
+        Med  detta  nyckelord definierar du om en tagline ska l„ggas till i
+        meddelandet eller inte. Om du inte har med nyckelordet kommer ingen
+        tagline  att  anv„ndas.  Du kan „ven best„mma om det ska vara samma
+        tagline  varje  g†ng  (en  s.k  statisk  tagline), eller om den ska
+        variera  varje  g†ng  genom  att  slumpvis  l„sa  ur den fil du har
+        specificerat med TagLineFile i de globala inst„llningarna (se denna
+        sektion).
+        
+        Om  du  vill  ha samma tagline varje g†ng skriver du taglinens text
+        efter  nyckelordet (maximalt 80 tecken „r till†tna), och om du vill
+        ha ett slumpval skriver du endast ett snabel-a ("@").
+        
+        exempel:
+        TagLine @
+        
+          To <mottagarnamn>
+        
+        H„r   anger  du  vilket  mottagarnamn  som  ska  anv„ndas  f”r  det
+        meddelande  som ska skapas. Om inte meddelandebasformatet begr„nsar
+        det ytterligare, „r maxl„ngden p† namnet 35 tecken, om du anger f”r
+        l†nga namn kommer det att trunkeras till maxl„ngden.
+        
+        exempel:
+        To Alla
+        
+                Variablerna %1 och %2
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        F”r  att  g”ra  det  enklare  att  skicka ett brev till flera olika
+        personer  utan  att beh”va g† in och redigera inst„llningsfilen f”r
+        varje   g†ng,   „r   det   m”jligt   att  ange  tv†  parametrar  p†
+        kommandoraden.  Dessa  parametrar  „r  avsedda att anv„ndas f”r att
+        ers„tta avs„ndar- och/eller mottagarnamnen, men de g†r lika bra att
+        anv„nda  f”r „renderad, filnamn, mottagaradress i netmail, och alla
+        andra inst„llningar som ing†r i meddelandemallarna.
+        
+        F”r  att  anv„nda  dig av de parametrar du skickar p† kommandoraden
+        anv„nder  du  variablerna  "%1" och "%2" i inst„llningsfilen. Dessa
+        kommer  d†  att  bytas ut mot de parametrar du angav. Om du vill ha
+        med  ett mellanslag i namnet m†ste det ers„ttas med ett understreck
+        ("_") p† kommandoraden.
+        
+        Exempel:   Vi   vill   skicka   ett   v„lkomstmeddelande  till  nya
+        BBS-medlemmar,  och  vill  ha  en speciell konfigurationsfil som vi
+        vill   anv„nda   vid  de  tillf„llena.  D†  „r  en  kombination  av
+        /I-parametern  (f”r  information  om  denna  parameter, s† kapitlet
+        "Kommandoradsformat"),  namn p† kommandoraden och variabler bra att
+        ha. S„g att vi definierar meddelandemallen p† det h„r s„ttet:
+        
+            MSG
+            File Nyuser.txt
+            Subject Ny anv„ndare - v„lkommen
+            To %1
+            From Sysopus Anonymous
+            Path Sc:\max\msg\sysop
+            Tagline Min lilla BBS - f”r dig och mig
+            Private Yes
+            .end
+        
+        Om  vi  kallar  inst„llningsfilen f”r NYUSER.INI, och vill v„lkomna
+        Kalle Kula, skriver vi bara s† h„r p† kommandoraden:
+        
+            ANNOUNCE /INYUSER.INI Kalle_Kula
+        
+        %1  p†  To-raden  kommer  d†  att  bytas  ut  mot  "Kalle Kula" och
+        meddelandet kommer att se ut s† h„r:
+        
+            Fr†n: Sysopus Anonymous              (privat)
+            Till: Kalle Kula
+            mne: Ny anv„ndare - v„lkommen
+            =============================================
+            ..inneh†llet i filen nyuser.txt..
+        
+            ... Min lilla BBS - f”r dig och mig
+        
+        Sida 8                                              Announcer V1.00
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Om   du  gl”mmer  att  ange  n†got  namn  p†  kommandoraden  kommer
+        variablerna  att  ers„ttas  med  "Announcer",  och meddelandet ovan
+        skulle ha postats till Announcer.
+        
+                Spr†k
+                ÄÄÄÄÄ
+        
+        Det  h„r  programmet  kan  k”ras  b†de  p†  svenska  och  engelska.
+        Programmet  kollar  din landsinst„llning (COUNTRY i CONFIG.SYS) och
+        st„ller  in  sig automatiskt p† svenska om du bor i Sverige, Norge,
+        Danmark  eller  Finland,  och  annars  p† engelska. F”r att g”ra en
+        annan inst„llning kan du anv„nda milj”variabeln ANNLANG. Den kan ha
+        n†got av dessa v„rden:
+        
+            SWE    svenska
+            ENG    engelska
+        
+        Du st„ller in det med kommandot SET, exempelvis:
+        
+            SET ANNLANG=ENG
+        
+        s„tter   spr†ket   till  engelska.  Om  du  vill  s„tta  ett  spr†k
+        automatiskt  n„r  du startar datorn kan du l„gga in den raden i din
+        AUTOEXEC.BAT-fil.
+        
+                Versionshistoria
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        0.10beta        1995-03-08
+        * F”rsta versionen
+        
+        0.11beta        1995-07-19
+        + Strippar alla tecken under 32 (mellanslag) f”rutom CRLF
+        
+        0.20beta        1995-08-01
+        + Kan anv„nda andra konfigurationsfiler „n LOCPOST.INI
+        + Kan ta tv† namn p† kommandoraden f”rutom namn p† INI-fil
+        * Bytte formatet p† INI-filen
+        * Bytte fr†n Bluewave-bragline (~~~) till standard (___)
+        
+        0.21beta        1995-08-19
+        ! Kollar om konfigurationsfilen existerar
+        + L„gger in en TerMail-3.00-MOOD-kludge
+        - Inga MSGIDer skapas
+        * Bytte formatet p† INI-filen igen... L„ttare att ut”ka
+        * Bytte fr†n bragline (___) till tearline (---)
+        
+        0.22beta        1995-10-28
+        ! Klagar inte p† fel i LOCPOST.INI, utan i den aktuella INI-filen
+        + Taglinest”d
+        + Intern registreringsmodul (samma version till alla!)
+        + Valbar braglineintro (s† nu kan ni v„lja sj„lva :-) )
+        * Du kan ange namn p† kommandoraden utan att speca annan INI-fil
+        * Bytte INTE formatet p† INI-filen, utan ut”kade det bara :-)
+        * Skriver feltexter via STDERR i.st.f STDOUT
+        
+        0.23beta        1995-10-31
+        ! Registreringsnyckeln funkade visst inte alls :-(
+        
+        0.25beta        1995-11-09
+        ! Nu fungerar det med understreck i namnen p† kommandoraden igen
+        + Det finns nu m”jlighet att logga till fil
+        
+        0.30beta        1996-01-07
+        * Namnbyte fr†n LocalPost till Announcer
+        Announcer V1.00                                              Sida 9
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        * Texter p† b†de engelska och svenska
+        * Kan l„sa taglines slumpm„ssig ur valfri textfil
+        ! Taglineintrostr„gen ANVNDES inte riktigt s† d„r bara.
+        + MSGID (valbar, och med valfri str„ng, i lokala meddelanden)
+        + Kan skapa netmail och echomail
+        - MOOD-kludge bara i lokala meddelanden
+        
+        0.31beta        1996-02-03
+        ! L„sningen av slumpvald tagline r„ttad
+        ! R„ttade vissa engelska texter
+        ! Echomail och Squish fungerar nu
+        + FMPT- och TOPT-kludgar skapas i netmail
+        + Skapar REPLY-kludgar
+        + Intervallhantering
+        + Huvud- och fotfiler
+        
+        1.00            1996-04-27
+        ! Klarar av ini-filnamn utan .INI
+        + Lade till /D f”r att visa information
+        + Lade till /Q f”r att tysta Announcer
+        + Lade till /M f”r att rensa i datafilen
+        * ndrade loggtexterna n†got
+        
+                Planer inf”r kommande versioner
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        * ™vers„ttningstabeller (posta i 7-bitars och ISO 8859-X)
+        
+                Tack
+                ÄÄÄÄ
+        
+        Jag vill tacka betatestarna, Peter Korkala (a.k.a PKaze) och Mikael
+        Klasson (a.k.a Omega/Moment 22), f”r all hj„lp med att hitta buggar
+        och  att  hitta  p† nya funktioner! Utan er hade det h„r programmet
+        inte varit vad det „r. Tack!
+        
+        Tack  „ven  till Carl Olofsson och Leif T Andersson f”r hj„lpen med
+        id‚er om hur man l„ser en slumpm„ssig rad ur en fil.
+        
+        Programmet anv„nder kod skriven av Eddy Jansson, Fidonet#2:206/408,
+        som  „r sl„ppt som PD. Dessutom anv„nds modulen NLS.PAS, skriven av
+        Thomas  Mainka,  med  tillst†nd  fr†n  f”rfattaren.  Vidare anv„nds
+        PSLIST.PAS,  skriven  av  Carl-Fredrik  Neikter,  „ven  den rutinen
+        sl„ppt som PD, samt rutinen check_date skriven av Michael Hoenie.
+        
+        Slutligen   anv„nds  Mythical  Kingdom  Softwares  "MK  Msg  Access
+        Source",  som  „r  copyright 1992-1994 av Mark May, denna „r sl„ppt
+        som  freeware.  Denna  anv„nder  delar  av  JAM-API:t,  JAM(mbp)  -
+        Copyright  1993  Joaquim  Homrighausen,  Andrew Milner, Mats Birch,
+        Mats Wallin. ALL RIGHTS RESERVED.
+        
+        Den  h„r  dokumentationens  siduppdelning  och inneh†llsf”rteckning
+        skapades av Pager version 4.2b fr†n Softwolves Software.
+        
+        Sida 10                                             Announcer V1.00
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Registreringsformul„r
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        Namn:   ______________________________________________________
+        
+        Adress: ______________________________________________________
+        
+                ______________________________________________________
+        
+        Telefon:______________________________________________________
+        
+        Specifikation                           a'pris  antal   totalt
+        
+        Announcer enanv„ndarlicens              75,00   _____   ______
+        
+        Announcer fleranv„ndarlicens
+          2-10 anv„ndare    (f”r alla, styck)   70,00   _____   ______
+          11-100 anv„ndare  (f”r alla, styck)   50,00   _____   ______
+          101+ anv„ndare    (f”r alla, styck)   25,00   _____   ______
+        
+        Ny version p† diskett (3«")             15,00   _____   ______
+        
+        Totalt bifogat belopp                                   ______
+        
+        Alla priser i svenska kronor
+        
+        Betalningsmetod:
+        
+        (  ) Check:-            I svenska kronor utst„lld p† Peter
+                                Karlsson.
+        (  ) Kontant:-          I svenska kronor endast.
+        (  ) Postf”rskott:-     Postf”rskottsavgift tillkommer.
+        (  ) Bank”verf”ring:-   ™verf”r till konto nr. 7654-13-17224 i
+                                F”reningsbanken, Lindesberg
+        (  ) Bankgiro:-         S„tt in pengar p† bankgiro 5939-7620.
+        (  ) Postgiro:-         S„tt in pengar p† postgiro 146 94 73-1
+                                (Peter Karlsson).
+        
+        Nordiska   best„llningar   via   postgiro   debiteras  som  svenska
+        best„llningar. Se till att betala i svenska kronor.
+        
+        Skickas till:
+        
+                Softwolves Software
+                c/o Peter Karlsson
+                V„rnsta, Ullers„ter
+                718 92  FR™VI
+                SVERIGE
+        
+        Elektronisk post:
+        
+                Fidonet:  2:204/145.42 2:204/152.42
+                Internet: Peter.T.Karlsson@abc.se
