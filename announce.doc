@@ -1,17 +1,17 @@
-        Announcer v1.1                                               Page 1
+        Announcer v1.11                                              Page 1
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
         ÛßßÛ     ÛŞİÛ    TM     SoftWolves Software     Announce.Doc
         ÛÜÜÜÄÄÄÄÄÛŞİÛÄÄÄÄÄÄ     c/o Peter Karlsson
         Ü  Û OFT ÛŞİÛ OLVES     V„rnsta, Ullers„ter     Documentation for
-        ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     S-718 92  FR™VI         Announcer v1.1
+        ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     S-718 92  FR™VI         Announcer v1.11
           Hear the howl       SWEDEN    fax +46-(0)581-32110
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-        Announcer v1.1 - Posts files in message areas att BBSes
+        Announcer v1.11 - Posts files in message areas att BBSes
 
-        Copyright (c) 1995, 1996: Peter Karlsson
-        A Softwolves Software(TM) Release in 1996
+        Copyright (c) 1995, 1996, 1997: Peter Karlsson
+        A Softwolves Software(TM) Release in 1997
 
         This  file  contains  some  Swedish  characters.  If  you  want  to
         correctly display these, you must use DOS codepage 437, 850 or 865.
@@ -32,14 +32,14 @@
           Message templates ............................................. 5
         The %1 and %2 variables ......................................... 9
         Using mailing lists ............................................ 10
-        Creating .PKT files ............................................ 10
-        Language ....................................................... 12
+        Creating .PKT files ............................................ 11
+        Language ....................................................... 13
         Revision history ............................................... 13
-        Known limitations .............................................. 14
-        Plans for future versions ...................................... 14
-        Thanks ......................................................... 14
+        Known limitations .............................................. 15
+        Plans for future versions ...................................... 15
+        Thanks ......................................................... 15
         Registration form .............................................. 16
-        Page 2                                               Announcer v1.1
+        Page 2                                              Announcer v1.11
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
         Documentation
@@ -156,17 +156,17 @@
         FILE_ID.DIZ     Short description for BBSes
         ANNOUNCE.DOK    Documentation in Swedish
         ANNOUNCE.DOC    Documentation
-        ANNOUNCE.INI    Sample configuration file
+        NORMAL.INI      Sample configuration file
         PKTMODE.INI     Sample configuration file
         WOLVES.COM      Softwolves Software's program catalogue
         
-        Announcer v1.1                                               Page 3
+        Announcer v1.11                                              Page 3
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
                 Command line format
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
-        ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/P] [/Q]
+        ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/P] [/Q] [/S]
                  [name1 [name2]]
         ANNOUNCE /?
         
@@ -199,8 +199,8 @@
         It  can  only  be  used  together  with  /D,  and will otherwise be
         ignored.  Please  note  that if the data file and the templates get
         "out  of  sync",  for example if you delete a template somewhere in
-        the  middle,  you  will  unfortunately need to remove the data file
-        completely.
+        the  middle,  you  cannot  use  /M,  but  have  to  use the special
+        PlaceHolder token instead.
         
           /P
         
@@ -233,6 +233,15 @@
         have  the  value  "Announcer".  If you only supply one name %2 will
         give  "Announcer" while %1 will have the value you specified. These
         names have no effect when used together with /D.
+        
+          /S
+        
+        Use  this  command  line  option  to  simulate  a run by Announcer.
+        Announcer will do everything like if it has been a real run, except
+        that  it  won't  create  the  messages  or semaphores, it won't log
+        anything  to the log file (it is instead logged to the screen), and
+        the  data  file  is  not  updated. This can be useful for debugging
+        configuration files.
         
           /?
         
@@ -272,19 +281,27 @@
         other.
         
         Each message template begins with a line which has the only word
-        
+        Page 4                                              Announcer v1.11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
                 Msg
         
         on it, and is ended with the text
-        Page 4                                               Announcer v1.1
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
                 .End
         
         Between these lines the configuration posts that are needed for the
         message  are  placed,  and outside these the global settings can be
         set.  Note  that  there  is  no  requirement on the ordering of the
         different settings.
+        
+        If  you wish Announcer to skip over a message template, e.g. if you
+        remove  one  in  the  middle, you can replace the Msg/.End sequence
+        with a line only saying
+        
+                PlaceHolder
+        
+        which will make Announcer just process the next one.
         
         For  the  global  settings  there  are  default  values,  which are
         indicated  in the text below. Default values also exist for some of
@@ -361,6 +378,9 @@
         address  strings  will be created from the originating address. For
         such messages, this keyword serves no purpose.
         
+        Announcer v1.11                                              Page 5
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         example:
         MsgId 999:42/417.25@MyNet
         
@@ -372,9 +392,7 @@
         
         These  five  keywords all refer to the .PKT mode of Announcer. They
         are documented in the chapter "Creating .PKT files".
-        Announcer v1.1                                               Page 5
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
           ReplyKludge <Yes/No>
         
         Tells  Announcer  whether  or  not  to  create REPLY kludges in its
@@ -442,7 +460,9 @@
         "Private"  (see  this  keyword),  and  that  the flag is ignored in
         netmail  and  echomail.  You  can  not  use specified attributes in
         echomail.
-        
+        Page 6                                              Announcer v1.11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         example:
         Attributes CK
         
@@ -462,9 +482,6 @@
         conversion from ISO 8559-1 or "-SV7" for Swedish seven bit code.
         
         example:
-        Page 6                                               Announcer v1.1
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         Charset ISO
         
           Create <path and file name of semaphore file> [*]
@@ -532,6 +549,26 @@
         example:
         File C:\STAT\WRITERS.TXT
         
+          FixedWidth <flag for monospace> [*]
+        
+        With  FixedWidtth, you can tell wether the message you want to post
+        is meant to be shown with a monospaced font or not. Since graphical
+        user  interfaces  are  becoming  more  and  more  common even among
+        Fidonet  readers,  it  is  also getting more common to read using a
+        proportional  typeface,  which,  unfortunately,  makes  tables  and
+        similar  look strange. With a monospaced typeface, this problem can
+        be cured.
+        
+        Fixed  Width  uses  a  kludge  line  that  was  first  specified in
+        FrontDoor APX/w, namely "FLAGS: NPD".
+        Announcer v1.11                                              Page 7
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        The default is not to use this kludge.
+        
+        exempel:
+        FixedWidth Yes
+        
           Footer <path and filname for footer file> [*]
         
         This keyword specifies a footer file, which will be added after the
@@ -552,9 +589,7 @@
         
         example:
         From Statistiscs Generator
-        Announcer v1.1                                               Page 7
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
           Header <path and file name header file> [*]
         
         This  keyword  specifies  a header file, which will be added before
@@ -567,6 +602,7 @@
         Header C:\LOGOS\MY.LGO
         
           Interval <interval> [*]
+          Interval @<posting date> [*]
         
         If you don't want the message to be posted everytime the program is
         run, you can enter an interval, given as a number of days, here. If
@@ -575,8 +611,17 @@
         don't give an interval, or an interval of zero, the message will be
         posted each time the program is run.
         
+        You may also tell Announcer only to post messages on certain dates,
+        then  prefix  the  date with an at sign ("@"). Please note that you
+        actually need to run Announcer on that date, if you don't, it won't
+        be posted until next month.
+        
+        You  can't use the two variants of the Interval keyword together in
+        the same message template.
+        
         example:
         Interval 14
+        Interval @1
         
           MinSize <no. of bytes> [*]
         
@@ -600,6 +645,9 @@
         used  to  create  a MSGID kludge. (MSGID will always be created for
         netmail and echomail).
         
+        Page 8                                              Announcer v1.11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         example:
         Orig 2:204/999.42
         
@@ -644,9 +692,7 @@
         in which the message base resides.
         example:
         Path FC:\FD\NET\
-        Page 8                                               Announcer v1.1
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
         JAM:  The  letter  "J"  followed  by  the  path to the message base
         stemfile (without extension).
         example:
@@ -692,13 +738,19 @@
         Semaphore c:\timed\netmail.sem
         
           Split <number of parts> [*]
-        
+          Split @<maximum part size> [*]
+        Announcer v1.11                                              Page 9
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         If  the message file you want to post is large, and not all message
         processors  on  the  way to the destination are able to handle such
         large  messages,  you  can  use  this  keyword to split it into any
-        number of parts you wish. Please note that the splitting is done in
-        evenly  big  pieces  on  the  main file, the header and footer file
-        aren't touched, and are not included in the size count.
+        number of parts you wish.
+        
+        It  is  also  possible  to  give  the maximum allowed size that the
+        resulting message may have, in that case you should prefix the byte
+        count with an at sign ("@"). The size does not include the kludges.
+        The messages are still divided evenly.
         
         When  posting to Squish databases, the routines used do not support
         messages  larger  than  approximately  33,000  characters.  If  you
@@ -710,8 +762,12 @@
         correct,  you  have  to  give  an  Orig  address,  even  for  local
         messages.
         
+        You can't use the two variants of the Split keyword together in the
+        same message template.
+        
         example:
         Split 2
+        Split @10000
         
           Subject <subject line>
         
@@ -743,9 +799,6 @@
           To <receiver name> [*]
           To @<name of mailing list file> [*]
         
-        Announcer v1.1                                               Page 9
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         Here  the  receiver name of the message to be created is specified.
         If  the  message  base  does  not  restrict it further, the maximum
         length  of  the receiver name is 35 characters, if you enter a name
@@ -778,7 +831,6 @@
         example:
         UpdatedSend Yes
         
-        
                 The %1 and %2 variables
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
@@ -795,7 +847,9 @@
         then  be  exchanged  with the parameters you entered. If you want a
         space in the name, these must be exchanged with an underscore ("_")
         on the command line.
-        
+        Page 10                                             Announcer v1.11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         Example:  We  want  to send a welcoming message to new BBS members,
         and  want  a  special  configuration  file that we can use at those
         times. Then a combination of the /I parameter (for more information
@@ -834,20 +888,17 @@
         will be exchanged for "Announcer", and the message above would have
         been posted to Announcer.
         
-        Page 10                                              Announcer v1.1
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
                 Using mailing lists
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
         Mailing  lists  are  a  convenient way to post the same messages to
-        several  people  at once. Say for example that you're the head of a
+        several  poople  at once. Say for example that you're the head of a
         local  computer  club,  and  you  want to netmail its member with a
         bulletin  each  month.  Posting  individual messages, or setting up
         Announcer  with one template for each receiver is tedious, the easy
         way out is to set up a mailing list.
         
-        To tell Announcer that it is a mailing list you want to do, and not
+        To tell Announcer that it is a mailing liss you want to do, and not
         a  normal  mail, you need to create a file containing all the names
         and  addresses, and point to that file in the message template. The
         format  of  the  mailing  list  file  is straightforward, each line
@@ -883,7 +934,9 @@
             Path JC:\RA2\NETMAIL
             Distribution Netmail
             .end
-        
+        Announcer v1.11                                             Page 11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         This  setup  will result in these two message (only header and NOTE
         kludge is shown in this example):
         
@@ -927,9 +980,6 @@
         optional.  Here follows detailed descriptions of these six keywords
         (alphabetically):
         
-        Announcer v1.1                                              Page 11
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
           BinkleyName <Yes/No> [optional]
         
         With  this  option  set to "Yes", you instruct Announcer to use the
@@ -977,6 +1027,9 @@
         
           PktPath <directory to put the .PKT file in>
         
+        Page 12                                             Announcer v1.11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         This keyword specifies the directory in which the .PKT file will be
         created.
         
@@ -1011,9 +1064,6 @@
         distribution  method  is not valid in this mode. Only "NetMail" and
         "EchoMail" can be used.
         
-        Page 12                                              Announcer v1.1
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         example:
         Distribution EchoMail
         
@@ -1054,6 +1104,9 @@
             .End
         
             ; Now, we initiate .PKT mode
+        Announcer v1.11                                             Page 13
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
             PktMode C:\TEMP
             PktPath C:\SQUISH\INBOUND
             PktFrom 2:204/145.42
@@ -1086,9 +1139,7 @@
         You set it up with the command SET, for example:
         
             SET ANNLANG=ENG
-        Announcer v1.1                                              Page 13
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
         will  set  the language to English. If you want to set the language
         automatically when you start your computer, you can enter that line
         into your AUTOEXEC.BAT file.
@@ -1119,6 +1170,9 @@
         0.22beta        October 28th, 1995
         ! Does not complain over errors in LOCPOST.INI, but in the current
           INI file
+        Page 14                                             Announcer v1.11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         + Tagline support
         + Internal registration module (same version to everyone!)
         + Selectable bragline intro (so now you can choose yourself :-) )
@@ -1147,9 +1201,6 @@
         ! Corrected the random tagline selection
         ! Corrected some English texts
         ! Echomail and Squish now works
-        Page 14                                              Announcer v1.1
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         + FMPT and TOPT kludges are created in netmail
         + Creates REPLY kludges
         + Interval support
@@ -1178,6 +1229,22 @@
         * Checks that enough configuration items are specified
         * Changed the MSGID generation to reduce the risk of dupes
         * Logs echo tag instead of message base in the log file
+        Announcer v1.11                                             Page 15
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        1.11
+        ! Split position now calculated over the entire message
+        ! Fixes bug with lost lines in netmail in Squish format
+        ! Only writes posting date when message actually was posted
+        + Support for packets according to FSC-0048
+        + Possability to post only on certain dates
+        + Split can now define the maximum size of each part
+        + Simulation mode
+        + Placeholder
+        + Multiple command line switches without space inbetween
+        * Support for kludge for fixed width
+        * Shows echotag in log file when messages aren't posted
+        * Some long log file lines are splitted up
         
                 Known limitations
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
@@ -1191,7 +1258,6 @@
         * OS/2 version
         * Reading the Squish configuration file
         * Area statistics
-        * Definable max file size when splitting messages
         * Definable max number of lines when splitting messages
         
                 Thanks
@@ -1219,9 +1285,6 @@
         JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats
         Birch, Mats Wallin. ALL RIGHTS RESERVED.
         
-        Announcer v1.1                                              Page 15
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         The  pagination  and  table of contens of this document was created
         using Pager version 4.2c from Softwolves Software.
         
@@ -1237,8 +1300,7 @@
         
         Trademarks   forgotten   in  this  list  are  still  recognized  as
         trademarks of their respective holders.
-        
-        Page 16                                              Announcer v1.1
+        Page 16                                             Announcer v1.11
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
         Registration form
@@ -1256,17 +1318,17 @@
         
         Item                                    at      amount  total
         
-        Announcer single user license           75.00   _____   ______
+        Announcer single user license           100.00  _____   ______
         
         Announcer multi-user license
-          2-10 users     (for all, each)        70.00   _____   ______
-          11-100 users   (for all, each)        50.00   _____   ______
-          101+ users     (for all, each)        25.00   _____   ______
+          2-10 users     (for all, each)         80.00  _____   ______
+          11-100 users   (for all, each)         60.00  _____   ______
+          101+ users     (for all, each)         30.00   _____   ______
         
-        New version on diskette (3«")           15.00   _____   ______
-        Foreign orders                          20.00            20.00
-        Fee for paying non-SEK cash             20.00           ______
-        Fee for bank transfer (bank or giro)    20.00           ______
+        New version on diskette (3«")            15.00  _____   ______
+        Foreign orders                           20.00           20.00
+        Fee for paying non-SEK cash              20.00          ______
+        Fee for bank transfer (bank or giro)     20.00          ______
         
         Total enclosed amount                                   ______
         
@@ -1277,19 +1339,18 @@
                                 Kronor, drawn on a Swedish bank.
         (  ) Cash:-             Only bank notes, see extra fee above.
         (  ) Cash On Delivery:- Extra fee will be charged.
-        (  ) Bank transfer:-    Transfer to account no. 7654-13-17224 of
-                                F”reningsbanken, Lindesberg.
-        (  ) Bank giro:-        Transfer to bankgiro account no. 5939-7620
+        (  ) Bank transfer:-    Transfer to account no. 5380-0083906 of
+                                S-E-Banken, V„ster†s.
         (  ) Postal giro:-      Transfer to postalgiro account 1469473-1
                                 (Peter Karlsson).
         
         Send to:
         
-                Softwolves Software
-                c/o Peter Karlsson
-                V„rnsta, Ullers„ter
-                S-718 92  FR™VI
-                SWEDEN
+                Softwolves Software     or      Softwolves Software
+                c/o Peter Karlsson              c/o Peter Karlsson
+                Kaserngatan 16B 1tr             V„rnsta, Ullers„ter
+                SE-723 47  VSTERS             SE-718 92  FR™VI
+                SWEDEN                          SWEDEN
         
         Electronic mail:
         

@@ -16,6 +16,7 @@
 {*              0.31.2 Lade till texter                      1996-02-09 *}
 {*              1.00 Lade till texter                        1996-03-09 *}
 {*              1.10 Lade till/tog bort/„ndrade texter       1996-08-14 *}
+{*              1.11 Lade till/tog bort/„ndrade texter       1996-11-15 *}
 {************************************************************************}
 
 Unit AnStr;
@@ -29,13 +30,14 @@ Var StrErrSav, StrErrBas, StrErrFil, StrErrPar, StrErrOp1, StrErrOp2,
     StrLogBeg, StrLogEnd, StrLogEn2, StrLogSav, StrLogBas, StrLogFil,
     StrLogIni, StrLogTos, StrLogTo2, StrLogRun, StrLogRn2, StrLogMis,
     StrLogPkt, StrLogCrf, StrLogCrs,
-    StrStdOri, StrDidSav, StrDidSv2, StrDidSv3, StrNotInt, StrNotIn2,
-    StrNotIn3, StrNotSem, StrNotReg, StrTooSml, StrNotUpd,
+    StrStdOri, StrDidSav, StrDidSv2, StrDidSv3, StrDidSim, StrNotInt,
+    StrNotIn2, StrNotIn3, StrNotIn4, StrNotIn5, StrNotSem, StrNotReg,
+    StrTooSml, StrNotUpd,
     StrInfMsg, StrInfLst, StrInfClk, StrInfAgo, StrInfTod, StrInfYst,
-    StrInfInt, StrInfDag, StrInfLes, StrInfMor, StrInfFnn, StrInfNop,
-    StrInfRem, StrInfSem, StrInfSno, StrInfSye, StrInfMin, StrInfMi2,
-    StrInfMno, StrInfMye, StrInfUpd, StrInfUno, StrInfUp2, StrInfLat,
-    StrInfYtt: String;
+    StrInfInt, StrInfDag, StrInfLes, StrInfMor, StrInfDat, StrInfDa2,
+    StrInfFnn, StrInfNop, StrInfRem, StrInfSem, StrInfSno, StrInfSye,
+    StrInfMin, StrInfMi2, StrInfMno, StrInfMye, StrInfUpd, StrInfUno,
+    StrInfUp2, StrInfLat, StrInfYtt, StrInfPlc: String;
     Language : String[3];
 
 Implementation
@@ -115,14 +117,18 @@ begin
      StrStdOri := 'Standard-Origin-rad';
      StrDidSav := 'Skrev meddelande ';
      StrDidSv2 := ' i ';
-     StrDiDSv3 := ' (mall ';
+     StrDidSv3 := ' (mall ';
+     StrDidSim := '(simulerat)';
      StrNotInt := 'Mall ';
-     StrNotIn2 := ' ska ej postas idag (';
+     StrNotIn2 := ' ska ej postas idag';
      StrNotIn3 := ' dagar sen sist, intervall ';
+     StrNotIn4 := 'postas enbart den ';
+     StrNotIn5 := 'har redan postats idag';
      StrNotSem := 'Semaforfil saknas f”r mall ';
      StrNotReg := 'OREGISTRERAD';
      StrTooSml := 'Filen „r f”r liten, mall ';
      StrNotUpd := 'Filen „r inte uppdaterad, mall ';
+     { Informationsstr„ngar }
      StrInfMsg := 'Meddelande ';
      StrInfLst := ' postades senast den ';
      StrInfClk := ' kl ';
@@ -130,9 +136,11 @@ begin
      StrInfTod := 'idag).';
      StrInfYst := 'ig†r).';
      StrInfInt := ' ™nskat intervall „r ';
-     StrInfDag := ' dag(ar), meddelandet ';
+     StrInfDag := ' dag(ar)';
      StrInfLes := 'kommer ej att postas.';
      StrInfMor := '„r redo f”r postning.';
+     StrInfDat := ' ™nskat postningsdatum „r ';
+     StrInfDa2 := ', meddelandet ';
      StrInfFnn := ' Meddelandedefinition kunde ej hittas i inst„llningsfilen';
      StrInfNop := 'Meddelandet har inte postats';
      StrInfRem := ' Datafilsposten har tagits bort';
@@ -148,6 +156,7 @@ begin
      StrInfUp2 := 'uppdaterats sedan senaste postning.';
      StrInfLat := ' Senaste MSGID: ';
      StrInfYtt := ' ytterligare meddelandemall(ar) finns.';
+     StrInfPlc := ' Meddelandemallen „r oanv„nd.';
    end
    else if Language='ENG' then
    begin
@@ -189,6 +198,7 @@ begin
      StrLogRun := 'Run time error ';
      StrLogRn2 := ' at ';
      StrLogMis := 'Vital message information missing, template #';
+     StrLogPkt := 'Created PKT file ';
      StrLogCrf := 'Unable to create semaphore file ';
      StrLogCrs := 'Created semaphore file ';
      { Str„ngar }
@@ -196,13 +206,17 @@ begin
      StrDidSav := 'Wrote message #';
      StrDidSv2 := ' in ';
      StrDidSv3 := ' (template #';
+     StrDidSim := '(simulated)';
      StrNotInt := 'Template #';
-     StrNotIn2 := ' not due today (';
+     StrNotIn2 := ' not due today';
      StrNotIn3 := ' days ago, interval is ';
+     StrNotIn4 := 'only posted on the ';
+     StrNotIn5 := 'has already been posted today';
      StrNotSem := 'Semaphore file missing for template #';
      StrNotReg := 'NOT REGISTERED';
      StrTooSml := 'The file is too small, template #';
      StrNotUpd := 'The file is not updated, template #';
+     { Informationsstr„ngar }
      StrInfMsg := 'Message ';
      StrInfLst := ' last posted on ';
      StrInfClk := ' at ';
@@ -210,9 +224,11 @@ begin
      StrInfTod := 'today).';
      StrInfYst := 'yesterday).';
      StrInfInt := ' Defined interval is ';
-     StrInfDag := ' day(s), the message ';
+     StrInfDag := ' day(s)';
      StrInfLes := 'will not be posted.';
      StrInfMor := 'is ready to be posted.';
+     StrInfDat := ' Defined date of posting is ';
+     StrInfDa2 := ', the message ';
      StrInfFnn := ' Message template could not be found';
      StrInfNop := 'Message has not been posted';
      StrInfRem := ' The data file item has been removed';
@@ -228,7 +244,7 @@ begin
      StrInfUp2 := 'been updated since the last posting.';
      StrInfLat := ' Latest MSGID: ';
      StrInfYtt := ' more message template(s) exists.';
-     StrLogPkt := 'Created PKT file ';
+     StrInfPlc := ' The message template is not in use.';
    end
    else
    begin

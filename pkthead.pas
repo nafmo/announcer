@@ -33,7 +33,7 @@ Type  PKTheader = record
                     Password:     array[0..7] of char; { Password }
                     QOrgZone,             { Originating Zone }
                     QDstZone:     word;   { Destination Zone }
-                    Filler:       array[0..1] of byte;
+                    Filler:       word;
                     CapValid:     word;   { Byteswapped CapW }
                     PrdCodH,              { Prod. Code, high }
                     PVMinor:      byte;   { Prod. Rev, minor }
@@ -42,7 +42,7 @@ Type  PKTheader = record
                     DstZone,              { Destination Zone }
                     OrgPoint,             { Orig. Point      }
                     DstPoint:    word;    { Dest. Point      }
-                    ProdData:   longint;  { whatever...      }
+                    ProdData:    array[0..3] of char; { whatever...      }
                   end;
 
 Type  PkdMSG    = record
