@@ -1,14 +1,14 @@
-        Announcer V1.00                                              Page 1
+        Announcer v1.1                                               Page 1
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-        ÛßßÛ     ÛŞİÛ    TM     SoftWolves Software     Announcde.Doc
+        ÛßßÛ     ÛŞİÛ    TM     SoftWolves Software     Announce.Doc
         ÛÜÜÜÄÄÄÄÄÛŞİÛÄÄÄÄÄÄ     c/o Peter Karlsson
         Ü  Û OFT ÛŞİÛ OLVES     V„rnsta, Ullers„ter     Documentation for
-        ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     S-718 92  FR™VI         Announcer v1.00
+        ßßßßÄÄÄÄÄßßßßÄÄÄÄÄÄ     S-718 92  FR™VI         Announcer v1.1
           Hear the howl       SWEDEN    fax +46-(0)581-32110
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
-        Announcer v1.00 - Posts files in message areas att BBSes
+        Announcer v1.1 - Posts files in message areas att BBSes
 
         Copyright (c) 1995, 1996: Peter Karlsson
         A Softwolves Software(TM) Release in 1996
@@ -18,10 +18,10 @@
         Enter  CHCP  at  the DOS prompt to see which one you are using. See
         your DOS manual on how to change it.
 
-        Table Of Contens
+        Table Of Contents
 
         Quick start ..................................................... 2
-        Purpose ......................................................... 2
+        Background ...................................................... 2
         Status .......................................................... 2
         License ......................................................... 2
         Disclaimer of warranty .......................................... 2
@@ -30,13 +30,16 @@
         ANNOUNCE.INI, the configuration file ............................ 3
           Global settings ............................................... 4
           Message templates ............................................. 5
-        The %1 and %2 variables ......................................... 7
-        Language ........................................................ 8
-        Revision history ................................................ 8
-        Plans for future versions ....................................... 9
-        Thanks .......................................................... 9
-        Registration form .............................................. 10
-        Page 2                                              Announcer V1.00
+        The %1 and %2 variables ......................................... 9
+        Using mailing lists ............................................ 10
+        Creating .PKT files ............................................ 10
+        Language ....................................................... 12
+        Revision history ............................................... 13
+        Known limitations .............................................. 14
+        Plans for future versions ...................................... 14
+        Thanks ......................................................... 14
+        Registration form .............................................. 16
+        Page 2                                               Announcer v1.1
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
         Documentation
@@ -61,8 +64,8 @@
         
         at  the command line, and the program will execute. It will now use
         the  standard  configuration  file ANNOUNCE.INI and do what is told
-        there.  If  any  errors happens this will be printed on the screen,
-        and the program execution will end. A common error is that files or
+        there. If any errors occur, they will be printed on the screen, and
+        the  program  execution  will  end. A common error is that files or
         message  bases  are  missing,  which mostly is caused by misspelled
         file  names,  but it can also be caused by the file or message base
         being locked by another program.
@@ -81,8 +84,8 @@
         I  also would like you to read the chapter "Status", which includes
         information on how to pay for the program.
         
-                Purpose
-                ÄÄÄÄÄÄÄ
+                Background
+                ÄÄÄÄÄÄÄÄÄÄ
         
         I  originally  wrote  this  program  for a local BBS, where I and a
         couple  of  my  friends  "competed"  on  who  could  write the most
@@ -97,7 +100,7 @@
         is  now  able  to do more than only post top-ten-lists, it can post
         welcoming  messages  to  new  users,  conference  rules in echomail
         areas,  automatic reminders, and much more. Your imagination is the
-        limit  (okay,  so long as it is inside the program's area. It can't
+        limit  (okay,  so long as it is inside the program's area. It won't
         operate your microwave oven).
         
                 Status
@@ -113,9 +116,11 @@
         With  shareware  you  get the ultimate money-back guarantee, if you
         don't use the product, you don't have to pay for it.
         
-        This  program  is  not  crippled in the shareware version. The only
-        difference  is  that  the brag line will not have a plus sign after
-        the version number and that an extra kludge line will be written.
+        This  program  is  not  crippled  in the shareware version, since I
+        don't  believe  in  crippled  demo versions. The only difference is
+        that  the  brag  line  will  not have a plus sign after the version
+        number  and  that  an extra kludge line will be written, indicating
+        that it is the unregistered version you are using.
         
                 License
                 ÄÄÄÄÄÄÄ
@@ -152,16 +157,16 @@
         ANNOUNCE.DOK    Documentation in Swedish
         ANNOUNCE.DOC    Documentation
         ANNOUNCE.INI    Sample configuration file
-        SOFTWOLV.FRM    Order form for Softwolves Software programs
+        PKTMODE.INI     Sample configuration file
         WOLVES.COM      Softwolves Software's program catalogue
         
-        Announcer V1.00                                              Page 3
+        Announcer v1.1                                               Page 3
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
                 Command line format
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
-        ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/Q]
+        ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/P] [/Q]
                  [name1 [name2]]
         ANNOUNCE /?
         
@@ -179,9 +184,10 @@
         This  option  will tell Announcer not to post messages, but instead
         show  satus information. The things that are shown is how long time
         have passed since the messages have been posted, the intervals that
-        have  been  specified for the messages (if any), and the MSGID that
-        was  used  at the last posting. Please notice that you need to have
-        run  Announcer  at  least  once to be able to use this command line
+        have  been  specified for the messages (if any), the wanted minimum
+        size,  the  existance  of a semaphore file, and the MSGID that were
+        used  at  the last posting. Please notice that you need to have run
+        Announcer  at  least  once  to  be  able  to  use this command line
         switch.
         
           /M
@@ -195,6 +201,20 @@
         "out  of  sync",  for example if you delete a template somewhere in
         the  middle,  you  will  unfortunately need to remove the data file
         completely.
+        
+          /P
+        
+        When  specifying  this  command  line parameter, Announcer will not
+        create  tear lines in the messages it creates, but instead show its
+        name  in a PID kludge. When posting echomail to message bases, this
+        command  line  option  will  also result in Announcer not adding an
+        Origin  line,  leaving  that  to  the tosser. When in .PKT mode, an
+        Origin line will be created, but no tear line.
+        
+        Please  note that the tosser TerMail, at least in some versions, do
+        not  add  a  tear and Origin line when tossing, so this option will
+        then   generate   invalid   messages   according   to  the  Fidonet
+        specifications. Use with caution.
         
           /Q
         
@@ -238,9 +258,11 @@
         configuration file name will default to A.INI.
         
         For  each configuration file, a data file, with the file type .DAT,
-        will  be  created. That file contains information on latest posting
-        date,  for  use  with the interval handling, and the MSGID that was
-        used so that the next posting can contain a REPLY kludge.
+        will  be  created. This file contains information on latest posting
+        date,  used by the interval handling, as well as the MSGID that was
+        used,  so that the next posting can contain a REPLY kludge. (If you
+        have "ReplyKludge No" set, no REPLY kludge will be created, but the
+        MSGID will still be logged).
         
         The configuration file contains two different "areas", the first is
         the  global  area  where  you  define  default  settings  for  alle
@@ -254,7 +276,9 @@
                 Msg
         
         on it, and is ended with the text
-        
+        Page 4                                               Announcer v1.1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
                 .End
         
         Between these lines the configuration posts that are needed for the
@@ -262,13 +286,14 @@
         set.  Note  that  there  is  no  requirement on the ordering of the
         different settings.
         
-        For  the  global settings there are default values, which are given
-        in  the  indicated in the text below, but for the message templates
-        the   content   in  the  definitions  are  mostly  undefined  until
-        specified.
-        Page 4                                              Announcer V1.00
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        For  the  global  settings  there  are  default  values,  which are
+        indicated  in the text below. Default values also exist for some of
+        the  message  template  settings, except for "From", "Subj", "File"
+        and "Path". These four are vital, and have to be included for every
+        message  template  definition.  The  addresses  used in netmail and
+        echomail  are  not considered as vital, but without them, you won't
+        get any good results.
+        
         It  is not of importance whether the keywords are written in upper-
         or lowercase, the only thing you have to keep in mind is that there
         may not be more than one space between the keyword and the data.
@@ -277,6 +302,11 @@
             ---------------
         
         These are the available global settings:
+        
+          BinkleyName
+        
+        This keyword refers to the .PKT mode of Announcer. It is documented
+        in the chapter "Creating .PKT files".
         
           BragLineIntro <intro characters for the bragline>
         
@@ -293,8 +323,8 @@
         of  them  at  once,  it's  a  good idea to log which areas you have
         written  to,  and  only  scan  through  these message areas for new
         messages.  This  is why there is an ECHOTOSS.LOG file. It is a text
-        file  that  contains  a  list  of  areatags, one on each line, that
-        specifies  in  which  areas  there  are new messages present. Since
+        file that contains a list of areatags, one on each line. These tags
+        specify  the  areas  in  which  new  messages  are  present.  Since
         Announcer  has  the possability to send echomail, it's nice if it's
         able to write to such a file. That's what this keyword is for.
         
@@ -334,6 +364,28 @@
         example:
         MsgId 999:42/417.25@MyNet
         
+          PktFrom
+          PktMode
+          PktPath
+          PktPwd
+          PktTo
+        
+        These  five  keywords all refer to the .PKT mode of Announcer. They
+        are documented in the chapter "Creating .PKT files".
+        Announcer v1.1                                               Page 5
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+          ReplyKludge <Yes/No>
+        
+        Tells  Announcer  whether  or  not  to  create REPLY kludges in its
+        messages.  If  you don't want to link your postings to the previous
+        one, set this to "No". The default is "Yes".
+        
+        REPLY kludges will not be created in mailing lists.
+        
+        example:
+        ReplyKludge Yes
+        
           TagLineFile <file name for the tagline file>
         
         If  you  want  to  use random taglines (taglines are quite commonly
@@ -341,14 +393,14 @@
         to tell Announcer where it can find a file with such things in. The
         tagline  file  you  define can then be used by message *subsequent*
         templates.  It  is  possible  to  change  tagline files between the
-        message templates, that tagline file will then only be available to
-        subsequent templates.
+        message templates. The new tagline file will then only be available
+        to subsequent templates.
         
-        All  lines  that  begins  with either a semi colon (";") or percent
-        sign ("%") will be considered comment lines, and will be ignored.
+        All lines that begin with either a semi colon (";") or percent sign
+        ("%") will be considered comment lines, and will be ignored.
         
         example:
-        TagLineFile D:\BlueWave\Default.Tag
+        TagLineFile D:\BLUEWAVE\DEFAULT.TAG
         
           TagLineIntro <intro characters for taglines>
         
@@ -361,18 +413,70 @@
         example:
         TagLineIntro .!.
         
-        Announcer V1.00                                              Page 5
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
             Message templates
             -----------------
         
-        The message templates consists of the following settings:
+        The message templates consist of the following settings:
         
         Please  note  that  the  settings  that  are  marked with a [*] are
         optional.  Some  other  parameters  can  be more or less limited in
         certain  scenarios,  such  things  are  noted  under the individual
         options.
+        
+          Attributes <message attributes> [*]
+        
+        With this keyword, you can select what attributes the message to be
+        created  shall have. Each attribute is represented by a letter, and
+        you  write  the  letter(s) you want in a row after the keyword. You
+        can have spaces between the letters if you so wish.
+        
+        Available attributes are:
+          "C": CrashMail
+          "K": Kill when sent
+          "A": File Attached
+          "R": File Request
+          "P": Private
+          "H": Hold for pickup.
+        
+        Please  note  that  the  Private status also can be controlled with
+        "Private"  (see  this  keyword),  and  that  the flag is ignored in
+        netmail  and  echomail.  You  can  not  use specified attributes in
+        echomail.
+        
+        example:
+        Attributes CK
+        
+          Charset <character set> [*]
+        
+        Here  you can set the character set to be used for the message that
+        is to be posted. The message file is always assumed as being stored
+        in  PC8,  code  page  437, and conversion will be done according to
+        this.  Possible  values  are "PC8" (no conversion will be made, has
+        the  same effect as leaving this keyword out), "SV7" (Swedish seven
+        bit  code),  "ISO"  (results in ISO 8859-1) or "ASCII" (clean seven
+        bit ASCII code, no CHRS-kludge).
+        
+        You  can also convert your texts to PC8, code page 437, from either
+        ISO  8859-1  or  Swedish  seven  bit code. To do this, use the same
+        string  as  above,  but  prefixed with a minus sign, i.e "-ISO" for
+        conversion from ISO 8559-1 or "-SV7" for Swedish seven bit code.
+        
+        example:
+        Page 6                                               Announcer v1.1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        Charset ISO
+        
+          Create <path and file name of semaphore file> [*]
+        
+        If  you  enter  a  path and file name here, Announcer will create a
+        zero-byte semaphore file if the message was posted.
+        
+        If  you want Announcer to post only if a semaphore file exists, see
+        the 'Semaphore' keyword.
+        
+        example:
+        Create C:\ANNOUNCE\POSTED.SEM
         
           Dest <destination address>
         
@@ -448,21 +552,21 @@
         
         example:
         From Statistiscs Generator
-        
+        Announcer v1.1                                               Page 7
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
           Header <path and file name header file> [*]
         
         This  keyword  specifies  a header file, which will be added before
         the  "big"  file.  It  can be a logotype file, or something in that
         direction. If you don't give any, no header file will be used.
-        Page 6                                              Announcer V1.00
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
         No error message will be shown if the file does not exist.
         
         example:
         Header C:\LOGOS\MY.LGO
         
-          Interval <interval>
+          Interval <interval> [*]
         
         If you don't want the message to be posted everytime the program is
         run, you can enter an interval, given as a number of days, here. If
@@ -470,6 +574,23 @@
         to  7,  a  message  will  only be posted once a week anyway. If you
         don't give an interval, or an interval of zero, the message will be
         posted each time the program is run.
+        
+        example:
+        Interval 14
+        
+          MinSize <no. of bytes> [*]
+        
+        With  this  optional  keyword, you can specify the minimum size the
+        message  file must have for it to be posted. If the file is smaller
+        than  this  amount, including the file not existing, it will not be
+        posted.
+        
+        This  can  also  be  used to only post messages if the message file
+        exists,  (if  it  doesn't,  it  is  considered too small), just use
+        MinSize 0. (To do this, you might also use Semaphore).
+        
+        example:
+        MinSize 1024
         
           Orig <originating address>
         
@@ -511,29 +632,32 @@
         Squish:  The  letter  "S"  followed by the path to the message base
         stemfile (without extension).
         example:
-        Path SC:\Max\Msg\Muffin
+        Path SC:\MAX\MSG\MUFFIN
         
         Hudson:  The  letter "H" followed by a three-digit, decimal, number
         that  specifies  the  area number, and this in its turn followed by
         the directory in which the message base resides.
         example:
-        H007C:\Ra\Msg\Msgbase
+        Path H007C:\RA\MSG\MSGBASE
         
         Fido  (*.MSG): The letter "F" followed by the path to the directory
         in which the message base resides.
         example:
-        FC:\FD\Net\
-        
-        JAM:  The  letter  "J" followed by the the path to the message base
+        Path FC:\FD\NET\
+        Page 8                                               Announcer v1.1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        JAM:  The  letter  "J"  followed  by  the  path to the message base
         stemfile (without extension).
         example:
-        JC:\Ra2\Msg\RA_Util
+        Path JC:\RA2\MSG\RA_UTIL
         
-        EzyCom:  The  letter  "E"  followed by a for-digit, decimal, number
-        that  specifies  the  area number, and this in its turn followed by
-        the path to the messagebase (without extension).
+        EzyCom  (before version 1.10 of EzyCom): The letter "E" followed by
+        a  for-digit,  decimal,  number that specifies the area number, and
+        this  in  its turn followed by the path to the messagebase (without
+        extension).
         example:
-        E0001F:\Ezy\Msg
+        Path E0001F:\EZY\MSG
         
           Private <private flag>
         
@@ -547,9 +671,48 @@
         example:
         Private Yes
         
-        Announcer V1.00                                              Page 7
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+          Semaphore <path and file name of semaphore file> [*]
+        
+        With this keyword you can control the posting of the message with a
+        so  called semaphore file. If the specified file does not exist, no
+        message will be created. Semaphore files are generally 0 byte files
+        that  are  created  by a program to signal that a certain situation
+        has  occured.  An  example  is that a new user has logged in at the
+        BBS. The semaphore file is not removed by Announcer.
+        
+        This  can  also  be  used to only post messages if the message file
+        exists  (otherwise  Announcer will give an error message), just use
+        the  same file name for the semaphore file as for the message file.
+        (To do this, you might also use MinSize).
+        
+        If  you  want  Announcer  to  create a semaphore if the message was
+        posted, see the 'Create' keyword.
+        
+        exemple:
+        Semaphore c:\timed\netmail.sem
+        
+          Split <number of parts> [*]
+        
+        If  the message file you want to post is large, and not all message
+        processors  on  the  way to the destination are able to handle such
+        large  messages,  you  can  use  this  keyword to split it into any
+        number of parts you wish. Please note that the splitting is done in
+        evenly  big  pieces  on  the  main file, the header and footer file
+        aren't touched, and are not included in the size count.
+        
+        When  posting to Squish databases, the routines used do not support
+        messages  larger  than  approximately  33,000  characters.  If  you
+        specify  larger  parts, even if it's because you're leaving out the
+        Split  keyword, the message will be splitted so that each part will
+        not exceed 33,000 characters.
+        
+        If  you  want  the  originating  address  in the SPLIT kludge to be
+        correct,  you  have  to  give  an  Orig  address,  even  for  local
+        messages.
+        
+        example:
+        Split 2
+        
           Subject <subject line>
         
         Here the subject line of the message to be created is specified. If
@@ -569,23 +732,52 @@
         time  by reading randomly from the file you have specified with the
         keyword TagLineFile in the global settings (see this section).
         
-        If  you want the same tagline to be used everytime you can give the
-        tagline  text  after  the  keyword  (a  maximum of 80 characters is
-        allowed),  and  if  you  want  it to be choosen at random, you only
+        If you want the same tagline to be used every time you can give the
+        tagline  text  after the keyword (a maximum length of 80 characters
+        is  allowed),  and if you want it to be choosen at random, you only
         enter a commercial at sign ("@").
         
         example:
         TagLine @
         
-          To <receiver name>
+          To <receiver name> [*]
+          To @<name of mailing list file> [*]
         
+        Announcer v1.1                                               Page 9
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         Here  the  receiver name of the message to be created is specified.
         If  the  message  base  does  not  restrict it further, the maximum
         length  of  the receiver name is 35 characters, if you enter a name
-        that is too long, it will be truncated to fit the maximum length.
+        that  is  too long, it will be truncated to fit the maximum length.
+        If you don't enter any name, the receiver field will be empty.
+        
+        If  you wish to create a mailing list (ie. post the same message to
+        several  people),  you  should  enter  a  commercial  at sign ("@")
+        followed  by  the name of the file that contains all the recipients
+        in  the  mailing  list  instead  of  the  receiver  name. This file
+        contains lines with receiver address and receiver name separated by
+        a  space.  For  more  information,  see  the chapter "Using mailing
+        lists".
+        
+        You  can't  use  the two variants of the To keyword together in the
+        same message template.
         
         example:
         To All
+        To @MYLIST.TXT
+        
+          UpdatedSend <updatingflag>
+        
+        With  this  keyword  you can select whether the message file should
+        only  be  posted  if it has been updated since the last posting. If
+        you  select  "Yes",  the file date will be checked against the last
+        posting  date,  and if it is older, the message will not be posted.
+        If you select "No", no such checking will be made.
+        
+        example:
+        UpdatedSend Yes
+        
         
                 The %1 and %2 variables
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
@@ -607,17 +799,17 @@
         Example:  We  want  to send a welcoming message to new BBS members,
         and  want  a  special  configuration  file that we can use at those
         times. Then a combination of the /I parameter (for more information
-        on  this  parameter,  please  look  at at the chapter "Command line
+        on  this  parameter,  please  look  at  the  chapter  "Command line
         format"),  name  on the command line and variables are a good thing
         to  have.  Let's  say  that  we  define  the  message  templates as
         follows:
         
             MSG
-            File Newuser.txt
+            File NEWUSER.TXT
             Subject New user - welcome
             To %1
             From Sysopus Anonymous
-            Path Sc:\max\msg\sysop
+            Path SC:\MAX\MSG\SYSOP
             Tagline My little BBS - for you and me
             Private Yes
             .end
@@ -638,12 +830,245 @@
         
             ... My little BBS - for you and me
         
-        Page 8                                              Announcer V1.00
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         If  you  forget  to enter a name on the command line, the variables
         will be exchanged for "Announcer", and the message above would have
         been posted to Announcer.
+        
+        Page 10                                              Announcer v1.1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+                Using mailing lists
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        Mailing  lists  are  a  convenient way to post the same messages to
+        several  people  at once. Say for example that you're the head of a
+        local  computer  club,  and  you  want to netmail its member with a
+        bulletin  each  month.  Posting  individual messages, or setting up
+        Announcer  with one template for each receiver is tedious, the easy
+        way out is to set up a mailing list.
+        
+        To tell Announcer that it is a mailing list you want to do, and not
+        a  normal  mail, you need to create a file containing all the names
+        and  addresses, and point to that file in the message template. The
+        format  of  the  mailing  list  file  is straightforward, each line
+        contains  the  address  of the recipient, followed by the name, the
+        two  fields  separated  with  a  single  space.  For  Announcer  to
+        understand  that  it  is a list of names it should look for, prefix
+        the file name at the To keyword with a commercial at sign ("@").
+        
+        Announcer  will  identify  messages  posted  to  a  mailing list by
+        inserting  a  special  kludge  "NOTE",  which shows the name of the
+        mailing  list  file.  If  you want to change this to something more
+        descriptive,  enter  the  name  you  want  on the first line of the
+        mailing list file, prefixed with a semi colon (";").
+        
+        Example, a computer club newsletter:
+        
+        First,  we  create a file "NEWSLTR.LST", which contains the list of
+        the recipients (only two people in this example):
+        
+            ;Computer Newsletter
+            7:342/169.31 John Doe
+            8:412/961.17 Jane Doe
+        
+        Then  we  set up a message template that points to the mailing list
+        file:
+        
+            Msg
+            File NEWSLTR.TXT
+            Subject Computer Club X Newsletter
+            To @NEWSLTR.LST
+            From Bill Doe
+            Orig 7:342/117
+            Path JC:\RA2\NETMAIL
+            Distribution Netmail
+            .end
+        
+        This  setup  will result in these two message (only header and NOTE
+        kludge is shown in this example):
+        
+            From: Bill Doe (7:342/117)
+            To:   John Doe (7:342/169.31)
+            Subj: Computer Club X Newsletter
+            =============================================
+            ^aNOTE: Mailing list "Computer Newsletter"
+            ...
+        
+            From: Bill Doe (7:342/117)
+            To:   Jane Doe (8:412/961.17)
+            Subj: Computer Club X Newsletter
+            =============================================
+            ^aNOTE: Mailing list "Computer Newsletter"
+            ...
+        
+        Since  only  one  MSGID  is  recorded  for  each template, no REPLY
+        kludges  will  be  created  for mailing lists, even if you have set
+        "ReplyKludge Yes" in global configuration.
+        
+        Please note that it is not possible to combine the two forms of the
+        To  keyword.  Furthermore,  if the message file is not found, the @
+        sign will be considered a part of the receiver name, which makes it
+        possible  to post to someone that has a @ as the first character of
+        the name.
+        
+                Creating .PKT files
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        Announcer  has  the  capability  of directly creating type "2+" PKT
+        file  (mail  bundles). This is called ".PKT mode". The operation of
+        Announcer  differs slightly from how it normally works, and this is
+        why it is covered in its own chapter.
+        
+        To  initiate .PKT mode, you need to define the four global keywords
+        "PktMode",  "PktPath",  "PktFrom"  and  "PktTo". If you omit any of
+        them,  Announcer  will  have  trouble operating, but due to the way
+        Announcer  processes the configuration file, it will not abort with
+        an  error  message. The two keywords "PktPwd" and "BinkleyName" are
+        optional.  Here follows detailed descriptions of these six keywords
+        (alphabetically):
+        
+        Announcer v1.1                                              Page 11
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+          BinkleyName <Yes/No> [optional]
+        
+        With  this  option  set to "Yes", you instruct Announcer to use the
+        BinkleyTerm   name   style,   "aaaabbbb.OUT",  where  aaaa  is  the
+        destination  net  number in hexadecimal and bbbb is the destination
+        node  number, also in hexadecimal. With this, you do not need to go
+        through  any other message processing software to send a message in
+        conjunction with a Binkley-style mailer.
+        
+        BinkleyName  defaults  to  "No",  which  yields  a  packet  name of
+        "nnnnnnnn.PKT",  where  nnnnnnnn  is  the  number  of seconds since
+        January  1st  1970  (Unix time) written in hexadecimal. This is the
+        same type of number that is used for the MSGIDs.
+        
+        If  the  PKT  file  that Announcer tries to write to should already
+        exist,  Announcer will append the messages in the end. The contents
+        of the PKT file's header will not be changed.
+        
+        example:
+        BinkleyName Yes
+        
+          PktFrom <originating address>
+        
+        This  keyword  specifies  the originating address of the .PKT file.
+        This  is  generally  the same address as the originating address of
+        the messages contained in the packets.
+        
+        example:
+        PktFrom 2:204/145.42
+        
+          PktMode <temporary path for .MSG files>
+        
+        PktMode is the "magic" keyword that puts Announcer in .PKT mode. It
+        also  defines  the  path  to  put  Announcer's temporary .MSG files
+        (Announcer will not directly create the .PKT file, but will instead
+        create  one  .MSG  file  for each message, in the directory defined
+        here. These messages will then be packed into the .PKT file).
+        
+        All  files  with  the extension .MSG will be removed from this path
+        when  Announcer is done. Announcer will add ALL .MSG files that are
+        found in this directory, not only the ones it has created itself.
+        
+        example:
+        PktMode C:\TEMP
+        
+          PktPath <directory to put the .PKT file in>
+        
+        This keyword specifies the directory in which the .PKT file will be
+        created.
+        
+        example:
+        PktPath C:\BINKLEY\INBOUND
+        
+          PktPwd <password in .PKT file> [optional]
+        
+        With  this  optional  keyword,  you  can  specify  a password to be
+        inserted into the .PKT file.
+        
+        example:
+        PktPwd SECRET
+        
+          PktTo <destination address>
+        
+        This  keyword specifies the .PKT file's destination address. It may
+        be the same as the originating address.
+        
+        example:
+        PktTo 2:204/145.0
+        
+        Please  note,  that  the  keyword  "EchoTossLog" has no effect when
+        Announcer is in .PKT mode.
+        
+        In  addition  to  these  changes  in the global section, some minor
+        changes apply to the message templates:
+        
+          Distribution <type of message area>
+        
+        This   keyword  is  mandatory  in  .PKT  mode.  Also,  the  "Local"
+        distribution  method  is not valid in this mode. Only "NetMail" and
+        "EchoMail" can be used.
+        
+        Page 12                                              Announcer v1.1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+        example:
+        Distribution EchoMail
+        
+          Echo <echotag>
+        
+        This  keyword is mandatory for writing echomail in .PKT mode, since
+        the  echotag  must  be  known.  It  is not used for an EchoToss.Log
+        file.
+        
+        example:
+        Echo ISDN.EUR
+        
+        The "Path" keyword can not be used in .PKT mode. It will abort with
+        an error message. Since all .MSG files are created in the temporary
+        directory, there is no need to specify an alternative path.
+        
+        It  should  also  be  noted  that  .PKT mode and normal mode can be
+        combined  in one configuration file, but only in a limited fashion.
+        Once .PKT mode is initiated, you can't turn it off. It is also only
+        possible  to  create  one  .PKT file per configuration file. If you
+        enter  a  new  PktMode keyword, the previous one will be discarded,
+        and the .PKT file will be created from the newly defined directory.
+        The same applies to the PktPath keyword.
+        
+        To  combine  normal  and .PKT mode, the configuration can look like
+        this:
+        
+            LogFile C:\ANNOUNCE\ANNOUNCE.LOG
+        
+            ; This message is posted in normal mode, in a
+            ; local Squish area
+            Msg
+            From SysOp
+            To All
+            Subject Top Ten
+            File TOPTEN.TXT
+            Path SC:\MAX\MSG\TOPTENS
+            .End
+        
+            ; Now, we initiate .PKT mode
+            PktMode C:\TEMP
+            PktPath C:\SQUISH\INBOUND
+            PktFrom 2:204/145.42
+            PktTo 2:204/145.42
+        
+            ; This message will be posted in netmail via a .PKT file
+            Msg
+            From Announcer
+            To SysOp
+            Subject Top Ten
+            File TOPTEN.TXT
+            Orig 2:204/145.42
+            Dest 2:204/145.42
+            Distribution NetMail
+            .End
         
                 Language
                 ÄÄÄÄÄÄÄÄ
@@ -661,7 +1086,9 @@
         You set it up with the command SET, for example:
         
             SET ANNLANG=ENG
-        
+        Announcer v1.1                                              Page 13
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         will  set  the language to English. If you want to set the language
         automatically when you start your computer, you can enter that line
         into your AUTOEXEC.BAT file.
@@ -706,22 +1133,23 @@
         0.25beta        November 9th, 1995
         ! Now underscores in the names on the command line works again
         + Possability to log to file
-        Announcer V1.00                                              Page 9
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
+        
         0.30beta        January 7th, 1996
-        * Change of names from LocalPost to Announcer
-        * Texts in both English and Swedish
-        * Can read taglines randomly from a text file
         ! The tagline intro string wasn't really USED
         + MSGID (choosable, and with choosable string, in local messages)
         + Can create netmail and echomail
         - MOOD kludge only in local messages
+        * Change of names from LocalPost to Announcer
+        * Texts in both English and Swedish
+        * Can read taglines randomly from a text file
         
         0.31beta        February 3rd, 1996
         ! Corrected the random tagline selection
         ! Corrected some English texts
         ! Echomail and Squish now works
+        Page 14                                              Announcer v1.1
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         + FMPT and TOPT kludges are created in netmail
         + Creates REPLY kludges
         + Interval support
@@ -734,10 +1162,37 @@
         + Added /M for data file maintenance
         * Changed the log texts somewhat
         
+        1.1             August 14th, 1996
+        ! Fixed a bug with kludges in Squish message bases
+        + Semaphore file support added
+        + Added option to disable REPLY kludges
+        + Can split messages in several pieces
+        + Possibility to specify the file's minimum size
+        + Mailing lists
+        + Translation tables for posting in other charsets
+        + Setting to post only if the message file is updated
+        + Can create PKT files
+        + Can create PID kludge instead of tearline
+        + Wider selection of message attributes
+        - Removed the MOOD kludge, it was rather meaningless
+        * Checks that enough configuration items are specified
+        * Changed the MSGID generation to reduce the risk of dupes
+        * Logs echo tag instead of message base in the log file
+        
+                Known limitations
+                ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+        
+        Each  paragraph  can as of now be as most 255 characters long. This
+        is because of that a Pascal string at most can be this long.
+        
                 Plans for future versions
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
-        * Translation tables (posting in 7-bit and ISO 8859-X)
+        * OS/2 version
+        * Reading the Squish configuration file
+        * Area statistics
+        * Definable max file size when splitting messages
+        * Definable max number of lines when splitting messages
         
                 Thanks
                 ÄÄÄÄÄÄ
@@ -750,23 +1205,40 @@
         Thanks also to Carl Olofsson and Leif T Andresson for the help with
         ideas on how to read a random line from a file.
         
-        This   program   uses   source   code   written  by  Eddy  Jansson,
-        Fidonet#2:205/408,  that is released to PD. It also uses the module
-        NLS.PAS, written by Thomas Mainka, with permission from the author.
-        It  also uses PSLIST.PAS, written by Carl-Fredrik Neikter, that too
-        released  to  PD,  as  well  as  the  routine check_date written by
-        Michael Hoenie.
+        Thanks for ideas from Fredrik Fischer and Cristoffer Crussell.
         
-        Finally,  Mythical  Kingdom  Software's  "MK  Msg Access Source" is
-        used,  which  is  copyright  1992-1994 by Mark May, and released as
-        freeware. This uses parts of the JAM API, JAM(mbp) - Copyright 1993
-        Joaquim  Homrighausen,  Andrew Milner, Mats Birch, Mats Wallin. ALL
-        RIGHTS RESERVED.
+        This  program  uses  source  code  written  by  Eddy  L  O Jansson,
+        Fidonet#2:205/233,  that is released as Public Domain. It also uses
+        the  module NLS.PAS, written by Thomas Mainka, with permission from
+        the  author, and the routine check_date, written by Michael Hoenie,
+        from the SWAG archives.
         
+        Finally, a slightly modified version of Mythical Kingdom Software's
+        "MK  Msg  Access  Source"  is used, which is copyright 1992-1994 by
+        Mark May, and released as freeware. This uses parts of the JAM API,
+        JAM(mbp) - Copyright 1993 Joaquim Homrighausen, Andrew Milner, Mats
+        Birch, Mats Wallin. ALL RIGHTS RESERVED.
+        
+        Announcer v1.1                                              Page 15
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         The  pagination  and  table of contens of this document was created
-        using Pager version 4.2b from Softwolves Software.
+        using Pager version 4.2c from Softwolves Software.
         
-        Page 10                                             Announcer V1.00
+        Trademarks mentioned in this documentation:
+        
+        Trademark                    Owner
+        =========                    =====
+        BinkleyTerm                  Bit Bucket Software, Co.
+        Blue Wave                    Cutting Edge Computing
+        Fidonet                      Tom Jennings, Fido Software
+        Squish                       Lanius Corporation
+        TerMail                      Bo Bendtsen, SerWiz
+        
+        Trademarks   forgotten   in  this  list  are  still  recognized  as
+        trademarks of their respective holders.
+        
+        Page 16                                              Announcer v1.1
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
         Registration form
@@ -775,10 +1247,12 @@
         Name:   ______________________________________________________
         
         Address:______________________________________________________
-        
                 ______________________________________________________
         
         Phone:  ______________________________________________________
+        
+        E-mail: ______________________________________________________
+        (Fidonet, Internet, CompuServe or the like)
         
         Item                                    at      amount  total
         
@@ -792,6 +1266,7 @@
         New version on diskette (3«")           15.00   _____   ______
         Foreign orders                          20.00            20.00
         Fee for paying non-SEK cash             20.00           ______
+        Fee for bank transfer (bank or giro)    20.00           ______
         
         Total enclosed amount                                   ______
         
@@ -801,16 +1276,12 @@
         (  ) Cheque:-           Payable to Peter Karlsson in Swedish
                                 Kronor, drawn on a Swedish bank.
         (  ) Cash:-             Only bank notes, see extra fee above.
-        (  ) COD (Cash On Delivery):-
-                                Extra fee will be charged.
+        (  ) Cash On Delivery:- Extra fee will be charged.
         (  ) Bank transfer:-    Transfer to account no. 7654-13-17224 of
                                 F”reningsbanken, Lindesberg.
         (  ) Bank giro:-        Transfer to bankgiro account no. 5939-7620
         (  ) Postal giro:-      Transfer to postalgiro account 1469473-1
                                 (Peter Karlsson).
-        
-        Nordic   orders   using   Postal   Giro,  please  use  the  Swedish
-        registration form!
         
         Send to:
         
@@ -822,5 +1293,5 @@
         
         Electronic mail:
         
-                Fidonet:  2:204/145.42 2:204/152.42
-                Internet: Peter.T.Karlsson@abc.se
+                Fidonet:  2:206/221.0 2:204/145.42
+                Internet: m9944@abc.se

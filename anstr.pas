@@ -7,33 +7,36 @@
 {* Funktion:    Best„mmer de riktiga textstr„ngarna beroende p† lands-  *}
 {*              informationen resp. milj”variabeln ANNLANG              *}
 {************************************************************************}
-{* Version:     1.00.à3                                                 *}
+{* Version:     1.10                                                    *}
 {* F”rfattare:  Peter Karlsson                                          *}
 {*              Gjort efter ADSTRING.PAS (c) Thomas Mainka f”r ADIR     *}
-{* Datum:       1996-  -                                                *}
 {************************************************************************}
 {* Revision:    0.30 F”rsta versionen                        1996-01-07 *}
 {*              0.31 R„ttade texter                          1996-02-03 *}
 {*              0.31.2 Lade till texter                      1996-02-09 *}
-{*              1.00.à3 Lade till texter                     1996-03-09 *}
+{*              1.00 Lade till texter                        1996-03-09 *}
+{*              1.10 Lade till/tog bort/„ndrade texter       1996-08-14 *}
 {************************************************************************}
 
 Unit AnStr;
 {$G+,D-}
 Interface
 
-Var StrErrSav, StrErrBas, StrErrFil, StrErrReg, StrErrPar, StrErrOp1,
-    StrErrOp2, StrErrIni, StrErrIn2, StrErrTag, StrErrLog, StrErrLo2,
-    StrErrOrg, StrErrDst, StrErrTos, StrErrTo2, StrErrDat, StrErrDaf,
-    StrErrDar,
-    StrLogBeg, StrLogEnd, StrLogSav, StrLogBas, StrLogFil, StrLogIni,
-    StrLogTos, StrLogTo2, StrLogRun,
+Var StrErrSav, StrErrBas, StrErrFil, StrErrPar, StrErrOp1, StrErrOp2,
+    StrErrIni, StrErrIn2, StrErrTag, StrErrLog, StrErrLo2, StrErrOrg,
+    StrErrDst, StrErrTos, StrErrTo2, StrErrDat, StrErrDaf, StrErrDar,
+    StrErrLoc, StrErrAll, StrErrRea, StrErrWri, StrErrMOp, StrErrPOp,
+    StrLogBeg, StrLogEnd, StrLogEn2, StrLogSav, StrLogBas, StrLogFil,
+    StrLogIni, StrLogTos, StrLogTo2, StrLogRun, StrLogRn2, StrLogMis,
+    StrLogPkt, StrLogCrf, StrLogCrs,
     StrStdOri, StrDidSav, StrDidSv2, StrDidSv3, StrNotInt, StrNotIn2,
-    StrNotIn3, StrNotReg,
+    StrNotIn3, StrNotSem, StrNotReg, StrTooSml, StrNotUpd,
     StrInfMsg, StrInfLst, StrInfClk, StrInfAgo, StrInfTod, StrInfYst,
-    StrInfInt, StrInfDag, StrInfLes, StrInfMor, StrInfFnn, StrInfNoi,
-    StrInfNop, StrInfRem: String;
-    Language  : String[3];
+    StrInfInt, StrInfDag, StrInfLes, StrInfMor, StrInfFnn, StrInfNop,
+    StrInfRem, StrInfSem, StrInfSno, StrInfSye, StrInfMin, StrInfMi2,
+    StrInfMno, StrInfMye, StrInfUpd, StrInfUno, StrInfUp2, StrInfLat,
+    StrInfYtt: String;
+    Language : String[3];
 
 Implementation
 Uses Nls, Dos;
@@ -71,7 +74,6 @@ begin
      StrErrSav := 'Fel vid sparande av meddelandet "';
      StrErrBas := 'Stackars lilla jag kan inte hitta meddelandebasen ';
      StrErrFil := 'Lyckades inte lokalisera filen ';
-     StrErrReg := 'F”r att anv„nda denna betaversion m†ste du ha en giltig registreringsnyckel.';
      StrErrPar := 'Felaktig kommandoradsparameter:';
      StrErrOp1 := 'Kunde inte ”ppna varken ';
      StrErrOp2 := ' eller ';
@@ -87,9 +89,16 @@ begin
      StrErrDat := 'Kan ej skapa datafil ';
      StrErrDaf := 'Kan ej hitta datafil ';
      StrErrDar := 'Kan ej byta namn p† datafilen';
+     StrErrLoc := 'Lokala meddelanden ej till†tna i PKT-l„ge';
+     StrErrAll := 'Kan ej allokera minne - inga PKT-filer har skapats';
+     StrErrRea := 'Fel vid l„sning av MSG-fil';
+     StrErrWri := 'Fel vid skrivning av PKT-fil';
+     StrErrMOp := 'Fel vid ”ppning av MSG-fil ';
+     StrErrPOp := 'Fel vid skapande av PKT-fil ';
      { Texter i loggfilen }
      StrLogBeg := 'Start, ';
      StrLogEnd := 'Slut, ';
+     StrLogEn2 := ' meddelande(n) skrevs)';
      StrLogSav := 'Kunde inte skriva meddelande nr ';
      StrLogBas := 'Kunde inte lokalisera meddelandebas ';
      StrLogFil := 'Kunde inte lokalisera fil ';
@@ -97,6 +106,11 @@ begin
      StrLogTos := 'Kunde inte skapa ';
      StrLogTo2 := 'Kunde inte skriva till ';
      StrLogRun := 'K”rtidsfel ';
+     StrLogRn2 := ' vid ';
+     StrLogMis := 'Vital meddelandeinformation saknas, mall ';
+     StrLogPkt := 'Skapade PKT-fil ';
+     StrLogCrf := 'Kunde inte skapa semaforfil ';
+     StrLogCrs := 'Skapade semaforfil ';
      { Str„ngar }
      StrStdOri := 'Standard-Origin-rad';
      StrDidSav := 'Skrev meddelande ';
@@ -105,7 +119,10 @@ begin
      StrNotInt := 'Mall ';
      StrNotIn2 := ' ska ej postas idag (';
      StrNotIn3 := ' dagar sen sist, intervall ';
+     StrNotSem := 'Semaforfil saknas f”r mall ';
      StrNotReg := 'OREGISTRERAD';
+     StrTooSml := 'Filen „r f”r liten, mall ';
+     StrNotUpd := 'Filen „r inte uppdaterad, mall ';
      StrInfMsg := 'Meddelande ';
      StrInfLst := ' postades senast den ';
      StrInfClk := ' kl ';
@@ -113,13 +130,24 @@ begin
      StrInfTod := 'idag).';
      StrInfYst := 'ig†r).';
      StrInfInt := ' ™nskat intervall „r ';
-     StrInfDag := ' dag(ar), meddelandet ska ';
-     StrInfLes := 'ej postas idag.';
-     StrInfMor := 'postas idag.';
+     StrInfDag := ' dag(ar), meddelandet ';
+     StrInfLes := 'kommer ej att postas.';
+     StrInfMor := '„r redo f”r postning.';
      StrInfFnn := ' Meddelandedefinition kunde ej hittas i inst„llningsfilen';
-     StrInfNoi := ' Inget intervall har definierats';
      StrInfNop := 'Meddelandet har inte postats';
      StrInfRem := ' Datafilsposten har tagits bort';
+     StrInfSem := ' Semaforfil ';
+     StrInfSno := 'existerar inte, meddelandet kommer ej postas.';
+     StrInfSye := 'existerar, meddelandet „r redo f”r postning.';
+     StrInfMin := ' ™nskad minsta storlek „r ';
+     StrInfMi2 := ' byte, meddelandefilen „r ';
+     StrInfMno := 'f”r liten.';
+     StrInfMye := 'tillr„ckligt stor.';
+     StrInfUpd := ' Filen har ';
+     StrInfUno := 'ej ';
+     StrInfUp2 := 'uppdaterats sedan senaste postning.';
+     StrInfLat := ' Senaste MSGID: ';
+     StrInfYtt := ' ytterligare meddelandemall(ar) finns.';
    end
    else if Language='ENG' then
    begin
@@ -127,7 +155,6 @@ begin
      StrErrSav := 'Error while saving the message "';
      StrErrBas := 'Poor little me could not find the message base ';
      StrErrFil := 'Unable to localize the file ';
-     StrErrReg := 'To use this beta version, you will need a valid registration key.';
      StrErrPar := 'Illegal command line parameter:';
      StrErrOp1 := 'Can not open neither ';
      StrErrOp2 := ' nor ';
@@ -143,9 +170,16 @@ begin
      StrErrDat := 'Unable to create data file ';
      StrErrDaf := 'Unable to find data file ';
      StrErrDar := 'Unable to rename data file';
+     StrErrLoc := 'Local messages not allowed in PKT mode';
+     StrErrAll := 'Unable to allocate memory - no PKT files have been created';
+     StrErrRea := 'Error while reading MSG file';
+     StrErrWri := 'Error while writing PKT file';
+     StrErrMOp := 'Error while opening MSG file ';
+     StrErrPOp := 'Error while creating PKT file ';
      { Texter i loggfilen }
      StrLogBeg := 'Begin, ';
      StrLogEnd := 'End, ';
+     StrLogEn2 := ' message(s) written)';
      StrLogSav := 'Unable to write message #';
      StrLogBas := 'Unable to localize message base ';
      StrLogFil := 'Unable to localize file ';
@@ -153,6 +187,10 @@ begin
      StrLogTos := 'Unable to create ';
      StrLogTo2 := 'Unable to write to ';
      StrLogRun := 'Run time error ';
+     StrLogRn2 := ' at ';
+     StrLogMis := 'Vital message information missing, template #';
+     StrLogCrf := 'Unable to create semaphore file ';
+     StrLogCrs := 'Created semaphore file ';
      { Str„ngar }
      StrStdOri := 'Default Origin Line';
      StrDidSav := 'Wrote message #';
@@ -161,7 +199,10 @@ begin
      StrNotInt := 'Template #';
      StrNotIn2 := ' not due today (';
      StrNotIn3 := ' days ago, interval is ';
+     StrNotSem := 'Semaphore file missing for template #';
      StrNotReg := 'NOT REGISTERED';
+     StrTooSml := 'The file is too small, template #';
+     StrNotUpd := 'The file is not updated, template #';
      StrInfMsg := 'Message ';
      StrInfLst := ' last posted on ';
      StrInfClk := ' at ';
@@ -169,13 +210,25 @@ begin
      StrInfTod := 'today).';
      StrInfYst := 'yesterday).';
      StrInfInt := ' Defined interval is ';
-     StrInfDag := ' day(s), the message should ';
-     StrInfLes := 'not be posted today.';
-     StrInfMor := 'be posted today.';
+     StrInfDag := ' day(s), the message ';
+     StrInfLes := 'will not be posted.';
+     StrInfMor := 'is ready to be posted.';
      StrInfFnn := ' Message template could not be found';
-     StrInfNoi := ' No interval has been defined';
      StrInfNop := 'Message has not been posted';
      StrInfRem := ' The data file item has been removed';
+     StrInfSem := ' Semaphore file ';
+     StrInfSno := 'does not exist, message will not be posted.';
+     StrInfSye := 'exists, message is ready to be posted.';
+     StrInfMin := ' Defined minimum size is ';
+     StrInfMi2 := ' bytes, the message file is ';
+     StrInfMno := 'too small.';
+     StrInfMye := 'big enough.';
+     StrInfUpd := ' The file has ';
+     StrInfUno := 'not ';
+     StrInfUp2 := 'been updated since the last posting.';
+     StrInfLat := ' Latest MSGID: ';
+     StrInfYtt := ' more message template(s) exists.';
+     StrLogPkt := 'Created PKT file ';
    end
    else
    begin

@@ -4,15 +4,16 @@
 {************************************************************************}
 {* Inneh†ll:    Visning av hj„lptexten f”r Announcer                    *}
 {************************************************************************}
-{* Version:     1.00.à3                                                 *}
+{* Version:     1.10                                                    *}
 {* F”rfattare   Peter Karlsson                                          *}
 {*              Gjort efter ADHELP.PAS(c) Thomas Mainka f”r ADIR        *}
-{* Datum:       1996-03-09                                              *}
+{* Datum:       1996-06-13                                              *}
 {************************************************************************}
 {* Revision:    0.30 F”rsta versionen                        1996-01-07 *}
 {*              0.31.2 Uppdaterad                            1996-02-04 *}
 {*              1.00.à2 Uppdaterad                           1996-03-02 *}
 {*              1.00.à3 Uppdaterad                           1996-03-09 *}
+{*              1.10 Uppdaterad                              1996-06-13 *}
 {************************************************************************}
 {* Rutiner:     Interface               Implementation                  *}
 {*              =========               ==============                  *}
@@ -46,12 +47,13 @@ begin
     Writeln(bragline, ' [', Registration, ']');
     Writeln('(c) Copyright 1995, 1996 Peter Karlsson');
     Writeln;
-    Writeln('ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/Q] [name1 [name2]]');
+    Writeln('ANNOUNCE [/I[drive:][path]filename] [/D [/M]] [/Q] [/P] [name1 [name2]]');
     Writeln;
     Writeln('  /I[dive:][path]filename   Gives the name of an alternative configuration file');
     Writeln('  /D                        Display posting information');
-    Writeln('  /Q                        Shows nothing on the screen');
     Writeln('  /M                        Removes unnecessary items from the .DAT file');
+    Writeln('  /P                        Use PIDs instead of tearlines');
+    Writeln('  /Q                        Shows nothing on the screen');
     Writeln('  name1  -and-  name2       Exchanged for the %1 and %2 variables in the');
     Writeln('                            configuration file');
     Writeln;
@@ -75,12 +77,13 @@ begin
     Writeln(bragline, ' [', Registration, ']');
     Writeln('(c) Copyright 1995, 1996 Peter Karlsson');
     Writeln;
-    Writeln('ANNOUNCE [/I[enhet:][s”kv„g]filnamn] [/D [/M]] [/Q] [namn1 [namn2]]');
+    Writeln('ANNOUNCE [/I[enhet:][s”kv„g]filnamn] [/D [/M]] [/Q] [/P] [namn1 [namn2]]');
     Writeln;
     Writeln('  /I[enhet:][s”kv„g]filnamn   Anger namn p† en alternativ konfigurationsfil');
     Writeln('  /D                          Visa postningsinformation');
-    Writeln('  /Q                          Visar ingenting p† sk„rmen');
     Writeln('  /M                          Ta bort ”verfl”diga poster ur .DAT-filen');
+    Writeln('  /P                          Anv„nd PID-kludge i.st.f tearline');
+    Writeln('  /Q                          Visar ingenting p† sk„rmen');
     Writeln('  namn1  -och-  namn2         Anv„nds f”r %1- och %2-variablerna i konfigura-');
     Writeln('                              tionsfilen');
     Writeln;
