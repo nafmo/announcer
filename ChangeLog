@@ -1,0 +1,164 @@
+v1.11 -> v1.12.a1
+-----970402
+* cmdline.pas  st”der F[A]
+* anhelp.pas   dokumenterar F[A]
+* cmdline.pas  pekar ut vad som „r felaktig parameter
+* announce.pas st”der F[A]
+* anstr.pas    str„ngar f”r F[A]
+* cmdline.pas  /FA + /Q otill†tet
+* anstr.pas    str„ngar f”r /FA + /Q-felmeddelande
+* strutil.pas  stdouton
+* cmdline.pas  anv„nder stdouton
+* announce.pas anv„nder stdouton
++++ dokumenterat +++
+-----970403
+* anhelp.pas   dokumenterar L
+* cmdline.pas  st”der L
+* announce.pas st”der L
+* announce.pas skriver currentrec „ven vid placeholder = ger 0-fyllda poster
+* announce.pas M nollst„ller poster som „r placeholder
+* anstr.pas    str„ng f”r att rapportera nollst„llning av post
++++ dokumenterat +++
+* cmdline.pas  M anv„nds numera efter D, ej ensamt
+* anhelp.pas   dokumenterar DM istf D och M separat
++++ dokumenterat +++
+* cmdline.pas  simulate egen variabel (m”jligg”r /SF)
+* announce.pas simulate i egen variabel
+* strutil.pas  parseini - klarar flera mellanslag mellan nyckelord och data
+* announce.pas anv„nder parseini
++++ dokumenterat +++
+* strutil.pas  fromsjubit-konvertering st”der sv7 med paritet
+* strutil.pas  fromascii-konvertering = ascii med paritet -> ASCII
++++ dokumenterat +++
+v1.12.a1 -> v1.2.a1
+-----970405
+* announce.pas kort paus + pip i oregistrerad version (ca 2s)
+* announce.pas omorganisering av kod
+* announce.pas „renderaden inneh†ller _alltid_ delnummer vid split
+* announce.pas n†got b„ttre felkoll i buildpkt
+* strutil.pas  yesno tillagd
+* announce.pas anv„nder yesno
+* announce.pas anv„nder _INTE_ removejunk <--bugkoll!
+v1.2.a1 -> v1.2.b1(a2)
+-----970418
+* announce.pas displayinfo och stderr utflyttade
+* info.pas     displayinfo utflyttad
+* stderru.pas  defintionen av stderr utflyttad
+v1.2.b1(a2) -> v1.2.a3
+-----970622
+* logfileu.pas loggfil som objekt
+* announce.pas anv„nder logfileu
+-----970623
+* announce.pas "global" datarecord i.st.f globala variabler
+* announce.pas recordtyper som parametrar till domessage och buildpacket
+* announce.pas origin initieras till strstdori varje g†ng, istf bara en g†ng
+* announce.pas oinitierad Log-variabel gav alltid runtime-fel
+* zerberus.pas tillagd modul
+* announce.pas st”d f”r echomail.jam/netmail.jam
+* announce.pas st”d f”r registreringskod p† kommandoraden
+* cmdline.pas  filtrerar bort registreringskod p† kommandoraden
+-----970624
+* pkt.pas      buildpacket utflyttad
+* announce.pas buildpacket utflyttad
+* globals.pas  en del globala variabler och typdefinitioner utflyttade
+* announce.pas en del globala variabler och typdefinitioner utflyttade
+* strutil.pas  i charsettype: 'isiso', 'issjubit'
+* announce.pas .ini: charset tar +iso och +sv7
+* strutil.pas  convert: isiso & issjubit konverteras enligt iso resp sv7
++++ dokumenterat +++
+v1.2.a3 -> v1.2.a4
+-----970625
+* mkFile.pas   patchad f”r att markera om radslut n†ddes vid inl„sning
+* announce.pas st”der nu textrader > 255 tecken.
+{till betatestare} {†terkallad}
+v1.2.a4 -> v1.2.a5
+-----970626
+* announce.pas st”der fler %-namn „n tv†
+* cmdline.pas  st”der fler %-namn „n tv†
+* globals.pas  st”der fler %-namn „n tv†
+{specialversion Selstam}
+v1.2.a5 -> v1.2.a6
+-----970627
+* mkmsgfid.pas fel i sethold fixat
+{specialversion Selstam}
+v1.2.a6 -> v1.2.a7
+-----970627
+* anhelp.pas   hj„lpsk„rm uppdaterad med %1-%10-info
++++ dokumenterat +++
++++ svensk dokumentation stavningskollad +++
+{till betatestare}
++++ engelsk dokumentation stavningskollad +++
+v1.2.a7 -> v1.2.a8
+v1.2.a8 -> v1.2.a9
+-----970712
+* msgidu.pas   idserverst”d
+* announce.pas idserverst”d (milj”variabel IDSERVER, konfig IDSERVER [NO|fil])
++++ dokumenterat +++
+-----970713
+* announce.pas buggfix i mailinglistst”det
+* announce.pas mailinglistkludge skrevs „ven om mailinglistfilen ej hittades
+v1.2.a9 -> v1.2.a10
+-----970715
+* msgidu.pas   v„ntar systemv„nligt (timeslices)
+-----970717
+* title.pas    tillagd (titelrad i OS/2)
+* announce.pas s„tter programtiteln
+-----970718
+* strutil.pas  buggfix i ParseINI (rad med enbart mellanslag)
+* config.pas   tillagd (st”d f”r inl„sning av konfigurationsfil)
+* announce.pas nyckelord 'SQUISHCFG' f”r inl„sning av squish.cfg
+* anstr.pas    str„ngar f”r felmeddelande ang†ende tosserkonfiguration
+* announce.pas tar info fr†n tosserkonfiguration om PATH saknas
+* announce.pas loggar i echotoss.log bara f”r echomail
++++ dokumenterat +++
+* announce.pas gjorde om en hoper str„ng/teckenj„mf”relser till Pos-anrop
+* announce.pas skapar bara REPLY-kludge om MSGID-kludge ocks† anv„nds
+-----970719
+* announce.pas pkt-st”det var trasigt
+-----970721
+v1.2.a10 -> v1.2.a11
+* config.pas   fmailst”d (endast echo+local), loggar felmeddelanden i squishst”det
+* strutil.pas  rutinen asciz
+* announce.pas nyckelord 'FMAILCFG' f”r inl„sning av fmail.cfg
+* anstr.pas    nya str„ngar f”r tosserkonfigurationsfelmeddelanden
+* config.pas   gechost”d
+* announce.pas nyckelord 'GECHOCFG' f”r inl„sning av gecho.cfg
+-----970722
+* config.pas   gecho-st”d uppdaterat till 1.20 (fr†n 1.10)
+* announce.pas fel i split-kludgen r„ttat
+-----970723
+* msgidu.pas   parameter till msgidserv „r katalog, ej filnamn nu
++++ dokumenterat +++
+v1.2.a11 -> 1.2.g1
+-----970807
+* announce.pas tosserkonfigurationen anv„nds ej i pktmode
+* msgidu.pas   os/2-st”d
+* announce.pas echotosslogst”det fungerar ingen
+>>> 1.2.g1 sl„ppt <<<
+v1.2.g1 -> v1.2.a13
+-----9708087
+* announce.pas seen-by-rader i pktl„ge fixade (blev 0/0)
+-----970809
+* config.pas   termailst”d
+* strutil.pas  buggfix parseini (datadelen ett tecken)
+* announce.pas 'TERMAILCFG' [[ Terminate-s”kv„g m†ste vara absolut! ]]
++++ dokumenterat +++
+-----970810
+v1.2.a13 -> v1.2.a14
+* strutil.pas  buggfix parseini (returnerade alltid true om det var mellanslag i slutet)
+* announce.pas buggfix i doheader: tar „renderaden som skickas med
+* strutil.pas  insamedir
+* crypt.pas    nytt registreringskodsformat
+* announce.pas nytt registreringskodsformat
+* generate.pas nytt registreringskodsformat
+-----970814
+* config.pas   anv„nder insamedir-funktionen
+v1.2.a14 -> v1.2.a15
+* globals.pas  "netmailtearline" i globalconfigtype
+* announce.pas kan sl† av/p† tearline i netmail "NetMailTearline", std p†
+-----970923
+v1.2.a15 -> v1.2.a16
+* announce.pas %d% = datum, %t% = tid
+-----971122
++++ dokumenterat +++
+sl„ppt som v1.2

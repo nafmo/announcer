@@ -75,7 +75,7 @@ Type
   Buffer = array[0..1023] of char;
   Attributes = Set of (CrashMail, KillSent, FAttach, FileReq, Private, Hold);
   GlobalDataType = record
-                     Registration, EchoTossLogFile,
+                     EchoTossLogFile,
                      JamTossLogPath:                            String;
                      BragLineIntro, TagLineIntro:               String[3];
                      ReplyKludge, PktMode, ForcePID, Fsc0048,

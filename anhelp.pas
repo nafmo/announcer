@@ -28,7 +28,7 @@ Unit AnHelp;
 
 Interface
 
-Procedure HelpScreen(bragline, registration: string);
+Procedure HelpScreen(bragline: string);
 
 Implementation
 Uses Nls, Anstr;
@@ -40,14 +40,14 @@ Uses Nls, Anstr;
 {* Definition:  Procedure HelpEng;                                      *}
 {************************************************************************}
 
-Procedure HelpEng(bragline, registration: string);
+Procedure HelpEng(bragline: string);
 begin
     Writeln('ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿');
     Writeln('³±±±±±±±±±±±±±±± Announcer - a message posting utility program ±±±±±±±±±±±±±±±³');
     Writeln('ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ');
     Writeln;
-    Writeln(bragline, ' [', Registration, ']');
-    Writeln('(c) Copyright 1995, 1996, 1997 Peter Karlsson');
+    Writeln(bragline);
+    Writeln('(c) Copyright 1995, 1996, 1997, 1998 Peter Karlsson');
     Writeln;
     Writeln('ANNOUNCE [/I[drive:][path]filename] [/D[M]] [/Q] [/P] [/S] [/F[A]] [/L]');
     Writeln('         [names ...]');
@@ -73,14 +73,14 @@ end;
 {* Definition:  Procedure HelpSwe;                                      *}
 {************************************************************************}
 
-Procedure HelpSwe(bragline, registration: string);
+Procedure HelpSwe(bragline: string);
 begin
     Writeln('ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿');
     Writeln('³±±±±±±±±±±±±± Announcer - ett program f”r att posta meddelanden ±±±±±±±±±±±±±³');
     Writeln('ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ');
     Writeln;
-    Writeln(bragline, ' [', Registration, ']');
-    Writeln('(c) Copyright 1995, 1996, 1997 Peter Karlsson');
+    Writeln(bragline);
+    Writeln('(c) Copyright 1995, 1996, 1997, 1998 Peter Karlsson');
     Writeln;
     Writeln('ANNOUNCE [/I[enhet:][s”kv„g]filnamn] [/D[M]] [/Q] [/P] [/S] [/F[A]] [/L]');
     Writeln('         [namn ...]');
@@ -106,10 +106,10 @@ end;
 {* Definition:  Procedure HelpScreen;                                   *}
 {************************************************************************}
 
-Procedure HelpScreen(bragline, registration: string);
+Procedure HelpScreen(bragline: string);
 begin
-   if Language='SWE' then HelpSwe(bragline, registration)
-   else HelpEng(bragline, registration);
+   if Language='SWE' then HelpSwe(bragline)
+   else HelpEng(bragline);
    WriteLn('Language selection: Set environment variable ANNLANG to SWE or ENG');
 end;
 

@@ -42,16 +42,13 @@ So, therefore I wrote this program, initially a very limited one, but as the bet
         {Status}
         ÄÄÄÄÄÄ
 
-This program is shareware. This means that you have right to freely distribute this program. If you use it in more than thirty days, you have to register the program, i.e. pay a sum of money to the author. Shareware is not a kind of program, just a distribution method like retail software. A registration form is included in the end of this file.
+This program is released under the GNU Public License. See the COPYING file for more information.
 
-With shareware you get the ultimate money-back guarantee, if you don't use the product, you don't have to pay for it.
+Exceptions to the GNU Public License are these:
 
-This program is not crippled in the shareware version, since I don't believe in crippled demo versions. The only difference is that the brag line will not have a plus sign after the version number and that an extra kludge line will be written, indicating that it is the unregistered version you are using.
+The file NLS.PAS by Thomas Mainka, may be copied according to the LICENSE.TXT file that comes with the NLS archive.
 
-        {License}
-        ÄÄÄÄÄÄÄ
-
-Use of this program is allowed as above. Exceptions from the thirty-days-rule are accepted when you have registered the program but not yet received a receipt of your payment. A single user license allows the use of this program on one single computer at any given time. A multi-user license allows use on many computers at the same time, but only on a maximum of the number of computers for which the fee has been paid. Registration allows free usage of all future versions as above. Upgrades can be ordered from the author.
+The Mythical Kingdom's Message Access Source, the MKSM106A.RAR archive, may be spread according to what is described in its documentation. Please note that the version that comes with Announcer has been modified to suit Announcer.
 
         {Disclaimer of warranty}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
@@ -66,8 +63,12 @@ ANNOUNCE.ICO    Icon (OS/2 format)
 FILE_ID.DIZ     Short description for BBSes
 ANNOUNCE.DOK    Documentation in Swedish
 ANNOUNCE.DOC    Documentation
+COPYING         GNU Public License
 NORMAL.INI      Sample configuration file
 PKTMODE.INI     Sample configuration file
+SOURCE.RAR      Announcer sources
+NLS.RAR         NLS sources
+MKSM106A.RAR    MSG access sources
 WOLVES.COM      Softwolves Software's program catalogue
 
         {Command line format}
@@ -125,7 +126,7 @@ These texts will be use wherever you enter %1 to %10 (the number corresponding t
 
 Displays the quick help screen.
 
-        {ANNOUNCE.INI, the configuration file}
+        {ANNOUNCE.INI, the configuration file}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
 The configuration file, default name ANNOUNCE.INI, tells Announcer what it is supposed to do, and in what way it should be done. To use Announcer, a configuration file is a must, and to use Announcer's functions I recommend you to read through this chapter. Some explanations are also included in the sample configuration file that comes with the distribution archive.
@@ -576,6 +577,8 @@ If we name the configuration file NEWUSER.INI, and want to welcome a person call
 
 If you forget to enter a name on the command line, the variables will be exchanged for "Announcer", and the message above would have been posted to Announcer.
 
+If you wish to add date and time somewhere, f.ex on the subject line, you can use the special variables "%d%" (date) and "%t%" (time). The date and time will be entered according to your computer's country settings. Unlike %1-%10, these variables can occur inside a string, and then only that part of the string will be changed.
+
         {Using mailing lists}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
@@ -654,7 +657,7 @@ PktFrom 2:204/145.42
 
 PktMode is the "magic" keyword that puts Announcer in .PKT mode. It also defines the path to put Announcer's temporary .MSG files (Announcer will not directly create the .PKT file, but will instead create one .MSG file for each message, in the directory defined here. These messages will then be packed into the .PKT file).
 
-All files with the extension .MSG will be removed from this path when Announcer is done. Announcer will add ALL .MSG files that are found in this directory, not only the ones it has created itself.
+All files with the extension .MSG will be removed from this path when Announeer is done. Announcer will add ALL .MSG files that are found in this directory, not only the ones it has created itself.
 
 example:
 PktMode C:\TEMP
@@ -867,6 +870,9 @@ will set the language to English. If you want to set the language automatically 
 * Up to ten names (%1-%10) on the command line
 * New registration code format
 
+                March 7th, 1998
+* Program released under GPL
+
         {Plans for future versions}
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
@@ -883,6 +889,8 @@ Thanks also to Carl Olofsson and Leif T Andersson for the help with ideas on how
 Thanks for ideas from Fredrik Fischer, Cristoffer Crussell and Andreas Selstam.
 
 Thanks to Andreas Hansson and Harald Fragner for information about how to make waiting loops without disturbing multitasking operating systems.
+
+Thanks to those who registered the program while it still was shareware.
 
 This program uses source code written by Eddy L O Jansson, Fidonet#2:206/233, that is released as Public Domain. It also uses the module NLS.PAS, written by Thomas Mainka, with permission from the author, and the routine check_date, written by Michael Hoenie, from the SWAG archives.
 
@@ -903,56 +911,3 @@ Squish                       Lanius Corporation
 TerMail                      Bo Bendtsen, SerWiz
 
 Trademarks forgotten in this list are still recognized as trademarks of their respective holders.
-{Registration form}
-ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
-Name:   ______________________________________________________
-
-Address:______________________________________________________
-        ______________________________________________________
-
-Phone:  ______________________________________________________
-
-E-mail: ______________________________________________________
-(Fidonet, Internet, CompuServe or the like)
-
-Item                                    at      amount  total
-
-Announcer single user license           100.00  _____   ______
-
-Announcer multi-user license
-  2-10 users     (for all, each)         80.00  _____   ______
-  11-100 users   (for all, each)         60.00  _____   ______
-  101+ users     (for all, each)         30.00   _____   ______
-
-New version on diskette (3«")            15.00  _____   ______
-Foreign orders                           20.00           20.00
-Fee for paying non-SEK cash              20.00          ______
-Fee for bank transfer (bank or giro)     20.00          ______
-
-Total enclosed amount                                   ______
-
-All prices in Swedish Kronor
-
-Method of payment:
-(  ) Cheque:-           Payable to Peter Karlsson in Swedish
-                        Kronor, drawn on a Swedish bank.
-(  ) Cash:-             Only bank notes, see extra fee above.
-(  ) Cash On Delivery:- Extra fee will be charged.
-(  ) Bank transfer:-    Transfer to account no. 5380-0083906 of
-                        S-E-Banken, V„ster†s.
-(  ) Postal giro:-      Transfer to postalgiro account 1469473-1
-                        (Peter Karlsson).
-
-Send to:
-
-        Softwolves Software     or      Softwolves Software
-        c/o Peter Karlsson              c/o Peter Karlsson
-        Kaserngatan 16B 1tr             V„rnsta, Ullers„ter
-        SE-723 47  VŽSTERS             SE-718 92  FR™VI
-        SWEDEN                          SWEDEN
-
-Electronic mail:
-
-        Fidonet:  2:206/221.0
-        Internet: pk@abc.se

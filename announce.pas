@@ -45,7 +45,7 @@ Program Announcer;
 {$D-,G+,X+}
 
 Uses Dos, MKFile, MKString, MKMsgAbs, MKOpen, MKGlobT, MKDos, MKMisc, NLS,
-     Crypt, AnHelp, AnStr, ChekDate, PktHead, StrUtil, CmdLine, Info,
+     AnHelp, AnStr, ChekDate, PktHead, StrUtil, CmdLine, Info,
      StdErrU, LogFileU, Globals, Pkt, MsgIdU, Title, Config
      {$IFDEF MSDOS}, Zerberus{$ENDIF}
      {$IFDEF OS2}, OS2DT{$ENDIF}
@@ -206,8 +206,6 @@ Var
    { NOTE }
    If MailingList then
      Msg^.DoKludgeLn(#1'NOTE: Mailing list "' + ListName + '"');
-   If Global.Registration = StrNotReg then
-     Msg^.DoKludgeLn(#1'NOTE: Unregistered evaluation version');
 
    { CHRS-kludge }
    Case This.Charset of
@@ -676,7 +674,6 @@ Begin
   end;
 
   With Global do begin
-    Registration := StrNotReg;
     BragLineIntro := '---';
     TagLineIntro := '...';
     MsgIdString := '';
@@ -752,46 +749,8 @@ Begin
 
   FileMode := fmReadOnly or fmDenyNone;
 
-  { Kolla registreringen }
-  Env := CheckRegistration(InSameDir(ParamStr(0), 'ANNOUNCE.KEY'));
-  If Env <> '' then begin
-    GlobalInfo.Registration := Env;
-    BragLine := BragLine + '+';       { Identifiera registrerad version }
-  end; { If Env }
-
-  { ** F”r begr„nsad betatest ** }
-  {$IFDEF BETA}
-  If GlobalInfo.Registration = StrNotReg then begin
-    Writeln(StdErr, 'To use this beta version, you need a valid registration key.');
-    Halt(255);
-  end; { If Registration }
-  {$ENDIF}
-
-  { ** Tidsbegr„nsad gammaversion ** }
-  {$IFDEF GAMMA}
-  If GlobalInfo.Registration = StrNotReg then begin
-    If (GlobalInfo.Idag.Year <> 1997) then begin
-      Writeln(StdErr, 'This unregistered GAMMA version expired January 1st, 1998');
-      Writeln(StdErr, 'Please contact the author to get an updated version.');
-      Halt(255);
-    end else begin
-      Writeln(StdErr, 'This unregistered GAMMA version will expire January 1st, 1998');
-    end;
-  end;
-  {$ENDIF}
-
-{ Writeln(StdErr, 'This SPECIAL version may not be used by any other person than Johan');
-  Writeln(StdErr, 'Segern„s.');}
-
   If ParamStr(1) = '/?' then
-    HelpScreen(BragLine, GlobalInfo.Registration);
-
-  {$IFNDEF BETA}
-  If GlobalInfo.Registration = StrNotReg then begin
-    BragLine := BragLine + '-';
-    Writeln(StrNotReg);
-  end;
-  {$ENDIF}
+    HelpScreen(BragLine);
 
   New(Log, Init(BragLine, LogName, StrLogBeg, StrLogEnd));
   LogInitialized := True;

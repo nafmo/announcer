@@ -10,15 +10,14 @@
 
         Announcer v1.2 - Postar filer i brevareor p† BBS:er
 
-        Copyright (c) 1995, 1996, 1997: Peter Karlsson
-        A Softwolves Software(TM) Release in 1997
+        Copyright (c) 1995, 1996, 1997, 1998: Peter Karlsson
+        A Softwolves Software(TM) Release in 1998
 
         Inneh†llsf”rteckning
 
         Snabbstart ...................................................... 2
         Bakgrund ........................................................ 2
         Status .......................................................... 2
-        Licens .......................................................... 2
         Avs„gande av ansvar ............................................. 2
         Medf”ljande filer ............................................... 2
         Kommandoradsformat .............................................. 3
@@ -32,7 +31,6 @@
         Versionshistoria ............................................... 15
         Planer inf”r kommande versioner ................................ 17
         Tack ........................................................... 17
-        Registreringsformul„r .......................................... 18
         Sida 2                                               Announcer v1.2
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
@@ -100,35 +98,18 @@
                 Status
                 ÄÄÄÄÄÄ
         
-        Detta program „r shareware. Det betyder att du har r„tt att fritt
-        sprida detta program, givet att alla filer som beskrivs i kapitlet
-        "Medf”ljande filer" medf”ljer of”r„ndrade. Om du anv„nder det i mer
-        „n trettio dagar s† m†ste du registrera programmet, dvs. betala en
-        summa pengar till f”rfattaren. Shareware „r ingen sorts program,
-        utan ett s„tt att distribuera program, i likhet med butikss†ld
-        mjukvara. Registreringsformul„r bifogas i slutet av filen.
+        Detta program „r sl„ppt under Gnu Public License. Se filen COPYING
+        f”r mer information.
         
-        Med shareware f†r du den ultimativa pengarna-tillbaka-garantin, om
-        du inte anv„nder produkten beh”ver du inte betala f”r den.
+        Undantag till GNU Public License „r dessa:
         
-        Detta program har inga som helst begr„nsningar i
-        sharewareversionen, eftersom jag inte tror p† begr„nsade
-        demoversioner. Den enda skillnaden „r att reklamraden inte
-        inneh†ller n†got plustecken efter versionsnumret och att en extra
-        kludgerad kommer att skrivas d„r det st†r att du anv„nder den
-        oregistrerade versionen.
+        Filen NLS.PAS av Thomas Mainka, f†r kopieras i enlighet med filen
+        LICENSE.TXT som medf”ljer i NLS-arkivet.
         
-                Licens
-                ÄÄÄÄÄÄ
-        
-        Anv„ndning till†ts enligt ovan. Undantag fr†n trettio-dagars-regeln
-        medges d† du har registrerat programmet men „nnu inte f†tt kvitto
-        p† betalning. En enanv„ndarlicens till†ter att programmet anv„nds
-        endast p† en dator vid ett givet tillf„lle. Fleranv„ndarlicenser
-        medger anv„ndning p† flera datorer samtidigt, dock maximalt det
-        antal datorer f”r vilka avgiften har erlagts. Registrering medger
-        fri anv„ndning av alla framtida versioner enligt ovan.
-        Uppgraderingar kan best„llas fr†n f”rfattaren.
+        Mythical Kingdom's Message Access Source, arkivet MKSM106A.RAR, f†r
+        spridas enligt vad som st†r beskrivet i dess dokumentation. Var
+        v„nlig notera att den version som medf”ljer Announcer har
+        modifierats f”r att passa Announcer.
         
                 Avs„gande av ansvar
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
@@ -154,12 +135,17 @@
         FILE_ID.DIZ     Kort beskrivning f”r BBSer
         ANNOUNCE.DOK    Dokumentation
         ANNOUNCE.DOC    Dokumentation p† engelska
+        COPYING         GNU Public License
         NORMAL.INI      Exempel p† konfigurationsfil
         PKTMODE.INI     Exempel p† konfigurationsfil
-        WOLVES.COM      Softwolves programkatalog
+        SOURCE.RAR      K„llkod f”r Announcer
+        NLS.RAR         K„llkod f”r NLS-rutinerna
+        MKSM106A.RAR    K„llkod f”r MSG access
         Announcer v1.2                                               Sida 3
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
+        WOLVES.COM      Softwolves programkatalog
+        
                 Kommandoradsformat
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
@@ -268,7 +254,6 @@
           /?
         
         Visar snabbhj„lpsk„rmen.
-        
         Sida 4                                               Announcer v1.2
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
@@ -1029,6 +1014,14 @@
         Sida 12                                              Announcer v1.2
         ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
+        Om du vill l„gga in datum och tid n†gonstans, t.ex p† „renderaden,
+        kan du anv„nda specialvariablerna "%d%" (datum) och "%t" (tid).
+        Datum och tid kommer att l„ggas in i enlighet med din dators
+        landsinst„llningar. Till skillnad fr†n %1-%10 kan dessa variabler
+        f”rekomma inuti en str„ng, och d† kommer bara den delen av str„ngen
+        att ers„ttas.
+        
+        
                 Anv„nda s„ndlistor
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
         
@@ -1110,7 +1103,9 @@
         Det kallas ".PKT-l„ge" (eller ".PKT mode" p† engelska).
         Anv„ndningen av Announcer i detta l„ge skiljer sig n†got fr†n det
         normala, varf”r detta har beskrivits i ett eget kapitel.
-        
+        Announcer v1.2                                              Sida 13
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         F”r att starta .PKT-l„ge m†ste du definiera de fyra globala
         nyckelorden "PktMode", "PktPath", "PktFrom" och "PktTo". Om du
         utesluter n†gon av dem kommer Announcer att ha problem att utf”ra
@@ -1120,9 +1115,6 @@
         detaljerade beskrivningar ”ver de sex nyckelorden (ordnade
         alfabetiskt):
         
-        Announcer v1.2                                              Sida 13
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
           BinkleyName <Yes/No> [valfritt]
         
         Med detta val satt till "Yes" talar du om f”r Announcer att anv„nda
@@ -1158,7 +1150,7 @@
         PktMode „r det "magiska" nyckelordet som st„ller in Announcer i
         .PKT-l„ge. Det s”rjer dessutom f”r att definiera vilken katalog
         Announcer kan skapa sina tempor„ra .MSG-filer i (Announcer kommer
-        inte direkt att skapa en .PKT-fil, utan i st„llet kommer det att
+        inte direk  att skapa en .PKT-fil, utan i st„llet kommer det att
         skapas en .MSG-fil f”r varje meddelande i den katalog som
         definieras h„r. Dessa meddelanden kommer sedan att packas in i
         .PKT-filen).
@@ -1168,12 +1160,14 @@
         .MSG-filer som den hittar i den h„r katalogen, inte bara de det
         sj„lv har skapat.
         
-        exempel:
+        
+        exempel
+        
         PktMode C:\TEMP
         
           PktPath <katalog att skapa .PKT-filen i>
         
-        Detta nyckelord specificerar katalogen i vilket .PKT-filen kommer
+        Detta nyckelord specifccerar katalogen i vilket .PKT-filen kommer
         att skapas.
         
         exempel:
@@ -1201,15 +1195,15 @@
         F”rutom dessa f”r„ndringar i den globala sektionen tillkommer n†gra
         mindre f”r„ndringar bland meddelandemallarna:
         
+        Sida 14                                              Announcer v1.2
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
           Distribution <typ av meddelandearea>
         
         Detta nyckelord „r obligatoriskt i .PKT-l„ge. Dessutom „r
         distributionsmetoden "Local" inte tillg„ngligt, i detta l„ge kan
         endast "NetMail" och "EchoMail" anv„ndas.
         
-        Sida 14                                              Announcer v1.2
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         exempel:
         Distribution EchoMail
         
@@ -1280,13 +1274,13 @@
         n†got av dessa v„rden:
         
             SWE    svenska
+        Announcer v1.2                                              Sida 15
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
             ENG    engelska
         
         Du st„ller in det med kommandot SET, exempelvis:
         
-        Announcer v1.2                                              Sida 15
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
             SET ANNLANG=ENG
         
         s„tter spr†ket till engelska. Om du vill s„tta ett spr†k
@@ -1341,13 +1335,13 @@
         * Kan l„sa taglines slumpm„ssig ur valfri textfil
         
         0.31beta        1996-02-03
+        Sida 16                                              Announcer v1.2
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         ! L„sningen av slumpvald tagline r„ttad
         ! R„ttade vissa engelska texter
         ! Echomail och Squish fungerar nu
         + FMPT- och TOPT-kludgar skapas i netmail
-        Sida 16                                              Announcer v1.2
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         + Skapar REPLY-kludgar
         + Intervallhantering
         + Huvud- och fotfiler
@@ -1400,13 +1394,13 @@
         ! Buggfixar i INI-hanteringen
         + Lade till /F[A] f”r att framtvinga postning
         + Lade till /L f”r att inte uppdatera senaste postningsdatum
+        Announcer v1.2                                              Sida 17
+        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
         + Lade till konvertering fr†n ASCII med paritet
         + "+ISO", "+SV7" f”r postning av icke-PC8-filer
         + St”d f”r ECHOMAIL.JAM/NETMAIL.JAM
         + St”d f”r IDSERVER, nyckelord: IdServer
-        Announcer v1.2                                              Sida 17
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
         + L„ser tosserdata fr†n SqusihMail, FMail, GEcho, TerMail
         + Lade till %d% och %t% f”r att infoga datum och tid
         + M”jlighet att sl† av tearline i netmail
@@ -1415,6 +1409,9 @@
         * EXE-filen ej l„ngre packad
         * Upp till tio namn (%1-%10) p† kommandoraden
         * Nytt registeringskodsformat
+        
+                        1998-03-07
+        * Programmet sl„ppt under GPL
         
                 Planer inf”r kommande versioner
                 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
@@ -1438,6 +1435,9 @@
         
         Tack till Andreas Hansson och Harald Fragner f”r information om hur
         man g”r v„nteslingor utan att st”ra multitaskande operativsystem.
+        
+        Tack till de som registrerade programmet medan det fortfarande var
+        shareware!
         
         Programmet anv„nder kod skriven av Eddy L O Jansson,
         Fidonet#2:206/233, som „r sl„ppt som Public Domain. Dessutom
@@ -1468,58 +1468,3 @@
         
         Varum„rken som gl”mts i denna lista „r erk„nns fortfarande som
         varum„rken hos sina respektive „gare.
-        
-        Sida 18                                              Announcer v1.2
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-
-        Registreringsformul„r
-        ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-        
-        Namn:   ______________________________________________________
-        
-        Adress: ______________________________________________________
-                ______________________________________________________
-        
-        Telefon:______________________________________________________
-        
-        E-post: ______________________________________________________
-        (Fidonet, Internet, CompuServe eller liknande)
-        
-        Specifikation                           a'pris  antal   totalt
-        
-        Announcer enanv„ndarlicens              100,00  _____   ______
-        
-        Announcer fleranv„ndarlicens
-          2-10 anv„ndare    (f”r alla, styck)    80,00  _____   ______
-          11-100 anv„ndare  (f”r alla, styck)    60,00  _____   ______
-          101+ anv„ndare    (f”r alla, styck)    30,00  _____   ______
-        
-        Ny version p† diskett (3«")              15,00  _____   ______
-        
-        Totalt bifogat belopp                                   ______
-        
-        Alla priser i svenska kronor
-        
-        Betalningsmetod:
-        
-        (  ) Check:-            I svenska kronor utst„lld p† Peter
-                                Karlsson.
-        (  ) Kontant:-          I svenska kronor endast.
-        (  ) Postf”rskott:-     Postf”rskottsavgift tillkommer.
-        (  ) Bank”verf”ring:-   ™verf”r till konto nr. 5380-0083906 i
-                                S-E-Banken, V„ster†s.
-        (  ) Postgiro:-         S„tt in pengar p† postgiro 146 94 73-1
-                                (Peter Karlsson).
-        
-        Skickas till:
-        
-                Softwolves Software     eller   Softwolves Software
-                c/o Peter Karlsson              c/o Peter Karlsson
-                Kaserngatan 16B 1tr             V„rnsta, Ullers„ter
-                723 47  VSTERS                718 92  FR™VI
-                SVERIGE                         SVERIGE
-        
-        Elektronisk post:
-        
-                Fidonet:  2:206/221.0
-                Internet: pk@abc.se
